@@ -6,80 +6,98 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 }
 
 use Acroweb\Mage\Helpers\TemplateHelper;
+use Acroweb\Mage\Settings\TemplateSettings;
 
 TemplateHelper::includeLayout('footer');
 
+$settings = TemplateSettings::getInstance();
+$shopOfName = $settings->getSettingValue('shopOfName');
+$shopUrAdr = $settings->getSettingValue('shopUrAdr');
+$shopINN = $settings->getSettingValue('shopINN');
+$shopKPP = $settings->getSettingValue('shopKPP');
+$shopAdr = $settings->getSettingValue('shopAdr');
+$shopAdrDisplay = is_array($shopAdr) ? ($shopAdr[0] ?? '') : (string)$shopAdr;
 ?>
 </main>
-<? if (!defined('ERROR_404')) { ?>
 <footer class="footer">
     <div class="footer__top">
         <div class="container">
-            <div class="footer__grid">
-                <div>
+            <div class="footer__grid1">
+                <div class="footer__col">
                     <?php TemplateHelper::includePartial('logo_footer'); ?>
+                    <?php if (!empty($shopOfName) || !empty($shopUrAdr) || !empty($shopINN) || !empty($shopKPP)): ?>
+                    <div class="footer__text1">
+                        <p class="footer__title">Реквизиты</p>
+                        <p>
+                            <?php if (!empty($shopOfName)): ?><?= htmlspecialcharsbx($shopOfName) ?><br><?php endif; ?>
+                            <?php if (!empty($shopUrAdr)): ?><?= nl2br(htmlspecialcharsbx($shopUrAdr)) ?><br><?php endif; ?>
+                            <?php if (!empty($shopINN) || !empty($shopKPP)): ?>
+                                ИНН/КПП: <?= htmlspecialcharsbx($shopINN ?? '') ?>/<?= htmlspecialcharsbx($shopKPP ?? '') ?>
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                    <?php endif; ?>
+                    <div class="footer__text2">
+                        <?php
+                        $APPLICATION->IncludeComponent(
+                            'bitrix:main.include',
+                            '',
+                            [
+                                'AREA_FILE_SHOW' => 'file',
+                                'PATH' => '/include/footer/policy.php',
+                            ],
+                            false,
+                            ['HIDE_ICONS' => 'N']
+                        );
+                        ?>
+                    </div>
                 </div>
-                <div>
-                    <p class="footer__caption"><a href="/produktsiya/">Каталог</a></p>
-                    <? $APPLICATION->IncludeComponent(
-                            "bitrix:menu",
-                            "footer_menu",
-                            array(
-                                "ALLOW_MULTI_SELECT" => "N",
-                                "CHILD_MENU_TYPE" => "bottom",
-                                "DELAY" => "N",
-                                "MAX_LEVEL" => "1",
-                                "MENU_CACHE_GET_VARS" => array(
-                                ),
-                                "MENU_CACHE_TIME" => "3600",
-                                "MENU_CACHE_TYPE" => "N",
-                                "MENU_CACHE_USE_GROUPS" => "Y",
-                                "ROOT_MENU_TYPE" => "bottom",
-                                "USE_EXT" => "N",
-                                "COMPONENT_TEMPLATE" => "footer_menu"
-                            ),
-                            false
-                        ); ?>
-                    <? $APPLICATION->IncludeComponent(
-                        "bitrix:menu",
-                        "footer_menu",
-                        array(
-                            "ALLOW_MULTI_SELECT" => "N",
-                            "CHILD_MENU_TYPE" => "catalog",
-                            "DELAY" => "N",
-                            "MAX_LEVEL" => "1",
-                            "MENU_CACHE_GET_VARS" => array(),
-                            "MENU_CACHE_TIME" => "3600",
-                            "MENU_CACHE_TYPE" => "N",
-                            "MENU_CACHE_USE_GROUPS" => "Y",
-                            "ROOT_MENU_TYPE" => "catalog",
-                            "USE_EXT" => "N",
-                            "COMPONENT_TEMPLATE" => "footer_menu"
-                        ),
+                <div class="footer__col">
+                    <p class="footer__title"><a href="/produktsiya/">Продукция</a></p>
+                    <?php
+                    $APPLICATION->IncludeComponent(
+                        'bitrix:menu',
+                        'footer_menu',
+                        [
+                            'ALLOW_MULTI_SELECT' => 'N',
+                            'CHILD_MENU_TYPE' => 'catalog',
+                            'DELAY' => 'N',
+                            'MAX_LEVEL' => '1',
+                            'MENU_CACHE_GET_VARS' => [],
+                            'MENU_CACHE_TIME' => '3600',
+                            'MENU_CACHE_TYPE' => 'N',
+                            'MENU_CACHE_USE_GROUPS' => 'Y',
+                            'ROOT_MENU_TYPE' => 'bottom',
+                            'USE_EXT' => 'N',
+                            'COMPONENT_TEMPLATE' => 'footer_menu',
+                        ],
                         false
-                    ); ?>
+                    );
+                    ?>
                 </div>
-                <div>
-                    <? $APPLICATION->IncludeComponent(
-                            "bitrix:menu",
-                            "footer_menu",
-                            array(
-                                "ALLOW_MULTI_SELECT" => "N",
-                                "CHILD_MENU_TYPE" => "podmenu",
-                                "DELAY" => "N",
-                                "MAX_LEVEL" => "1",
-                                "MENU_CACHE_GET_VARS" => array(),
-                                "MENU_CACHE_TIME" => "3600",
-                                "MENU_CACHE_TYPE" => "N",
-                                "MENU_CACHE_USE_GROUPS" => "Y",
-                                "ROOT_MENU_TYPE" => "top",
-                                "USE_EXT" => "N",
-                                "COMPONENT_TEMPLATE" => "footer_menu"
-                            ),
-                            false
-                    ); ?>
+                <div class="footer__col">
+                    <?php
+                    $APPLICATION->IncludeComponent(
+                        'bitrix:menu',
+                        'footer_menu_base',
+                        [
+                            'ALLOW_MULTI_SELECT' => 'N',
+                            'CHILD_MENU_TYPE' => 'podmenu',
+                            'DELAY' => 'N',
+                            'MAX_LEVEL' => '1',
+                            'MENU_CACHE_GET_VARS' => [],
+                            'MENU_CACHE_TIME' => '3600',
+                            'MENU_CACHE_TYPE' => 'N',
+                            'MENU_CACHE_USE_GROUPS' => 'Y',
+                            'ROOT_MENU_TYPE' => 'top',
+                            'USE_EXT' => 'N',
+                            'COMPONENT_TEMPLATE' => 'footer_menu',
+                        ],
+                        false
+                    );
+                    ?>
                 </div>
-                <div>
+                <div class="footer__col">
                     <?php TemplateHelper::includePartial('footer_contacts'); ?>
                 </div>
             </div>
@@ -87,34 +105,25 @@ TemplateHelper::includeLayout('footer');
     </div>
     <div class="footer__bottom">
         <div class="container">
-            <div class="footer__bottom-grid">
-                <?
+            <div class="footer__grid2">
+                <div class="footer__copy">
+                    <?php
                     $APPLICATION->IncludeComponent(
-                        "bitrix:main.include", "",
-                        array(
-                            "AREA_FILE_SHOW" => "file",
-                            "PATH" => "/include/footer/copyright.php",
-                        ),
+                        'bitrix:main.include',
+                        '',
+                        [
+                            'AREA_FILE_SHOW' => 'file',
+                            'PATH' => '/include/footer/copyright.php',
+                        ],
                         false,
-                        array('HIDE_ICONS'=>'N')
+                        ['HIDE_ICONS' => 'N']
                     );
-                ?>
-                <div class="footer__bottom-grid-inner">
-                    <?
-                        $APPLICATION->IncludeComponent(
-                            "bitrix:main.include", "",
-                            array(
-                                "AREA_FILE_SHOW" => "file",
-                                "PATH" => "/include/footer/policy.php",
-                            ),
-                            false,
-                            array('HIDE_ICONS'=>'N')
-                        );
                     ?>
-                    <a class="logo" href="https://acroweb.ru/">
-                        <img src="<?= SITE_TEMPLATE_PATH ?>/img/logo-acroweb.svg" alt="">
-                    </a>
                 </div>
+                <a href="https://acroweb.ru/" target="_blank" rel="noopener noreferrer" class="footer__dev">
+                    <span>Разработка и поддержка сайта</span>
+                    <img loading="lazy" src="<?= SITE_TEMPLATE_PATH ?>/img/acroweb-light.svg" alt="">
+                </a>
             </div>
         </div>
     </div>
@@ -148,7 +157,6 @@ $APPLICATION->IncludeComponent(
         </div>
     </div>
 </div>
-<?php } ?>
 </body>
 
 </html>

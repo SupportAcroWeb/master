@@ -29,6 +29,8 @@
 
         this.input = this.container.querySelector('.searchbox__input') || this.container.querySelector('.header-search__input');
         this.clearBtn = this.container.querySelector('.searchbox__clear') || this.container.querySelector('.header-search__clear');
+        this.searchBtn = this.container.querySelector('.searchbox__icon');
+        this.searchBoxBtn = this.container.querySelector('.searchbox__btn');
         this.dropdown = this.container.querySelector('.header-search-dd');
         
         this.debounceTimer = null;
@@ -135,8 +137,13 @@
             if (this.clearBtn) {
                 if (query.length > 0) {
                     this.clearBtn.style.display = 'block';
+                    // this.searchBtn.style.display = 'none';
+                    // this.searchBoxBtn.style.display = 'none';
                 } else {
                     this.clearBtn.style.display = 'none';
+                    // this.searchBtn.style.display = 'block';
+                    // this.searchBoxBtn.style.display = 'block';
+                    // this.searchBtn.style.position = 'relative';
                 }
             }
             if (query.length === 0) {

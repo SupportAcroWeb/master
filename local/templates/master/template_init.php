@@ -66,7 +66,7 @@ if (preg_match('#^/personal/#i', $currentPage) && !$USER->IsAuthorized())
 if (defined('ERROR_404') && ERROR_404 === 'Y')
 {
     $layout = '404';
-    TemplateHelper::setParam('bodyClass', 'page404');
+    TemplateHelper::setParam('mainClass', 'page404-wrapper');
 }
 elseif ($currentPage === SITE_DIR)
 {
@@ -85,17 +85,13 @@ elseif ($currentPage == '/o-kompanii/vakansii/')
 {
     $layout = 'vacancies';
 }
-elseif ($currentPage == '/informatsiya/dostavka-i-oplata/')
+elseif (preg_match('#^/informatsiya/#i', $currentPage))
 {
-    $layout = 'delivery';
+    TemplateHelper::setParam('mainClass', 'features-wrapper');
 }
-elseif ($currentPage == '/informatsiya/reshenie-problem/')
+elseif ($currentPage == '/privacy-policy/')
 {
-    $layout = 'problem';
-}
-elseif ($currentPage == '/catalogs/')
-{
-    $layout = 'catalogs_file';
+    $layout = 'policy';
 }
 elseif ($currentPage == '/personal/basket/')
 {
@@ -114,6 +110,7 @@ elseif ($currentPage == '/personal/dannye-organizatsii/')
 elseif ($currentPage == '/kontakty/')
 {
     $layout = 'contacts';
+    TemplateHelper::setParam('mainClass', 'contacts-wrapper');
 }
 elseif ($currentPage == '/personal/order/make/')
 {

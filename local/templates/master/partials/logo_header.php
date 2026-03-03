@@ -12,7 +12,19 @@ $name = $settings->getSettingValue('siteName');
 if (empty($logo)) {
     return;
 }
+
+$fileId = null;
+if (is_numeric($logo)) {
+    $fileId = (int)$logo;
+} elseif (is_array($logo)) {
+    $fileId = (int)($logo['ID'] ?? $logo['id'] ?? $logo[0] ?? 0);
+}
+$logoPath = $fileId > 0 ? CFile::GetPath($fileId) : (is_string($logo) ? $logo : '');
+
+if (empty($logoPath)) {
+    return;
+}
 ?>
 <a href="/">
-    <img src="<?= $logo ?>" alt="<?= htmlspecialcharsbx($name ?? '') ?>">
+    <img src="<?= $logoPath ?>" alt="<?= htmlspecialcharsbx($name ?? '') ?>">
 </a>

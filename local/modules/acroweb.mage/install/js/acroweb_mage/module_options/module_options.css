@@ -61,6 +61,10 @@
     padding: 10px 0;
     vertical-align: middle;
     width: 60%;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: stretch;
 }
 
 .adm-input, .adm-select {
@@ -167,11 +171,19 @@
 
 .adm-designed-file-label {
     display: inline-block;
-    padding: 6px 12px;
+    padding: 8px 16px;
     background-color: #3bc8f5;
     color: #fff;
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+    border: none;
+    text-decoration: none;
+}
+
+.adm-designed-file-label:hover {
+    background-color: #2ba3d4;
 }
 
 .adm-color-theme-custom {
@@ -213,4 +225,18 @@
 
 #bx-admin-prefix .adm-designed-checkbox-label {
     background: none;
+}
+
+.adm-detail-content-cell-r textarea.adm-input {
+    height: 120px;
+}
+
+.adm-info-page-icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: url('/bitrix/js/main/core/images/hint.gif') no-repeat center;
+    cursor: help;
+    margin-left: 5px;
+    vertical-align: text-bottom;
 }

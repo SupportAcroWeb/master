@@ -9,7 +9,7 @@ if (empty($arResult)) {
 }
 ?>
 
-<ul class="footer__nav">
+<ul class="footer__menu">
     <?php foreach ($arResult as $arItem): ?>
         <li>
             <a href="<?= $arItem["LINK"] ?>"><?= $arItem["TEXT"] ?></a>

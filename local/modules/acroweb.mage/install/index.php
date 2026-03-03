@@ -153,12 +153,6 @@ class acroweb_mage extends CModule
 
     public function UnInstallComponents()
     {
-        DeleteDirFilesEx('/local/components/acroweb/news.year.filter/');
-        DeleteDirFilesEx('/local/components/acroweb/search.page/');
-        DeleteDirFilesEx('/local/components/acroweb/sender.subscribe/');
-        DeleteDirFilesEx('/local/components/acroweb/universal.form/');
-        DeleteDirFilesEx('/local/components/acroweb/universal.iblock.form/');
-        DeleteDirFilesEx('/local/components/acroweb/widgets/');
 
         return true;
     }
@@ -194,6 +188,13 @@ class acroweb_mage extends CModule
             \Acroweb\Mage\Config::class,
             'onAfterIBlockUpdate'
         );
+        $eventManager->registerEventHandler(
+            'sale',
+            'OnSaleComponentOrderJsData',
+            $this->MODULE_ID,
+            \Acroweb\Mage\Service\Order::class,
+            'onSaleComponentOrderJsData'
+        );
         return true;
     }
 
@@ -227,6 +228,13 @@ class acroweb_mage extends CModule
             $this->MODULE_ID,
             \Acroweb\Mage\Config::class,
             'onAfterIBlockUpdate'
+        );
+        $eventManager->unRegisterEventHandler(
+            'sale',
+            'OnSaleComponentOrderJsData',
+            $this->MODULE_ID,
+            \Acroweb\Mage\Service\Order::class,
+            'onSaleComponentOrderJsData'
         );
         return true;
     }

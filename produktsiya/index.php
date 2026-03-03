@@ -5,7 +5,7 @@ $APPLICATION->SetTitle("Продукция");
 <?$APPLICATION->IncludeComponent(
 	"bitrix:catalog", 
 	"catalog", 
-	[
+	array(
 		"ACTION_VARIABLE" => "action",
 		"ADD_ELEMENT_CHAIN" => "Y",
 		"ADD_PICT_PROP" => "MORE_PHOTO",
@@ -26,24 +26,24 @@ $APPLICATION->SetTitle("Продукция");
 		"COMPATIBLE_MODE" => "N",
 		"CONVERT_CURRENCY" => "N",
 		"DETAIL_ADD_DETAIL_TO_SLIDER" => "Y",
-		"DETAIL_ADD_TO_BASKET_ACTION" => [
+		"DETAIL_ADD_TO_BASKET_ACTION" => array(
 			0 => "BUY",
-		],
-		"DETAIL_ADD_TO_BASKET_ACTION_PRIMARY" => [
+		),
+		"DETAIL_ADD_TO_BASKET_ACTION_PRIMARY" => array(
 			0 => "BUY",
-		],
+		),
 		"DETAIL_BACKGROUND_IMAGE" => "-",
 		"DETAIL_BRAND_USE" => "N",
 		"DETAIL_BROWSER_TITLE" => "-",
 		"DETAIL_CHECK_SECTION_ID_VARIABLE" => "N",
-		"DETAIL_DETAIL_PICTURE_MODE" => [
+		"DETAIL_DETAIL_PICTURE_MODE" => array(
 			0 => "POPUP",
 			1 => "MAGNIFIER",
-		],
+		),
 		"DETAIL_DISPLAY_NAME" => "Y",
 		"DETAIL_DISPLAY_PREVIEW_TEXT_MODE" => "S",
 		"DETAIL_IMAGE_RESOLUTION" => "16by9",
-		"DETAIL_MAIN_BLOCK_PROPERTY_CODE" => [
+		"DETAIL_MAIN_BLOCK_PROPERTY_CODE" => array(
 			0 => "FORMA_PLASTINY_ISO_PLASTINY",
 			1 => "RAZMER_PLASTINY_100",
 			2 => "INSERT_R",
@@ -51,7 +51,7 @@ $APPLICATION->SetTitle("Продукция");
 			4 => "TOKARNYE_PLASTINY_TOLSHINA",
 			5 => "INSERT_L_REG_KROMKI",
 			6 => "PROP_411",
-		],
+		),
 		"DETAIL_META_DESCRIPTION" => "-",
 		"DETAIL_META_KEYWORDS" => "-",
 		"DETAIL_PRODUCT_INFO_BLOCK_ORDER" => "sku,props",
@@ -98,16 +98,16 @@ $APPLICATION->SetTitle("Продукция");
 		"IBLOCK_TYPE" => "acroweb_catalog_s1",
 		"INCLUDE_SUBSECTIONS" => "Y",
 		"INSTANT_RELOAD" => "N",
-		"LABEL_PROP" => [
+		"LABEL_PROP" => array(
 			0 => "NEWPRODUCT",
 			1 => "SALELEADER",
 			2 => "SPECIALOFFER",
-		],
-		"LABEL_PROP_MOBILE" => [
+		),
+		"LABEL_PROP_MOBILE" => array(
 			0 => "NEWPRODUCT",
 			1 => "SALELEADER",
 			2 => "SPECIALOFFER",
-		],
+		),
 		"LABEL_PROP_POSITION" => "top-left",
 		"LAZY_LOAD" => "N",
 		"LINE_ELEMENT_COUNT" => "3",
@@ -121,8 +121,7 @@ $APPLICATION->SetTitle("Продукция");
 		"LIST_META_KEYWORDS" => "-",
 		"LIST_PRODUCT_BLOCKS_ORDER" => "props,sku,quantityLimit,quantity,buttons,price",
 		"LIST_PRODUCT_ROW_VARIANTS" => "[{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false},{'VARIANT':'9','BIG_DATA':false}]",
-		"LIST_PROPERTY_CODE_MOBILE" => [
-		],
+		"LIST_PROPERTY_CODE_MOBILE" => "",
 		"LIST_SHOW_SLIDER" => "N",
 		"LIST_SLIDER_INTERVAL" => "3000",
 		"LIST_SLIDER_PROGRESS" => "N",
@@ -149,9 +148,9 @@ $APPLICATION->SetTitle("Продукция");
 		"PAGER_TITLE" => "Товары",
 		"PAGE_ELEMENT_COUNT" => "15",
 		"PARTIAL_PRODUCT_PROPERTIES" => "Y",
-		"PRICE_CODE" => [
+		"PRICE_CODE" => array(
 			0 => "BASE",
-		],
+		),
 		"PRICE_VAT_INCLUDE" => "Y",
 		"PRICE_VAT_SHOW_VALUE" => "Y",
 		"PRODUCT_ID_VARIABLE" => "id",
@@ -224,19 +223,39 @@ $APPLICATION->SetTitle("Продукция");
 		"DETAIL_SLIDER_PROGRESS" => "N",
 		"COMPOSITE_FRAME_MODE" => "A",
 		"COMPOSITE_FRAME_TYPE" => "AUTO",
-		"SEF_URL_TEMPLATES" => [
+		"PRODUCT_DISPLAY_MODE" => "N",
+		"OFFER_ADD_PICT_PROP" => "-",
+		"TOP_OFFERS_FIELD_CODE" => array(
+			0 => "",
+			1 => "",
+		),
+		"LIST_OFFERS_FIELD_CODE" => array(
+			0 => "",
+			1 => "",
+		),
+		"DETAIL_OFFERS_FIELD_CODE" => array(
+			0 => "",
+			1 => "",
+		),
+		"DETAIL_MAIN_BLOCK_OFFERS_PROPERTY_CODE" => array(
+		),
+		"OFFERS_SORT_FIELD" => "sort",
+		"OFFERS_SORT_ORDER" => "asc",
+		"OFFERS_SORT_FIELD2" => "id",
+		"OFFERS_SORT_ORDER2" => "desc",
+		"SEF_URL_TEMPLATES" => array(
 			"sections" => "",
 			"section" => "#SECTION_CODE_PATH#/",
 			"element" => "#ELEMENT_CODE#/",
 			"compare" => "compare.php?action=#ACTION_CODE#",
 			"smart_filter" => "#SECTION_CODE_PATH#/filter/#SMART_FILTER_PATH#/apply/",
-		],
-		"VARIABLE_ALIASES" => [
-			"compare" => [
+		),
+		"VARIABLE_ALIASES" => array(
+			"compare" => array(
 				"ACTION_CODE" => "action",
-			],
-		]
-	],
+			),
+		)
+	),
 	false
 );?>
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

@@ -58,35 +58,5 @@ BX.ready(function () {
             });
         });
 
-        document.querySelectorAll('.adm-designed-file').forEach(function(fileInput) {
-            var previewContainer = document.getElementById('preview_' + fileInput.id);
-            var currentFile = fileInput.getAttribute('data-current-file');
-
-            if (currentFile) {
-                updatePreview(previewContainer, currentFile);
-            }
-
-            fileInput.addEventListener('change', function(event) {
-                var file = event.target.files[0];
-                if (file) {
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        updatePreview(previewContainer, e.target.result, file.name);
-                    }
-                    reader.readAsDataURL(file);
-                } else {
-                    previewContainer.innerHTML = '';
-                }
-            });
-        });
-
-        function updatePreview(container, src, fileName) {
-            if (src.match(/\.(jpeg|jpg|gif|png)$/i) != null || src.startsWith('data:image/')) {
-                container.innerHTML = '<img src="' + src + '" alt="Selected file">';
-            } else {
-                container.innerHTML = '<img src="/bitrix/images/fileman/types/file.gif" alt="File icon">' +
-                    (fileName ? '<span>' + fileName + '</span>' : '');
-            }
-        }
     });
 });

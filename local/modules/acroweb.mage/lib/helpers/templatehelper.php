@@ -6,6 +6,7 @@ use Bitrix\Main\IO;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\Uri;
 use Throwable;
 use Bitrix\Main\Context;
 use CMain;
@@ -415,5 +416,105 @@ class TemplateHelper
                 self::includePartial($block['partial']);
             }
         }
+    }
+
+    /**
+     * Добавляет в верхнюю панель Битрикс кнопку очистки структуры магазина.
+     *
+     * @return void
+     */
+    public static function addClearStructurePanelButton(): void
+    {
+        global $APPLICATION, $USER;
+
+        if (!is_object($APPLICATION) || !is_object($USER) || !$USER->IsAdmin()) {
+            return;
+        }
+
+        $request = Context::getCurrent()->getRequest();
+        $uri = new Uri($request->getRequestUri());
+        $uri->addParams(['acroweb_clear_structure' => 'Y']);
+
+        $APPLICATION->AddPanelButton([
+            'ID' => 'acroweb_shop_clear_structure',
+            'TEXT' => 'Обновить кеш структуры магазина',
+            'TITLE' => 'Очистить кеш структуры магазина и обновить страницу',
+            'MAIN_SORT' => 2000,
+            'SORT' => 10,
+            'HREF' => $uri->getUri(),
+            'ICON' => 'bx-panel-themes-icon',
+        ]);
+    }
+
+    /**
+     * Обрабатывает запрос на очистку структуры магазина с последующей перезагрузкой страницы.
+     *
+     * @return void
+     */
+    public static function handleClearStructureRequest(): void
+    {
+        $request = Context::getCurrent()->getRequest();
+
+        if ($request->get('acroweb_clear_structure') !== 'Y') {
+            return;
+        }
+
+        global $USER;
+        if (!is_object($USER) || !$USER->IsAdmin()) {
+            return;
+        }
+
+        self::clearSitePartialsCache();
+
+        $uri = new Uri($request->getRequestUri());
+        $uri->deleteParams(['acroweb_clear_structure']);
+
+        LocalRedirect($uri->getUri());
+    }
+
+    /**
+     * Очищает кеш частичных шаблонов для указанного сайта.
+     *
+     * @param string|null $siteId
+     * @return void
+     */
+    public static function clearSitePartialsCache(?string $siteId = null): void
+    {
+        $siteId = $siteId ?: (defined('SITE_ID') ? SITE_ID : '');
+        if ($siteId === '') {
+            return;
+        }
+
+        $partialsPath = self::getPartialsPath();
+        if ($partialsPath === null) {
+            return;
+        }
+
+        try {
+            $sitePartialsDir = IO\Path::normalize($partialsPath . '/' . $siteId . '/');
+        } catch (Throwable) {
+            $sitePartialsDir = null;
+        }
+
+        if ($sitePartialsDir && IO\Directory::isDirectoryExists($sitePartialsDir)) {
+            IO\Directory::deleteDirectory($sitePartialsDir);
+        }
+
+        try {
+            $langPartialsDir = IO\Path::normalize(
+                self::getTemplatePath() . '/lang/' . LANGUAGE_ID . '/partials/' . $siteId . '/'
+            );
+        } catch (Throwable) {
+            $langPartialsDir = null;
+        }
+
+        if ($langPartialsDir && IO\Directory::isDirectoryExists($langPartialsDir)) {
+            IO\Directory::deleteDirectory($langPartialsDir);
+        }
+    }
+
+    public static function getTemplatePath(): ?string
+    {
+        return IO\Path::convertSiteRelativeToAbsolute(SITE_TEMPLATE_PATH);
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace Acroweb\Hermitage\Controller;
+namespace Acroweb\Mage\Controller;
 
-use Acroweb\Hermitage\Helper\FormHelper;
+use Acroweb\Mage\Helper\FormHelper;
 use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 

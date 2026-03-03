@@ -19,10 +19,6 @@ $itemSize = count($arResult);
 for($index = 0; $index < $itemSize; $index++)
 {
     $title = htmlspecialcharsex($arResult[$index]["TITLE"]);
-    
-    if($index > 0) {
-        $strReturn .= '<span aria-hidden="true">—</span>';
-    }
 
     if($arResult[$index]["LINK"] <> "" && $index != $itemSize-1)
     {

@@ -129,6 +129,18 @@ class SettingsConfig
                         'TYPE' => 'text',
                         'DEFAULT' => '',
                     ],
+                    'socialVk' => [
+                        'TITLE' => Loc::getMessage('ACROWEB_CORE_OPTION_SOCIAL_VK'),
+                        'TYPE' => 'text',
+                        'DEFAULT' => '',
+                        'HINT' => Loc::getMessage('ACROWEB_CORE_OPTION_SOCIAL_HINT'),
+                    ],
+                    'socialTelegram' => [
+                        'TITLE' => Loc::getMessage('ACROWEB_CORE_OPTION_SOCIAL_TELEGRAM'),
+                        'TYPE' => 'text',
+                        'DEFAULT' => '',
+                        'HINT' => Loc::getMessage('ACROWEB_CORE_OPTION_SOCIAL_HINT'),
+                    ],
                 ],
             ],
         ];

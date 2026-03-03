@@ -7,11 +7,11 @@
 }
 .header-search-dd {
     position: absolute;
-    left: -182px;
-    width: calc(100% + 182px);
+    left: 0;
+    width: 100%;
     top: 100%;
     background-color: #fff;
-    border: 1px var(--theme-border-color) solid;
+    border: 1px #eaeaea solid;
     overflow: auto;
     scrollbar-color: var(--theme-color-accent) #eaeaea;
     scrollbar-width: thin;
@@ -24,6 +24,11 @@
 }
 .header-search-dd__categories {
     padding: 29px 25px;
+}
+.searchbox__clear {
+    position: absolute;
+    right: 75px;
+    top: 20px;
 }
 .header-search-dd .card-product2:hover {
     background-color: #f7f7f7;
