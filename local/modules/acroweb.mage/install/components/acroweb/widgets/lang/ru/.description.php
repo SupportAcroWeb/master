@@ -1,0 +1,4 @@
+<?
+$MESS ['ACROWEB_CMP_WIDGETS_NAME'] = "Виджеты";
+$MESS ['ACROWEB_CMP_WIDGETS_DESC'] = "Виджеты";
+$MESS ['ACROWEB_CMP_MENU_CONTENT_TITLE'] = "Контент";

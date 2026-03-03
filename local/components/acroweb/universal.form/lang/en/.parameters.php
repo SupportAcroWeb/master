@@ -1,0 +1,6 @@
+<?php
+$MESS['FORM_GROUP_SETTINGS'] = 'Form settings';
+$MESS['FORM_PARAM_FORM_ID'] = 'Web-form ID';
+$MESS['FORM_PARAM_AJAX'] = 'Use AJAX';
+$MESS['FORM_PARAM_SUCCESS_URL'] = 'Success URL';
+$MESS['FORM_PARAM_USE_CAPTCHA'] = 'Use CAPTCHA';

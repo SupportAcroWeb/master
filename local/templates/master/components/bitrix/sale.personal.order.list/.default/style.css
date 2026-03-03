@@ -1,0 +1,6 @@
+.tables-user-cabinet .catalog-bottom {
+	border-bottom: none;
+}
+.tables-user-cabinet__content {
+	border-bottom: 1px var(--theme-border-color) solid;
+}

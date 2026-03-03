@@ -1,0 +1,58 @@
+/* Стили для шаблона регистрации */
+
+.hide {
+    display: none !important;
+}
+
+.form-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.form-loader_active {
+    display: flex;
+}
+
+.form-loader .loader {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(231, 76, 60, 0.2);
+    border-top: 5px solid #e74c3c;
+    border-right: 5px solid #c0392b;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.form-group__error.error {
+    width: 470px;
+}
+
+.form-grid1__row_2 .form-group__error.error {
+    width: 210px;
+}
+
+font.errortext, font.notetext {
+    color: red;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    margin: 10px 10px 0;
+}

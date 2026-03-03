@@ -1,0 +1,9 @@
+<?php
+$MESS['ACROWEB_CORE_GLOBAL_MENU_TEXT'] = 'AcroWeb';
+$MESS['ACROWEB_CORE_GLOBAL_MENU_TITLE'] = 'Управление модулем Acroweb Core';
+$MESS['ACROWEB_CORE_GLOBAL_ACROWEB_MENU_TEXT'] = 'AcroWeb';
+$MESS['ACROWEB_CORE_GLOBAL_ACROWEB_MENU_TITLE'] = 'Модули Acroweb';
+$MESS['ACROWEB_CORE_MENU_CONTROL_CENTER_TEXT'] = 'Панель управления';
+$MESS['ACROWEB_CORE_MENU_CONTROL_CENTER_TITLE'] = 'Панель управления Acroweb Core';
+$MESS['ACROWEB_CORE_MENU_SETTINGS_TEXT'] = 'Настройки';
+$MESS['ACROWEB_CORE_MENU_SETTINGS_TITLE'] = 'Настройки модуля Acroweb Core';

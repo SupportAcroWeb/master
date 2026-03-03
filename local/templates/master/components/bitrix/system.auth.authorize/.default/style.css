@@ -1,0 +1,26 @@
+font.errortext, font.notetext {
+    /* color: red;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    margin: 10px 10px 0; */
+    display: block;
+}
+
+.form-error1 {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 10px);
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    color: red;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.block-login .form-grid1.form-grid1_pad {
+    padding-bottom: 60px;
+}

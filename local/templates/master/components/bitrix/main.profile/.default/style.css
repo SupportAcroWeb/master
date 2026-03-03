@@ -1,0 +1,15 @@
+.btn {
+    cursor: pointer;
+}
+
+.error {
+    margin: 20px 0;
+}
+
+.form-personal textarea.field-input1 {
+    height: 114px;
+}
+
+.success {
+    margin: 20px 0;
+}

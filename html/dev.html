@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+	<head>
+		<title>Dev</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" href="css/swiper.min.css" />
+		<link rel="stylesheet" href="css/fancybox.min.css" />
+		<link rel="stylesheet" href="css/styles.css?v=1768822432191" />
+
+		<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<meta name="apple-mobile-web-app-title" content="Люк Мастер" />
+		<link rel="manifest" href="site.webmanifest" />
+
+	</head>
+
+	<body class="preload">
+		<div class="main-wrapper-outer">
+			<header class="header">
+				<div class="container">
+					<div class="header__grid1">
+						<div class="header__cell-logo">
+							<a href="/">
+								<img src="img/logo-dark.svg" alt="">
+							</a>
+						</div>
+						<div class="header__cell-location">
+							<button class="btn-location" type="button" title="Длинное название населенного пункта">
+								<svg width="15" height="18" aria-hidden="true">
+									<use xlink:href="img/sprite.svg#placemark1"></use>
+								</svg>
+								<span class="btn-text btn-text_dotted">Длинное название населенного пункта</span>
+							</button>
+						</div>
+						<nav class="header__cell-menu">
+							<ul class="menu">
+								<li>
+									<a href="#">
+										<span>О компании</span>
+										<svg width="10" height="6" aria-hidden="true">
+											<use xlink:href="img/sprite.svg#chevron1"></use>
+										</svg>
+									</a>
+									<div class="menu__sub">
+										<ul>
+											<li>
+												<a href="#">О компании</a>
+											</li>
+											<li>
+												<a href="#">Клиентам</a>
+											</li>
+											<li>
+												<a href="#">Акции</a>
+											</li>
+											<li>
+												<a href="#">Контакты</a>
+											</li>
+										</ul>
+									</div>
+								</li>
+								<li>
+									<a href="#"><span>Клиентам</span></a>
+								</li>
+								<li>
+									<a href="#"><span>Акции</span></a>
+								</li>
+								<li>
+									<a href="#"><span>Контакты</span></a>
+								</li>
+							</ul>
+						</nav>
+						<div class="header__cell-phone">
+							<a class="contact-item" href="tel:+79035011974">
+								<svg aria-hidden="true" width="18" height="18">
+									<use xlink:href="img/sprite.svg#phone1"></use>
+								</svg>
+								<span>+7 (903) 501-19-74</span>
+							</a>
+						</div>
+						<div class="header__cell-callback">
+							<button class="btn-text btn-text_primary btn-text_dotted" type="button">Заказать звонок</button>
+						</div>
+						<div class="header__cell-catalog">
+							<button class="btn-catalog btn btn_black" type="button">
+								<span class="btn-catalog__lines">
+									<span class="btn-catalog__line"></span>
+									<span class="btn-catalog__line"></span>
+								</span>
+								<span>Продукция</span>
+							</button>
+						</div>
+						<div class="header__cell-search">
+							<div class="searchbox">
+								<input class="searchbox__input" name="search" placeholder="Что вы хотите найти?" type="text">
+								<svg class="searchbox__icon" width="26" height="26" aria-hidden="true">
+									<use xlink:href="img/sprite.svg#search1"></use>
+								</svg>
+							</div>
+						</div>
+						<div class="header__cell-toolbar">
+							<a class="btn-circle" href="cart.html">
+								<span class="v-h">Перейти в корзину</span>
+								<svg width="24" height="25" aria-hidden="true">
+									<use xlink:href="img/sprite.svg#cart1"></use>
+								</svg>
+								<span class="btn-circle__count">2</span>
+							</a>
+							<button class="btn-circle" type="button">
+								<span class="v-h">Личный кабинет</span>
+								<svg width="19" height="25" aria-hidden="true">
+									<use xlink:href="img/sprite.svg#user1"></use>
+								</svg>
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="menu-catalog">
+					<div class="container">
+						<div class="menu-catalog__grid">
+							<div class="menu-catalog__left">
+								<ul class="menu-catalog__nav1">
+									<li><a class="active" data-category="01" href="#">Ревизионные люки</a></li>
+									<li><a href="#" data-category="02">Сантехнические люки</a></li>
+									<li><a href="#" data-category="03">Люки индивидуальные на заказ</a></li>
+									<li><a href="#" data-category="04">Люки выхода на кровлю</a></li>
+									<li><a href="#" data-category="05">Окна люки</a></li>
+									<li><a href="#" data-category="06">Ревизионные люки</a></li>
+									<li><a href="#" data-category="07">Сантехнические люки</a></li>
+								</ul>
+							</div>
+							<div class="menu-catalog__right">
+								<div data-category="01" class="menu-catalog__category active">
+									<ul class="menu-catalog__nav2">
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки под покраску</a></li>
+										<li><a href="#">Люки под гипсокартон</a></li>
+
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки под покраску</a></li>
+										<li><a href="#">Люки под гипсокартон</a></li>
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+									</ul>
+								</div>
+								<div data-category="02" class="menu-catalog__category">
+									<ul class="menu-catalog__nav2">
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+									</ul>
+								</div>
+								<div data-category="03" class="menu-catalog__category">
+									<ul class="menu-catalog__nav2">
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки под покраску</a></li>
+										<li><a href="#">Люки под гипсокартон</a></li>
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки под покраску</a></li>
+										<li><a href="#">Люки под гипсокартон</a></li>
+									</ul>
+								</div>
+								<div data-category="04" class="menu-catalog__category">
+									<ul class="menu-catalog__nav2">
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки под покраску</a></li>
+										<li><a href="#">Люки под гипсокартон</a></li>
+									</ul>
+								</div>
+								<div data-category="05" class="menu-catalog__category">
+									<ul class="menu-catalog__nav2">
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки под покраску</a></li>
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки под гипсокартон</a></li>
+									</ul>
+								</div>
+								<div data-category="06" class="menu-catalog__category">
+									<ul class="menu-catalog__nav2">
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки под покраску</a></li>
+										<li><a href="#">Люки под гипсокартон</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки под покраску</a></li>
+										<li><a href="#">Люки под гипсокартон</a></li>
+									</ul>
+								</div>
+								<div data-category="07" class="menu-catalog__category">
+									<ul class="menu-catalog__nav2">
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки быстрого монтажа</a></li>
+										<li><a href="#">Люки в потолок</a></li>
+										<li><a href="#">Люки напольные</a></li>
+										<li><a href="#">Люки двери</a></li>
+										<li><a href="#">Люки под плитку</a></li>
+										<li><a href="#">Люки под покраску</a></li>
+										<li><a href="#">Люки под гипсокартон</a></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</header>
+
+			<main class="main">
+				<div class="container">
+					<div class="breadcrumbs-wrapper">
+						<div class="breadcrumbs">
+							<ul class="breadcrumbs__list">
+								<li class="breadcrumbs__item"><a href="/">Главная</a></li>
+								<li class="breadcrumbs__item is-active"><span>Dev</span></li>
+							</ul>
+						</div>
+					</div>
+					<h1 class="title1">Dev</h1>
+				</div>
+
+				<div class="block1">
+					<div class="container">
+
+						<div style="margin-bottom: 30px;">
+							<nav aria-label="Постраничная навигация">
+								<ul class="pagination">
+									<li>
+										<span class="pagination__item pagination__item_nav pagination__item_nav-prev pagination__item_disabled" href="#">
+											<svg aria-hidden="true" width="16" height="14">
+												<use xlink:href="img/sprite.svg#arrow1"></use>
+											</svg>
+										</span>
+									</li>
+									<li>
+										<a class="pagination__item pagination__item_active" aria-current="page" href="#">1</a>
+									</li>
+									<li>
+										<a class="pagination__item" href="#"><span class="v-h">Страница </span>21</a>
+									</li>
+									<li>
+										<a class="pagination__item" href="#"><span class="v-h">Страница </span>3</a>
+									</li>
+									<li>
+										<a class="pagination__item" href="#"><span class="v-h">Страница </span>4</a>
+									</li>
+									<li>
+										<a class="pagination__item" href="#">...</a>
+									</li>
+									<li>
+										<a class="pagination__item" href="#"><span class="v-h">Страница </span>55</a>
+									</li>
+									<li>
+										<a class="pagination__item pagination__item_nav pagination__item_nav-next" href="#">
+											<svg aria-hidden="true" width="16" height="14">
+												<use xlink:href="img/sprite.svg#arrow1"></use>
+											</svg>
+										</a>
+									</li>
+								</ul>
+							</nav>
+						</div>
+
+						<div style="margin: 0 0 30px 0;">
+							<ul class="checklist">
+								<li class="checklist__item">
+									<label class="checkbox-text">
+										<span class="checkbox">
+											<input class="checkbox__input" type="checkbox" name="chb3">
+											<span class="checkbox__visual">
+												<svg width="12" height="10" class="checkbox__mark" aria-hidden="true">
+													<use xlink:href="img/sprite.svg#mark1"></use>
+												</svg>
+											</span>
+										</span>
+										<span class="checkbox-text__label">Samsung (10)</span>
+									</label>
+								</li>
+								<li class="checklist__item">
+									<label class="checkbox-text">
+										<span class="checkbox">
+											<input class="checkbox__input" type="checkbox" name="chb4">
+											<span class="checkbox__visual">
+												<svg width="12" height="10" class="checkbox__mark" aria-hidden="true">
+													<use xlink:href="img/sprite.svg#mark1"></use>
+												</svg>
+											</span>
+										</span>
+										<span class="checkbox-text__label">Сначала с высокой оценкой</span>
+									</label>
+								</li>
+								<li class="checklist__item">
+									<label class="checkbox-text">
+										<span class="checkbox">
+											<input class="checkbox__input" type="checkbox" name="chb5">
+											<span class="checkbox__visual">
+												<svg width="12" height="10" class="checkbox__mark" aria-hidden="true">
+													<use xlink:href="img/sprite.svg#mark1"></use>
+												</svg>
+											</span>
+										</span>
+										<span class="checkbox-text__label">Samsung (10)</span>
+									</label>
+								</li>
+							</ul>
+						</div>
+
+						<div style="margin: 0 0 30px 0; display: flex; align-items: center; gap: 15px;">
+							<label class="checkbox">
+								<input class="checkbox__input" type="checkbox" name="chb1">
+								<span class="checkbox__visual">
+									<svg width="12" height="10" class="checkbox__mark" aria-hidden="true">
+										<use xlink:href="img/sprite.svg#mark1"></use>
+									</svg>
+								</span>
+							</label>
+
+							<label class="checkbox-text">
+								<span class="checkbox">
+									<input class="checkbox__input" type="checkbox" name="chb2">
+									<span class="checkbox__visual">
+										<svg width="12" height="10" class="checkbox__mark" aria-hidden="true">
+											<use xlink:href="img/sprite.svg#mark1"></use>
+										</svg>
+									</span>
+								</span>
+								<span class="checkbox-text__label">Samsung (10)</span>
+							</label>
+
+							<label class="radio">
+								<input class="radio__input" type="radio" name="rad1">
+								<span class="radio__visual"></span>
+							</label>
+
+							<label class="checkbox-text">
+								<span class="radio">
+									<input class="radio__input" type="radio" name="rad1">
+									<span class="radio__visual"></span>
+								</span>
+								<span class="checkbox-text__label">Samsung (10)</span>
+							</label>
+						</div>
+
+						<div style="margin: 0 0 30px 0; max-width: 300px;">
+							<div data-expandable="collapsed" class="expandable">
+								<div class="expandable__top">
+									<span class="expandable__label" data-expandable-handle>Розничная цена</span>
+									<svg data-expandable-handle class="expandable__chevron" aria-hidden="true">
+										<use xlink:href="img/sprite.svg#chevron1"></use>
+									</svg>
+								</div>
+								<div class="expandable__bottom">
+									<div data-expandable-clip class="expandable__bottom-inner">
+										<ul class="checklist">
+											<li class="checklist__item">
+												<label class="checkbox-text">
+													<span class="checkbox">
+														<input class="checkbox__input" type="checkbox" name="chb3">
+														<span class="checkbox__visual">
+															<svg width="12" height="10" class="checkbox__mark" aria-hidden="true">
+																<use xlink:href="img/sprite.svg#mark1"></use>
+															</svg>
+														</span>
+													</span>
+													<span class="checkbox-text__label">Samsung (10)</span>
+												</label>
+											</li>
+											<li class="checklist__item">
+												<label class="checkbox-text">
+													<span class="checkbox">
+														<input class="checkbox__input" type="checkbox" name="chb4">
+														<span class="checkbox__visual">
+															<svg width="12" height="10" class="checkbox__mark" aria-hidden="true">
+																<use xlink:href="img/sprite.svg#mark1"></use>
+															</svg>
+														</span>
+													</span>
+													<span class="checkbox-text__label">Сначала с высокой оценкой</span>
+												</label>
+											</li>
+											<li class="checklist__item">
+												<label class="checkbox-text">
+													<span class="checkbox">
+														<input class="checkbox__input" type="checkbox" name="chb5">
+														<span class="checkbox__visual">
+															<svg width="12" height="10" class="checkbox__mark" aria-hidden="true">
+																<use xlink:href="img/sprite.svg#mark1"></use>
+															</svg>
+														</span>
+													</span>
+													<span class="checkbox-text__label">Samsung (10)</span>
+												</label>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div style="margin: 0 0 30px 0; display: flex; align-items: center; gap: 15px;">
+							<select data-select1 class="select" autocomplete="off">
+								<option value="1" selected>Любой статус заказа</option>
+								<option value="2">Принят</option>
+								<option value="3">Выполнен</option>
+								<option value="4">Отменен</option>
+							</select>
+
+							<select data-select1 class="select select_1" autocomplete="off">
+								<option value="1" selected>Все</option>
+								<option value="2">Хит</option>
+								<option value="3">Новинка</option>
+								<option value="4">Акция</option>
+							</select>
+						</div>
+
+						<div style="margin: 0 0 30px 0; ">
+							<select data-select1 class="select select_wide" autocomplete="off">
+								<option value="1" selected>Любой статус заказа</option>
+								<option value="2">Принят</option>
+								<option value="3">Выполнен</option>
+								<option value="4">Отменен</option>
+							</select>
+						</div>
+
+						<div style="margin: 0 0 30px 0; ">
+							<select data-select1 class="select select_1 select_wide" autocomplete="off">
+								<option value="1" selected>Все</option>
+								<option value="2">Хит</option>
+								<option value="3">Новинка</option>
+								<option value="4">Акция</option>
+							</select>
+						</div>
+
+						<div style="margin: 0 0 30px 0; display: flex; align-items: center; gap: 15px;">
+							<button type="button" class="btn btn_primary">Кнопка</button>
+							<button type="button" class="btn btn_primary btn_hollow">Кнопка</button>
+							<button type="button" class="btn btn_black">Кнопка</button>
+							<span class="spinner" role="status">
+								<span class="v-h">Загрузка...</span>
+								<svg>
+									<use xlink:href="img/sprite.svg#spinner1"></use>
+								</svg>
+							</span>
+							<span class="spinner spinner_active" role="status">
+								<span class="v-h">Загрузка...</span>
+								<svg>
+									<use xlink:href="img/sprite.svg#spinner1"></use>
+								</svg>
+							</span>
+							<button class="btn-load">
+								Загрузить еще
+								<span class="spinner" role="status">
+									<svg>
+										<use xlink:href="img/sprite.svg#spinner1"></use>
+									</svg>
+								</span>
+							</button>
+						</div>
+
+						<div style="margin: 0 0 30px 0;">
+							<button type="button" class="btn btn_wide btn_primary">Кнопка широкая</button>
+						</div>
+
+						<div style="margin: 0 0 30px 0;">
+							<button type="button" class="btn btn_wide btn_hollow btn_primary">Кнопка широкая</button>
+						</div>
+
+						<div style="margin: 0 0 30px 0;">
+							<input class="field-input1" type="text" name="email" placeholder="Ваш e-mail">
+						</div>
+
+						<div style="margin: 0 0 30px 0;">
+							<div class="input-group1">
+								<input class="input-group1__field field-input1" type="text" name="email1" placeholder="Ваш e-mail">
+								<button class="input-group1__btn btn btn_black" type="submit">Подписаться</button>
+							</div>
+						</div>
+
+						<div style="margin: 0 0 30px 0;">
+							<div class="input-group1">
+								<input class="input-group1__field field-input1" type="text" name="email2" placeholder="Ваш e-mail">
+								<button class="input-group1__btn-arr btn btn_black" type="submit">
+									<svg aria-hidden="true">
+										<use xlink:href="img/sprite.svg#arrow1"></use>
+									</svg>
+								</button>
+							</div>
+						</div>
+
+						<div style="margin: 0 0 30px 0;">
+							<div class="form-group">
+								<label class="form-group__label form-group__label_req" for="form_input2">Номер телефона</label>
+								<input id="form_input2" class="field-input1 form-group__field" type="tel" name="name1">
+							</div>
+						</div>
+
+						<div>
+							<div data-stepcounter class="stepcounter stepcounter_accent">
+								<button class="stepcounter__btn" data-stepcounter="-" type="button" disabled>
+									<svg aria-hidden="true">
+										<use xlink:href="img/sprite.svg#minus1"></use>
+									</svg>
+								</button>
+								<input data-stepcounter-input class="stepcounter__input" type="number" value="1" min="1" max="10" name="stepcounter1" readonly>
+								<button class="stepcounter__btn" data-stepcounter="+" type="button">
+									<svg aria-hidden="true">
+										<use xlink:href="img/sprite.svg#plus1"></use>
+									</svg>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</main>
+			<footer class="footer">
+				<div class="footer__top">
+					<div class="container">
+						<div class="footer__grid1">
+							<div class="footer__col">
+								<img class="footer__logo" src="img/logo-light.svg" alt="">
+								<div class="footer__text1">
+									<p class="footer__title">Реквизиты</p>
+									<p>
+										ООО «Корпоративная компания»<br>
+										г. Москва, ул. Пушкина, д. 195, офис 1034<br>
+										ИНН/КПП: 7999001099/999707007<br>
+										ОГРН: 9911001123456
+									</p>
+								</div>
+								<div class="footer__text2">
+									<p><a href="policy.html">Политика конфиденциальности</a></p>
+								</div>
+							</div>
+							<div class="footer__col">
+								<p class="footer__title"><a href="#">Продукция</a></p>
+								<ul class="footer__menu">
+									<li><a href="#">Ревизионные люки</a></li>
+									<li><a href="#">Сантехнические люки</a></li>
+									<li><a href="#">Люки выхода на кровлю</a></li>
+									<li><a href="#">Окна люки</a></li>
+									<li><a href="#">Ревизионные люки</a></li>
+									<li><a href="#">Сантехнические люки</a></li>
+									<li><a href="#">Люки выхода на кровлю</a></li>
+									<li><a href="#">Окна люки</a></li>
+								</ul>
+							</div>
+							<div class="footer__col">
+								<p class="footer__title"><a href="#">О компании</a></p>
+								<p class="footer__title"><a href="#">Клиентам</a></p>
+								<p class="footer__title"><a href="#">Акции</a></p>
+								<p class="footer__title"><a href="#">Контакты</a></p>
+							</div>
+							<div class="footer__col">
+								<p class="footer__title">Адрес</p>
+								<div class="footer__location">
+									<svg aria-hidden="true" width="15" height="18">
+										<use xlink:href="img/sprite.svg#placemark1"></use>
+									</svg>
+									г. Балашиха, просп. Ленина, 67, территория завода Криогенмаш
+								</div>
+								<p class="footer__title">Контактные данные</p>
+								<div class="footer__contacts">
+									<a class="contact-item" href="tel:+79035011974">
+										<svg aria-hidden="true" width="18" height="18">
+											<use xlink:href="img/sprite.svg#phone1"></use>
+										</svg>
+										<span>+7 (903) 501-19-74</span>
+									</a>
+									<a class="contact-item" href="lukmaster@mail.ru">
+										<svg aria-hidden="true" width="18" height="14">
+											<use xlink:href="img/sprite.svg#mail1"></use>
+										</svg>
+										<span>lukmaster@mail.ru</span>
+									</a>
+								</div>
+
+								<div class="footer__socials">
+									<a class="social-item" href="https://whatsapp.com/">
+										<span class="v-h">Whatsapp</span>
+										<svg aria-hidden="true" width="16" height="16">
+											<use xlink:href="img/sprite.svg#whatsapp1"></use>
+										</svg>
+									</a>
+									<a class="social-item" href="https://vk.com/">
+										<span class="v-h">Вконтакте</span>
+										<svg aria-hidden="true" width="22" height="12">
+											<use xlink:href="img/sprite.svg#vk1"></use>
+										</svg>
+									</a>
+									<a class="social-item" href="https://telegram.com/">
+										<span class="v-h">Телеграм</span>
+										<svg aria-hidden="true" width="18" height="15">
+											<use xlink:href="img/sprite.svg#telegram1"></use>
+										</svg>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="footer__bottom">
+					<div class="container">
+						<div class="footer__grid2">
+							<div class="footer__copy">2025 © ЛЮК мастер.рф / Все права защищены</div>
+							<a href="https://acroweb.ru/" target="_blank" class="footer__dev">
+								<span>Разработка и поддержка сайта</span>
+								<img src="img/acroweb-light.svg" alt="">
+							</a>
+						</div>
+					</div>
+				</div>
+			</footer>
+
+		</div>
+		<script src="js/jquery-3.7.1.min.js"></script>
+		<script src="js/swiper-11.0.5.min.js"></script>
+		<script src="js/overlayscrollbars-2.12.0.min.js"></script>
+		<script src="js/imask-7.6.1.min.js"></script>
+		<script src="js/jquery.validate-1.21.0.min.js"></script>
+		<script src="js/tom-select.complete-2.4.3.min.js"></script>
+		<script src="js/fancybox.umd.js"></script>
+		<script src="js/popper.min.js"></script>
+		<script src="js/tippy-bundle.umd.min.js"></script>
+		<script src="js/dragscroll.min.js"></script>
+		<script src="js/scripts.js?v=1768822432191"></script>
+
+	</body>
+
+</html>

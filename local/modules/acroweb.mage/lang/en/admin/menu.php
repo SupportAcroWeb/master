@@ -1,0 +1,4 @@
+<?php
+$MESS["ACROWEB_CORE_MENU_TITLE"] = "AcroWeb";
+$MESS["ACROWEB_CORE_CONTROL_CENTER"] = "Control Center";
+$MESS["ACROWEB_CORE_SETTINGS"] = "Settings";

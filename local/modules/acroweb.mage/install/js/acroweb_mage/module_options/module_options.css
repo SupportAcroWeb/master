@@ -1,0 +1,216 @@
+.acroweb-options-tabs {
+    display: flex;
+    background-color: #f5f9f9;
+    border: 1px solid #dce7ed;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.acroweb-options-tabs-menu {
+    width: 220px;
+    border-right: 1px solid #dce7ed;
+    background-color: #fff;
+}
+
+.acroweb-options-tab-menu-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f9f9;
+    transition: all 0.3s ease;
+}
+
+.acroweb-options-tab-menu-item:hover {
+    background-color: #f5f9f9;
+}
+
+.acroweb-options-tab-menu-item.active {
+    background-color: #3bc8f5;
+    color: #fff;
+    font-weight: bold;
+}
+
+.acroweb-options-tabs-content {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.acroweb-options-tab-content {
+    display: none;
+}
+
+.acroweb-options-tab-content.active {
+    display: block;
+}
+
+.adm-detail-content-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.adm-detail-content-cell-l {
+    padding: 10px 0;
+    vertical-align: middle;
+    width: 40%;
+    text-align: right;
+    padding-right: 15px;
+    font-weight: bold;
+}
+
+.adm-detail-content-cell-r {
+    padding: 10px 0;
+    vertical-align: middle;
+    width: 60%;
+}
+
+.adm-input, .adm-select {
+    width: 100%;
+    max-width: 350px;
+    padding: 5px;
+    border: 1px solid #c4ced2;
+    border-radius: 3px;
+}
+
+.adm-designed-checkbox {
+    display: none;
+}
+
+.adm-designed-checkbox-label {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #c4ced2;
+    border-radius: 3px;
+    position: relative;
+    cursor: pointer;
+}
+
+.adm-designed-checkbox:checked + .adm-designed-checkbox-label:after {
+    content: '\2714';
+    position: absolute;
+    top: -1px;
+    left: 2px;
+    color: #3bc8f5;
+}
+
+.adm-input-color {
+    position: relative;
+    display: inline-block;
+}
+
+.adm-color-picker {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 30px;
+    height: 100%;
+    border: 1px solid #c4ced2;
+    border-left: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.adm-color-picker-icon {
+    width: 16px;
+    height: 16px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333333"><path d="M20.71 5.63l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-3.12 3.12-1.93-1.91-1.41 1.41 1.42 1.42L3 16.25V21h4.75l8.92-8.92 1.42 1.42 1.41-1.41-1.92-1.92 3.12-3.12c.4-.4.4-1.03.01-1.42zM6.92 19L5 17.08l8.06-8.06 1.92 1.92L6.92 19z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+.adm-color-theme-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.adm-color-theme-item {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+.adm-color-theme-item input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.adm-color-theme-color {
+    display: block;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #c4ced2;
+    transition: all 0.3s ease;
+}
+
+.adm-color-theme-item input:checked + .adm-color-theme-color {
+    box-shadow: 0 0 0 2px #3bc8f5;
+}
+
+.adm-input-file-control {
+    position: relative;
+    overflow: hidden;
+}
+
+.adm-designed-file {
+    position: absolute;
+    left: -9999px;
+}
+
+.adm-designed-file-label {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #3bc8f5;
+    color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.adm-color-theme-custom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #c4ced2;
+    transition: all 0.3s ease;
+    background-color: #ffffff;
+}
+
+.adm-icon-colorpicker {
+    width: 20px;
+    height: 20px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333333"><path d="M20.71 5.63l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-3.12 3.12-1.93-1.91-1.41 1.41 1.42 1.42L3 16.25V21h4.75l8.92-8.92 1.42 1.42 1.41-1.41-1.92-1.92 3.12-3.12c.4-.4.4-1.03.01-1.42zM6.92 19L5 17.08l8.06-8.06 1.92 1.92L6.92 19z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+.adm-color-theme-item input:checked + .adm-color-theme-custom {
+    box-shadow: 0 0 0 2px #3bc8f5;
+}
+
+.adm-current-file-preview {
+    margin-top: 10px;
+}
+
+.adm-current-file-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+#bx-admin-prefix .adm-designed-checkbox-label {
+    background: none;
+}

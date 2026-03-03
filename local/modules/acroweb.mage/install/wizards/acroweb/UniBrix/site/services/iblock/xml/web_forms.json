@@ -1,0 +1,136 @@
+{
+    "1": {
+        "FORM": {
+            "ID": "1",
+            "TIMESTAMP_X": "02.06.2025 15:44:46",
+            "NAME": "\u0417\u0430\u043a\u0430\u0437\u0430\u0442\u044c \u0437\u0432\u043e\u043d\u043e\u043a",
+            "SID": "callback",
+            "BUTTON": "\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c",
+            "C_SORT": "100",
+            "FIRST_SITE_ID": null,
+            "IMAGE_ID": null,
+            "USE_CAPTCHA": "N",
+            "DESCRIPTION": "",
+            "DESCRIPTION_TYPE": "text",
+            "FORM_TEMPLATE": "",
+            "USE_DEFAULT_TEMPLATE": "Y",
+            "SHOW_TEMPLATE": null,
+            "MAIL_EVENT_TYPE": "FORM_FILLING_callback",
+            "SHOW_RESULT_TEMPLATE": null,
+            "PRINT_RESULT_TEMPLATE": null,
+            "EDIT_RESULT_TEMPLATE": null,
+            "FILTER_RESULT_TEMPLATE": "",
+            "TABLE_RESULT_TEMPLATE": "",
+            "USE_RESTRICTIONS": "N",
+            "RESTRICT_USER": "0",
+            "RESTRICT_TIME": "0",
+            "RESTRICT_STATUS": "",
+            "STAT_EVENT1": "form",
+            "STAT_EVENT2": "",
+            "STAT_EVENT3": "",
+            "VARNAME": "callback",
+            "LID": null,
+            "C_FIELDS": "0",
+            "QUESTIONS": "2",
+            "STATUSES": "1",
+            "MENU": {
+                "ru": "\u0417\u0430\u043a\u0430\u0437\u0430\u0442\u044c \u0437\u0432\u043e\u043d\u043e\u043a",
+                "en": "Request a call"
+            }
+        },
+        "QUESTIONS": {
+            "1": {
+                "ID": "1",
+                "FORM_ID": "1",
+                "TIMESTAMP_X": "02.06.2025 15:45:19",
+                "ACTIVE": "Y",
+                "TITLE": "\u0418\u043c\u044f",
+                "TITLE_TYPE": "text",
+                "SID": "FIO",
+                "C_SORT": "100",
+                "ADDITIONAL": "N",
+                "REQUIRED": "Y",
+                "IN_FILTER": "Y",
+                "IN_RESULTS_TABLE": "Y",
+                "IN_EXCEL_TABLE": "Y",
+                "FIELD_TYPE": "",
+                "IMAGE_ID": null,
+                "COMMENTS": "",
+                "FILTER_TITLE": "\u0418\u043c\u044f",
+                "RESULTS_TABLE_TITLE": "\u0418\u043c\u044f",
+                "VARNAME": "FIO",
+                "ANSWERS": [
+                    {
+                        "ID": "1",
+                        "FIELD_ID": "1",
+                        "QUESTION_ID": "1",
+                        "TIMESTAMP_X": "02.06.2025 15:45:19",
+                        "MESSAGE": " ",
+                        "VALUE": "",
+                        "FIELD_TYPE": "textarea",
+                        "FIELD_WIDTH": "0",
+                        "FIELD_HEIGHT": "0",
+                        "FIELD_PARAM": "",
+                        "C_SORT": "0",
+                        "ACTIVE": "Y"
+                    }
+                ]
+            },
+            "2": {
+                "ID": "2",
+                "FORM_ID": "1",
+                "TIMESTAMP_X": "02.06.2025 15:45:06",
+                "ACTIVE": "Y",
+                "TITLE": "\u0422\u0435\u043b\u0435\u0444\u043e\u043d",
+                "TITLE_TYPE": "text",
+                "SID": "PHONE",
+                "C_SORT": "200",
+                "ADDITIONAL": "N",
+                "REQUIRED": "Y",
+                "IN_FILTER": "Y",
+                "IN_RESULTS_TABLE": "Y",
+                "IN_EXCEL_TABLE": "Y",
+                "FIELD_TYPE": "",
+                "IMAGE_ID": null,
+                "COMMENTS": "",
+                "FILTER_TITLE": "\u0422\u0435\u043b\u0435\u0444\u043e\u043d",
+                "RESULTS_TABLE_TITLE": "\u0422\u0435\u043b\u0435\u0444\u043e\u043d",
+                "VARNAME": "PHONE",
+                "ANSWERS": [
+                    {
+                        "ID": "2",
+                        "FIELD_ID": "2",
+                        "QUESTION_ID": "2",
+                        "TIMESTAMP_X": "02.06.2025 15:45:06",
+                        "MESSAGE": " ",
+                        "VALUE": "",
+                        "FIELD_TYPE": "text",
+                        "FIELD_WIDTH": "0",
+                        "FIELD_HEIGHT": "0",
+                        "FIELD_PARAM": "",
+                        "C_SORT": "0",
+                        "ACTIVE": "Y"
+                    }
+                ]
+            }
+        },
+        "STATUSES": [
+            {
+                "ID": "1",
+                "CSS": "statusgreen",
+                "FORM_ID": "1",
+                "C_SORT": "100",
+                "ACTIVE": "Y",
+                "TITLE": "DEFAULT",
+                "DESCRIPTION": "DEFAULT",
+                "DEFAULT_VALUE": "Y",
+                "HANDLER_OUT": null,
+                "HANDLER_IN": null,
+                "TIMESTAMP_X": "23.05.2025 18:15:06",
+                "RESULTS": "0"
+            }
+        ],
+        "RESULTS": [],
+        "TEMPLATE": ""
+    }
+}
