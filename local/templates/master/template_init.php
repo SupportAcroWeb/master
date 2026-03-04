@@ -132,6 +132,10 @@ elseif (preg_match('#^/produktsiya/#i', $currentPage))
 {
     $layout = 'catalog';
 }
+elseif (preg_match('#^/portfolio/#i', $currentPage) && $currentPage != '/portfolio/')
+{
+    $layout = 'portfolio';
+}
 elseif (preg_match('#^/personal/#i', $currentPage))
 {
     $layout = 'personal';

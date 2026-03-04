@@ -5,5 +5,3 @@ use Acroweb\Mage\Helpers\TemplateHelper;
 
 global $APPLICATION;
 ?>
-
-<? TemplateHelper::includePartial('block_questions'); ?>

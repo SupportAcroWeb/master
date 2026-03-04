@@ -163,6 +163,21 @@ AW.initSwiperProducts = function ($el) {
   });
 };
 
+AW.initSwiperGallery = function ($el) {
+  const $navNext = $el.find(".swiper-nav_next");
+  const $navPrev = $el.find(".swiper-nav_prev");
+  return new Swiper($el[0], {
+    loop: true,
+    spaceBetween: 0,
+    slidesPerView: 1,
+    speed: 300,
+    navigation: {
+      nextEl: $navNext[0],
+      prevEl: $navPrev[0],
+    }
+  });
+};
+
 AW.initDetailSwipers = function () {
   const previewSlider = new Swiper($('[data-swiper="preview"]')[0], {
     loop: false,
@@ -275,6 +290,10 @@ $(document).ready(() => {
 
   $('[data-swiper="products"]').each(function () {
     AW.initSwiperProducts($(this));
+  });
+
+  $('[data-swiper="gallery"]').each(function () {
+    AW.initSwiperGallery($(this));
   });
 
   if (

@@ -8217,6 +8217,7 @@ td.target .table-variants__item {
   overflow: hidden;
   position: relative;
   z-index: 1;
+  aspect-ratio: 377/296;
 }
 .card-category .btn-arrow1 {
   position: absolute;
@@ -8230,6 +8231,7 @@ td.target .table-variants__item {
 }
 .card-category_wide {
   grid-column: span 2;
+  aspect-ratio: 754/296;
 }
 .card-category::before {
   content: "";
@@ -8317,6 +8319,10 @@ td.target .table-variants__item {
 }
 .card-category:hover .btn-arrow1 {
   opacity: 1;
+}
+.card-category a.btn-arrow1 {
+  pointer-events: auto;
+  text-decoration: none;
 }
 @media (max-width: 720px) {
   .card-category_wide {
@@ -8614,6 +8620,22 @@ td.target .table-variants__item {
     right: unset;
     min-width: 21px;
   }
+}
+
+.card-photo1 {
+  width: 100%;
+  aspect-ratio: 378/360;
+  display: block;
+}
+.card-photo1 img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  -o-object-fit: cover;
+  object-fit: cover;
+  -o-object-position: center;
+  object-position: center;
 }
 
 .swiper-nav {
@@ -9040,4 +9062,171 @@ td.target .table-variants__item {
     padding-top: 40px;
   }
 }
-/*# sourceMappingURL=maps/styles.css.map */
+
+.block-portfolio1 {
+  margin-top: 54px;
+}
+.block-portfolio1 .grid1 {
+  gap: 45px 30px;
+}
+.block-portfolio1 .catalog-bottom {
+  padding-top: 45px;
+  padding-bottom: 0;
+}
+@media (max-width: 1280px) {
+  .block-portfolio1 .grid1 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+@media (max-width: 1000px) {
+  .block-portfolio1 .grid1 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 920px) {
+  .block-portfolio1 .grid1 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+@media (max-width: 768px) {
+  .block-portfolio1 {
+    margin-top: 30px;
+  }
+  .block-portfolio1 .grid1 {
+    gap: 35px 20px;
+  }
+}
+@media (max-width: 600px) {
+  .block-portfolio1 .grid1 {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 575px) {
+  .block-portfolio1 {
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+  }
+}
+
+.portfolio-detail__top {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 50px;
+}
+.portfolio-detail__slider {
+  -webkit-box-ordinal-group: 2;
+      -ms-flex-order: 1;
+          order: 1;
+  min-width: 0;
+}
+.portfolio-detail__descr {
+  -webkit-box-ordinal-group: 3;
+      -ms-flex-order: 2;
+          order: 2;
+  border: 1px #0C0B0B solid;
+  border-radius: 20px;
+  padding: 43px 37px;
+}
+.portfolio-detail__descr .textblock1 {
+  color: var(--theme-color-text-common);
+}
+.portfolio-detail__descr h1 {
+  margin-bottom: 15px;
+}
+@media (max-width: 1280px) {
+  .portfolio-detail__top {
+    margin-bottom: 40px;
+  }
+  .portfolio-detail .grid1 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+@media (max-width: 1200px) {
+  .portfolio-detail__top {
+    grid-template-columns: 1fr;
+  }
+  .portfolio-detail__descr {
+    -webkit-box-ordinal-group: 2;
+        -ms-flex-order: 1;
+            order: 1;
+  }
+  .portfolio-detail__slider {
+    -webkit-box-ordinal-group: 3;
+        -ms-flex-order: 2;
+            order: 2;
+  }
+}
+@media (max-width: 1000px) {
+  .portfolio-detail .grid1 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 920px) {
+  .portfolio-detail .grid1 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+@media (max-width: 768px) {
+  .portfolio-detail .grid1 {
+    gap: 20px;
+  }
+}
+@media (max-width: 600px) {
+  .portfolio-detail .grid1 {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 575px) {
+  .portfolio-detail {
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+  }
+  .portfolio-detail__descr {
+    padding: 25px 20px;
+  }
+}
+
+.swiper-gallery {
+  width: 100%;
+  border-radius: 20px;
+}
+.swiper-gallery .swiper-nav {
+  position: absolute;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+          transform: translateY(-50%);
+  z-index: 10;
+}
+.swiper-gallery .swiper-nav_prev {
+  left: 20px;
+}
+.swiper-gallery .swiper-nav_next {
+  right: 20px;
+}
+.swiper-gallery .swiper-slide {
+  width: 100%;
+  aspect-ratio: 785/480;
+}
+.swiper-gallery .swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  -o-object-position: center;
+     object-position: center;
+}
+@media (max-width: 768px) {
+  .swiper-gallery .swiper-nav {
+    --width: 50px;
+  }
+}
+@media (max-width: 575px) {
+  .swiper-gallery .swiper-nav {
+    --width: 40px;
+  }
+}

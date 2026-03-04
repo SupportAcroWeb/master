@@ -1,4 +1,4 @@
-<?php 
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
     die();
 }
@@ -7,102 +7,93 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
  * @var array $arParams
  * @var array $arResult
  * @global CMain $APPLICATION
- * @global CUser $USER
- * @global CDatabase $DB
  * @var CBitrixComponentTemplate $this
- * @var string $templateName
- * @var string $templateFile
- * @var string $templateFolder
- * @var string $componentPath
- * @var CBitrixComponent $component
  */
 
 $this->setFrameMode(true);
+
+$arItem = $arResult["ITEMS"][0] ?? null;
+if (empty($arItem)) {
+    return;
+}
+
+$this->AddEditAction(
+    $arItem['ID'],
+    $arItem['EDIT_LINK'],
+    CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT")
+);
+$this->AddDeleteAction(
+    $arItem['ID'],
+    $arItem['DELETE_LINK'],
+    CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"),
+    ["CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')]
+);
+
+$linkButton = $arItem["PROPERTIES"]["LINK_BUTTON"]["VALUE"] ?? '';
+$textButton = $arItem["PROPERTIES"]["TEXT_BUTTON"]["VALUE"] ?? 'Каталог продукции';
+$previewPicture = $arItem["PREVIEW_PICTURE"] ?? null;
+$previewPictureSrc = is_array($previewPicture) ? $previewPicture["SRC"] : '';
 ?>
-<?php if (!empty($arResult["ITEMS"])): ?>
-<div class="block-intro">
+<section class="block-intro" id="<?= $this->GetEditAreaId($arItem['ID']) ?>">
     <div class="container">
-        <div data-swiper="intro" class="swiper swiper-intro">
-            <div class="swiper-wrapper">
-                <?php foreach ($arResult["ITEMS"] as $arItem): ?>
-                    <?php
-                    $this->AddEditAction(
-                        $arItem['ID'],
-                        $arItem['EDIT_LINK'],
-                        CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_EDIT")
-                    );
-                    $this->AddDeleteAction(
-                        $arItem['ID'],
-                        $arItem['DELETE_LINK'],
-                        CIBlock::GetArrayByID($arItem["IBLOCK_ID"], "ELEMENT_DELETE"),
-                        ["CONFIRM" => GetMessage('CT_BNL_ELEMENT_DELETE_CONFIRM')]
-                    );
-
-                    // Получаем свойства элемента
-                    $linkButton = '';
-                    $textButton = '';
-
-                    if (!empty($arItem["PROPERTIES"]["LINK_BUTTON"]["VALUE"])) {
-                        $linkButton = $arItem["PROPERTIES"]["LINK_BUTTON"]["VALUE"];
-                    }
-
-                    if (!empty($arItem["PROPERTIES"]["TEXT_BUTTON"]["VALUE"])) {
-                        $textButton = $arItem["PROPERTIES"]["TEXT_BUTTON"]["VALUE"];
-                    }
-                    ?>
-                    <div class="swiper-slide" id="<?= $this->GetEditAreaId($arItem['ID']); ?>">
-                        <div class="card-intro">
-                            <?php if ($arItem["DETAIL_PICTURE"]["SRC"]): ?>
-                                <div class="card-intro__bg">
-                                    <div class="card-intro__bg-inner">
-                                        <img src="<?=$arItem["DETAIL_PICTURE"]["SRC"]?>" alt="">
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                            <?php if ($arParams["DISPLAY_PICTURE"] !== "N" && is_array($arItem["PREVIEW_PICTURE"])): ?>
-                                <div class="card-intro__photo">
-                                    <div class="card-intro__photo-inner">
-                                        <img src="<?= $arItem["PREVIEW_PICTURE"]["SRC"] ?>" alt="<?= $arItem["PREVIEW_PICTURE"]["ALT"] ?>">
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-
-                            <?php if ($arParams["DISPLAY_PREVIEW_TEXT"] !== "N" && $arItem["PREVIEW_TEXT"]): ?>
-                                <div class="card-intro__title"><?= $arItem["PREVIEW_TEXT"] ?></div>
-                            <?php endif; ?>
-
-                            <?php if ($arItem["DETAIL_TEXT"]): ?>
-                                <div class="card-intro__text"><?= $arItem["DETAIL_TEXT"] ?></div>
-                            <?php endif; ?>
-
-                            <?php if ($linkButton && $textButton): ?>
-                                <a class="btn btn_primary" target="_blank" href="<?= $linkButton ?>">
-                                    <span><?= $textButton ?></span>
-                                    <svg width="12" height="12" aria-hidden="true">
-                                        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
-                                    </svg>
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+        <div class="heading-cols2">
+            <div class="heading-cols2__col">
+                <?php if ($arParams["DISPLAY_PREVIEW_TEXT"] !== "N" && !empty($arItem["PREVIEW_TEXT"])): ?>
+                <h1 class="title1"><?= $arItem["PREVIEW_TEXT"] ?></h1>
+                <?php endif; ?>
             </div>
-            <div class="swiper-pagination"></div>
-            <div class="swiper-navs">
-                <button class="swiper-nav swiper-nav_prev" type="button">
-                    <svg aria-hidden="true" width="14" height="24">
-                        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#chevron1"></use>
+            <div class="heading-cols2__col">
+                <?php if (!empty($arItem["DETAIL_TEXT"])): ?>
+                <div class="block-intro__text">
+                    <?= ($arItem["DETAIL_TEXT_TYPE"] ?? 'html') === 'html' ? $arItem["DETAIL_TEXT"] : nl2br(htmlspecialcharsbx($arItem["DETAIL_TEXT"])) ?>
+                </div>
+                <?php endif; ?>
+                <?php if (!empty($linkButton)): ?>
+                <a class="btn btn_arr btn_primary btn_big" href="<?= htmlspecialcharsbx($linkButton) ?>">
+                    <span><?= htmlspecialcharsbx($textButton) ?></span>
+                    <svg width="14" height="14" aria-hidden="true">
+                        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
                     </svg>
-                    <span class="v-h">Назад</span>
-                </button>
-                <button class="swiper-nav swiper-nav_next" type="button">
-                    <svg aria-hidden="true" width="14" height="24">
-                        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#chevron1"></use>
-                    </svg>
-                    <span class="v-h">Вперед</span>
-                </button>
+                </a>
+                <?php endif; ?>
             </div>
         </div>
+        <?php if ($arParams["DISPLAY_PICTURE"] !== "N" && !empty($previewPictureSrc)): ?>
+        <img class="block-intro__photo" src="<?= htmlspecialcharsbx($previewPictureSrc) ?>" alt="<?= htmlspecialcharsbx($previewPicture["ALT"] ?? '') ?>">
+        <?php endif; ?>
     </div>
-</div>
+</section>
+<?php
+$values = $arItem["PROPERTIES"]["ADVANTAGES"]["VALUE"] ?? [];
+$descriptions = $arItem["PROPERTIES"]["ADVANTAGES"]["DESCRIPTION"] ?? [];
+$advantages = [];
+if (is_array($values)) {
+    foreach ($values as $i => $name) {
+        $name = trim((string)$name);
+        if ($name === '') {
+            continue;
+        }
+        $desc = isset($descriptions[$i]) ? trim((string)$descriptions[$i]) : '';
+        $advantages[] = ['name' => $name, 'desc' => $desc];
+    }
+}
+?>
+<?php if (!empty($advantages)): ?>
+<section class="block-advantages">
+    <div class="container">
+        <div class="grid1">
+            <?php foreach ($advantages as $idx => $adv): ?>
+            <div class="card-advantage">
+                <div class="card-advantage__top">
+                    <span class="card-advantage__index"><?= str_pad((string)($idx + 1), 2, '0', STR_PAD_LEFT) ?></span>
+                    <span class="card-advantage__name"><?= htmlspecialcharsbx($adv['name']) ?></span>
+                </div>
+                <?php if ($adv['desc'] !== ''): ?>
+                <div class="card-advantage__text"><?= htmlspecialcharsbx($adv['desc']) ?></div>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
 <?php endif; ?>

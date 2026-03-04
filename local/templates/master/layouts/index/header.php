@@ -46,7 +46,7 @@ global $APPLICATION;
         "PARENT_SECTION" => "",
         "PARENT_SECTION_CODE" => "",
         "PREVIEW_TRUNCATE_LEN" => "",
-        "PROPERTY_CODE" => array("LINK_BUTTON", "TEXT_BUTTON", ""),
+        "PROPERTY_CODE" => array("LINK_BUTTON", "TEXT_BUTTON", "ADVANTAGES", ""),
         "SET_BROWSER_TITLE" => "N",
         "SET_LAST_MODIFIED" => "N",
         "SET_META_DESCRIPTION" => "N",

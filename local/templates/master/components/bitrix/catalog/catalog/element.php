@@ -329,6 +329,4 @@ if ($elementId > 0) {
         </section>
         <?php
     }
-}
-
-TemplateHelper::includePartial('block_questions'); ?>
+} ?>
