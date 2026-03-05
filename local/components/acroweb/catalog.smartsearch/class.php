@@ -316,7 +316,7 @@ class CatalogSmartSearchComponent extends CBitrixComponent implements Controller
                 
                 // Если нет картинки, используем заглушку
                 if (empty($pictureUrl)) {
-                    $pictureUrl = SITE_TEMPLATE_PATH . '/img/no-photo.svg';
+                    $pictureUrl = SITE_TEMPLATE_PATH . '/img/no-image.png';
                 }
 
                 $sections[] = [
@@ -420,7 +420,7 @@ class CatalogSmartSearchComponent extends CBitrixComponent implements Controller
                 
                 // Если нет картинки, используем заглушку
                 if (empty($pictureUrl)) {
-                    $pictureUrl = SITE_TEMPLATE_PATH . '/img/no-photo.svg';
+                    $pictureUrl = SITE_TEMPLATE_PATH . '/img/no-image.png';
                 }
 
                 $price = $prices[$elementId] ?? null;

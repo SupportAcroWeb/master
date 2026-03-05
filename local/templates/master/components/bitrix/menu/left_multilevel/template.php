@@ -18,50 +18,31 @@ $children = $arResult['CHILDREN'] ?? [];
 if (!$currentItem) {
     return;
 }
-?>
 
-<div class="grid1__inner1">
-    <div class="title3">Категории</div>
-    <?php
-    // Кнопка "Назад": родитель или "Продукция" для первого уровня
-    $backLink = $parentItem ? $parentItem['LINK'] : '/produktsiya/';
-    $backText = $parentItem ? $parentItem['TEXT'] : 'Продукция';
+$backLink = $parentItem ? $parentItem['LINK'] : '/produktsiya/';
+$backText = $parentItem ? $parentItem['TEXT'] : 'Продукция';
+$maxVisible = 4;
+$itemCount = 0;
+?>
+<a class="catalog-nav__back" href="<?= htmlspecialcharsbx($backLink) ?>">
+    <svg width="16" height="16" aria-hidden="true">
+        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow3"></use>
+    </svg>
+    <?= htmlspecialcharsbx($backText) ?>
+</a>
+<ul class="catalog-nav__menu">
+    <li class="active">
+        <a href="<?= htmlspecialcharsbx($currentItem['LINK']) ?>"><?= htmlspecialcharsbx($currentItem['TEXT']) ?></a>
+    </li>
+    <?php foreach ($children as $childItem):
+        $itemCount++;
+        $hiddenClass = $itemCount > $maxVisible ? ' catalog-nav__item_hidden' : '';
     ?>
-    <a class="btn-back" href="<?= htmlspecialcharsbx($backLink) ?>">
-        <svg aria-hidden="true" width="9" height="14">
-            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#chevron4"></use>
-        </svg>
-        <span><?= htmlspecialcharsbx($backText) ?></span>
-    </a>
-    
-    <ul class="menu1 menu1_expandable">
-        <li class="active">
-            <a href="<?= htmlspecialcharsbx($currentItem['LINK']) ?>">
-                <?= htmlspecialcharsbx($currentItem['TEXT']) ?>
-            </a>
-        </li>
-        
-        <?php if (!empty($children)): 
-            $itemCount = 0;
-            $maxVisible = 4;
-            
-            foreach ($children as $childItem): 
-                $itemCount++;
-                $hiddenClass = $itemCount > $maxVisible ? ' menu1__hidden' : '';
-        ?>
-            <li<?= $hiddenClass ?>>
-                <a href="<?= htmlspecialcharsbx($childItem['LINK']) ?>">
-                    <?= htmlspecialcharsbx($childItem['TEXT']) ?>
-                </a>
-            </li>
-        <?php endforeach; ?>
-            
-        <?php if ($itemCount > $maxVisible): ?>
-            <li class="menu1__expander">
-                <button data-action="expandList2" class="btn-text btn-text_3" type="button">Посмотреть все</button>
-                <button data-action="collapseList2" class="btn-text btn-text_3" type="button">Свернуть</button>
-            </li>
-        <?php endif; ?>
-        <?php endif; ?>
-    </ul>
-</div>
+    <li class="<?= $hiddenClass ?>">
+        <a href="<?= htmlspecialcharsbx($childItem['LINK']) ?>"><?= htmlspecialcharsbx($childItem['TEXT']) ?></a>
+    </li>
+    <?php endforeach; ?>
+</ul>
+<?php if ($itemCount > $maxVisible): ?>
+<label for="catalog-toggle" class="btn-text btn-text_primary btn-text_und catalog-nav__btn">Смотреть все</label>
+<?php endif; ?>

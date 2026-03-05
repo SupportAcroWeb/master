@@ -260,7 +260,7 @@ $(document).ready(() => {
       onInitialize: function () {
         $(this.control).append(`
           <svg aria-hidden="true" width="12" height="8">
-            <use xlink:href="img/sprite.svg#chevron1"></use>
+            <use xlink:href="/local/templates/master/img/sprite.svg#chevron1"></use>
           </svg>
         `);
       },

@@ -385,7 +385,7 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                         <?php foreach ($arResult['BASKET'] as $basketItem):
                             $productId = $basketItem['PRODUCT_ID'];
                             $linkedProductId = $productLinks[$productId] ?? $productId;
-                            $imagePath = $productImages[$linkedProductId] ?? SITE_TEMPLATE_PATH . '/img/no-photo.svg';
+                            $imagePath = $productImages[$linkedProductId] ?? SITE_TEMPLATE_PATH . '/img/no-image.png';
                             $quantity = $basketItem['QUANTITY'];
                             $price = $basketItem['PRICE'];
                             $basePrice = $basketItem['BASE_PRICE'];

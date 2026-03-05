@@ -314,7 +314,7 @@ if (!empty($arResult["ORDER"])):
                         <?php foreach ($basketItems as $item):
                             $productId = $item->getProductId();
                             $linkedProductId = $productLinks[$productId] ?? $productId;
-                            $imagePath = $productImages[$linkedProductId] ?? SITE_TEMPLATE_PATH . '/img/no-photo.svg';
+                            $imagePath = $productImages[$linkedProductId] ?? SITE_TEMPLATE_PATH . '/img/no-image.png';
                             $quantity = $item->getQuantity();
                             $price = $item->getPrice();
                             $basePrice = $item->getBasePrice();

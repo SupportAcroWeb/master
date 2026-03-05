@@ -45,7 +45,7 @@ if ($isFilter)
 		$arCurSection = array();
 		if (Loader::includeModule("iblock"))
 		{
-			$dbRes = CIBlockSection::GetList(array(), $arFilter, false, array("ID"));
+			$dbRes = CIBlockSection::GetList(array(), $arFilter, false, array("ID", "DESCRIPTION", "DESCRIPTION_TYPE"));
 
 			if(defined("BX_COMP_MANAGED_CACHE"))
 			{

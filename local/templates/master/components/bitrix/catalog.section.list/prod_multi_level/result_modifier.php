@@ -1,35 +1,63 @@
 <?php
-
-/** @var array $arResult */
-/** @var array $arParams */
+declare(strict_types=1);
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
     die();
 }
 
-use Bitrix\Iblock\IblockTable;
+/** @var array $arResult */
+/** @var array $arParams */
 
-$arSectionList = [];
-$currentRoot = 0;
+$parents = [];
+$rsSection = CIBlockSection::GetList(
+    ['SORT' => 'ASC', 'NAME' => 'ASC'],
+    [
+        'IBLOCK_ID' => $arParams['IBLOCK_ID'],
+        'GLOBAL_ACTIVE' => 'Y',
+        'DEPTH_LEVEL' => 1,
+    ],
+    false,
+    ['ID', 'NAME', 'IBLOCK_ID', 'IBLOCK_SECTION_ID', 'SORT', 'SECTION_PAGE_URL', 'PICTURE']
+);
+$rsSection->SetUrlTemplates('', $arParams['SECTION_URL'] ?? '');
 
-foreach ($arResult['SECTIONS'] as $key => $arSection) {
-    if ($arSection['DEPTH_LEVEL'] == 1) {
-        $currentRoot = $arSection['ID'];
-        if (!isset($arSectionList[$arSection['ID']])) {
-            $arSectionList[$arSection['ID']] = array_merge($arSection, ['ITEMS' => []]);
+while ($arSection = $rsSection->GetNext(true, false)) {
+    $arSection['ITEMS'] = [];
+    $arSection['PICTURE_SRC'] = !empty($arSection['PICTURE']) ? CFile::GetPath($arSection['PICTURE']) : '';
+    $buttons = CIBlock::GetPanelButtons($arSection['IBLOCK_ID'], 0, $arSection['ID'], ['SESSID' => false, 'CATALOG' => true]);
+    $arSection['EDIT_LINK'] = $buttons['edit']['edit_section']['ACTION_URL'] ?? '';
+    $arSection['DELETE_LINK'] = $buttons['edit']['delete_section']['ACTION_URL'] ?? '';
+    $parents[$arSection['ID']] = $arSection;
+}
+
+if (!empty($parents)) {
+    $parentIds = array_keys($parents);
+    $rsSub = CIBlockSection::GetList(
+        ['SORT' => 'ASC', 'NAME' => 'ASC'],
+        [
+            'IBLOCK_ID' => $arParams['IBLOCK_ID'],
+            'GLOBAL_ACTIVE' => 'Y',
+            'IBLOCK_SECTION_ID' => $parentIds,
+        ],
+        false,
+        ['ID', 'NAME', 'IBLOCK_SECTION_ID', 'SORT', 'SECTION_PAGE_URL']
+    );
+    $rsSub->SetUrlTemplates('', $arParams['SECTION_URL'] ?? '');
+
+    while ($arSub = $rsSub->GetNext(true, false)) {
+        $pid = (int)$arSub['IBLOCK_SECTION_ID'];
+        if (isset($parents[$pid])) {
+            $parents[$pid]['ITEMS'][] = $arSub;
         }
-    } else if (array_key_exists($currentRoot, $arSectionList)) {
-        $arSectionList[$currentRoot]['ITEMS'][$arSection['ID']] = $arSection;
     }
 }
 
-$arResult['SECTIONS'] = $arSectionList;
+$arResult['SECTIONS'] = array_values($parents);
 
-// Получаем описание инфоблока
 $arResult['IBLOCK_DESCRIPTION'] = '';
-if (!empty($arParams['IBLOCK_ID'])) {
-    $iblockResult = IblockTable::getById($arParams['IBLOCK_ID']);
-    if ($iblock = $iblockResult->fetch()) {
-        $arResult['IBLOCK_DESCRIPTION'] = $iblock['DESCRIPTION'];
+if (!empty($arParams['IBLOCK_ID']) && \Bitrix\Main\Loader::includeModule('iblock')) {
+    $iblock = \Bitrix\Iblock\IblockTable::getById($arParams['IBLOCK_ID'])->fetch();
+    if ($iblock) {
+        $arResult['IBLOCK_DESCRIPTION'] = $iblock['DESCRIPTION'] ?? '';
     }
 }

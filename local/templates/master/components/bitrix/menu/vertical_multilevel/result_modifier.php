@@ -27,7 +27,7 @@ if (!empty($arResult)) {
             
             // Если изображения нет - используем заглушку
             if (empty($picture)) {
-                $picture = SITE_TEMPLATE_PATH . '/img/no-photo.svg';
+                $picture = SITE_TEMPLATE_PATH . '/img/no-image.png';
             }
             
             $arMenuStructured[$arItem['LINK']]['PICTURE'] = $picture;
