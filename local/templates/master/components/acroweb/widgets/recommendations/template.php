@@ -124,42 +124,41 @@ $baseCatalogParams = [
 ];
 ?>
 
-<section data-container="tab1" class="block-products">
+<section class="block-products">
     <div class="container">
-        <div class="heading-cols1">
-            <h2 class="title2">Рекомендуем</h2>
-            <div class="tab1-nav">
-                <?php foreach ($activeTabs as $tabKey => $tabConfig): ?>
-                    <button data-action="showTab1" data-tab="<?= $tabKey ?>"
-                            class="btn-text btn-text_1<?= $tabKey === $firstActiveTab ? ' active' : '' ?>"
-                            type="button">
-                        <?= $tabConfig['title'] ?>
-                    </button>
-                <?php endforeach; ?>
+        <div class="tabs1" data-tab="container">
+            <div class="grid2">
+                <div class="tabs1-nav">
+                    <?php foreach ($activeTabs as $tabKey => $tabConfig): ?>
+                        <button data-action="tab1" data-alias="<?= $tabKey ?>"
+                                class="tabs1-nav__btn<?= $tabKey === $firstActiveTab ? ' active' : '' ?>"
+                                type="button">
+                            <?= $tabConfig['title'] ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+                <a class="btn-text btn-text_primary" href="/produktsiya/">
+                    <span>Смотреть все</span>
+                    <svg class="btn-text__icon" width="14" height="14" aria-hidden="true">
+                        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
+                    </svg>
+                </a>
             </div>
-            <a class="btn-text btn-text_primary" href="/produktsiya/">
-                <span>Перейти в каталог</span>
-                <svg aria-hidden="true" width="13" height="13">
-                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
-                </svg>
-            </a>
-        </div>
-    </div>
-    <div class="container container_bordered1">
-        <?php foreach ($activeTabs as $tabKey => $tabConfig): ?>
-            <div data-tab-content="<?= $tabKey ?>"
-                 style="display: <?= $tabKey === $firstActiveTab ? 'block' : 'none' ?>;">
-                <?php
-                $tabCatalogParams = $baseCatalogParams;
-                $tabCatalogParams['FILTER_NAME'] = $tabConfig['filter_name'];
+            <?php foreach ($activeTabs as $tabKey => $tabConfig): ?>
+                <div class="tabs1__content<?= $tabKey === $firstActiveTab ? ' active' : '' ?>"
+                     data-tab="content" data-alias="<?= $tabKey ?>">
+                    <?php
+                    $tabCatalogParams = $baseCatalogParams;
+                    $tabCatalogParams['FILTER_NAME'] = $tabConfig['filter_name'];
 
-$APPLICATION->IncludeComponent(
-                    "bitrix:catalog.section",
-                    "slide",
-                    $tabCatalogParams
-                );
-                ?>
-            </div>
-        <?php endforeach; ?>
+                    $APPLICATION->IncludeComponent(
+                        "bitrix:catalog.section",
+                        "recommendations",
+                        $tabCatalogParams
+                    );
+                    ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
 </section>

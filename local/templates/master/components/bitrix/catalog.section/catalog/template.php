@@ -120,7 +120,7 @@ if ($showTopPager) {
 }
 ?>
 
-<div class="products-horizontal bx-<?= $arParams['TEMPLATE_THEME'] ?>"  data-entity="items-row">
+<div class="grid3 bx-<?= $arParams['TEMPLATE_THEME'] ?>"  data-entity="items-row">
     <?
     if (!empty($arResult['ITEMS']) && !empty($arResult['ITEM_ROWS'])) {
         $generalParams = [

@@ -49,7 +49,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
             componentId: '<?= $arResult['COMPONENT_ID'] ?>',
             componentName: 'acroweb:catalog.smartsearch',
             signedParameters: '<?= $this->getComponent()->getSignedParameters() ?>',
-            minQueryLength: 2,
+            minQueryLength: 3,
             debounceDelay: 300,
             itemsLimit: <?= (int)$arParams['ITEMS_LIMIT'] ?>
         });

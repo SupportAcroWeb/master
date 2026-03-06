@@ -17,7 +17,7 @@
         this.componentId = params.componentId;
         this.componentName = params.componentName;
         this.signedParameters = params.signedParameters;
-        this.minQueryLength = params.minQueryLength || 2;
+        this.minQueryLength = params.minQueryLength || 3;
         this.debounceDelay = params.debounceDelay || 300;
         this.itemsLimit = params.itemsLimit || 5;
         

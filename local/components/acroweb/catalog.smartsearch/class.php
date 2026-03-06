@@ -37,7 +37,7 @@ use CFile;
  */
 class CatalogSmartSearchComponent extends CBitrixComponent implements Controllerable
 {
-    private const MIN_QUERY_LENGTH = 2;
+    private const MIN_QUERY_LENGTH = 3;
     private const CACHE_DIR = '/acroweb/catalog.smartsearch/';
     private const ARRIVAL_DATE_PROPERTY_CODE = 'DATA_POSTUPLENIYA';
 
@@ -166,7 +166,7 @@ class CatalogSmartSearchComponent extends CBitrixComponent implements Controller
             // Валидация минимальной длины запроса
             if (mb_strlen($query) < self::MIN_QUERY_LENGTH) {
                 return [
-                    'html' => '<div class="header-search-dd__empty">Введите минимум 2 символа</div>'
+                    'html' => '<div class="header-search-dd__empty">Введите минимум 3 символа</div>'
                 ];
             }
 

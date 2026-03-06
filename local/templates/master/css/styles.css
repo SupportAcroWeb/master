@@ -7649,6 +7649,10 @@ td.target .table-variants__item {
   display: block;
 }
 
+.filter.filter_hidden {
+  display: none !important;
+}
+
 .catalog-nav.active {
   display: block;
 }

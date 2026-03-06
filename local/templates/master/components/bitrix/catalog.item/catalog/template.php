@@ -114,7 +114,7 @@ if (isset($arResult['ITEM']))
 	$itemHasDetailUrl = isset($item['DETAIL_PAGE_URL']) && $item['DETAIL_PAGE_URL'] != '';
 	?>
 
-	<div class="card-product3 <?= $arParams['ITEM_CLASS'] ?: '' ?> <?=(isset($arResult['SCALABLE']) && $arResult['SCALABLE'] === 'Y' ? ' product-item-scalable-card' : '')?>"
+	<div class="card-product <?= $arParams['ITEM_CLASS'] ?: '' ?> <?=(isset($arResult['SCALABLE']) && $arResult['SCALABLE'] === 'Y' ? ' product-item-scalable-card' : '')?>"
 		id="<?=$areaId?>" data-entity="item">
 		<?php
 		$documentRoot = Main\Application::getDocumentRoot();

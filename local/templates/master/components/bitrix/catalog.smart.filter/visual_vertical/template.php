@@ -17,26 +17,9 @@ $templateData = array(
     'TEMPLATE_CLASS' => 'bx_' . $arParams['TEMPLATE_THEME']
 );
 ?>
-
-<div data-action="hideFilterPopup" class="filter-backdrop"></div>
-<div class="catalog-filter expanded" data-accordion="expanded">
-    <button data-action="toggleCatalogFilter" class="btn-toggle" type="button">
-        <span>Фильтр подбора</span>
-        <svg aria-hidden="true" width="14" height="9">
-            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#chevron2"></use>
-        </svg>
-    </button>
-    <div class="grid1__inner1 catalog-filter__data" style="display: block;">
-        <div class="title2">Фильтр</div>
-        <button data-action="hideFilterPopup" class="catalog-filter__close filter__close">
-            <svg aria-hidden="true" width="14" height="14">
-                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#close1"></use>
-            </svg>
-        </button>
-
-        <form name="<? echo $arResult["FILTER_NAME"] . "_form" ?>" action="<? echo $arResult["FORM_ACTION"] ?>"
-              method="get" class="filter__body filter">
-            <div id="filter_bx_no_svg" class="filter__items filter__inner2 blocks-list1">
+<form name="<? echo $arResult["FILTER_NAME"] . "_form" ?>" action="<? echo $arResult["FORM_ACTION"] ?>"
+              method="get" >
+            <div id="filter_bx_no_svg" class="filter__params">
                 <? foreach ($arResult["HIDDEN"] as $arItem): ?>
                     <input type="hidden" name="<? echo $arItem["CONTROL_NAME"] ?>"
                            id="<? echo $arItem["CONTROL_ID"] ?>" value="<? echo $arItem["HTML_VALUE"] ?>"/>
@@ -58,14 +41,20 @@ $templateData = array(
                         continue;
                     ?>
                     <? global $USER; ?>
-                    <fieldset class="bx_filter_parameters_box filter__group active">
-                        <legend class="filter__title1"><?= $arItem["NAME"] ?>
-                            <? if (!empty($arItem["HINT"]) && $USER->IsAdmin()) {
-                                ?><span class="hint"><?= $arItem["HINT"] ?></span><?
-                            } ?></legend>
-
+                    <fieldset class="bx_filter_parameters_box filter__param filter__group <?= ($arItem["DISPLAY_EXPANDED"] === "Y" ? "active" : "") ?>"
+                              data-expandable="<?= ($arItem["DISPLAY_EXPANDED"] === "Y" ? "expanded" : "collapsed") ?>">
                         <span class="bx_filter_container_modef"></span>
-                        <div class="filter__toggler">
+                        <legend class="filter__title bx_filter_parameters_box_title" data-expandable-handle=""
+                                onclick="smartFilter.hideFilterProps(this)">
+                            <span><?= htmlspecialcharsbx($arItem["NAME"]) ?><?php
+                                if (!empty($arItem["HINT"]) && $USER->IsAdmin()) {
+                                    ?> <span class="hint"><?= $arItem["HINT"] ?></span><?php
+                                } ?></span>
+                            <svg aria-hidden="true" width="16" height="9">
+                                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#chevron2"></use>
+                            </svg>
+                        </legend>
+                        <div class="filter__param-data filter__toggler bx_filter_block" data-expandable-clip="">
                             <?
                             $arCur = current($arItem["VALUES"]);
                             switch ($arItem["DISPLAY_TYPE"]) {
@@ -537,50 +526,50 @@ $templateData = array(
                             break;
                             default://CHECKBOXES
                             ?>
-                                <ul class="checklist">
-                                    <?
-                                    if (is_array($arItem["VALUES"]) && !$arItem["VALUES"][array_key_first($arItem["VALUES"])]['SORT']) {
-                                        foreach ($arItem["VALUES"] as $key => $sortkey) {
-                                            $values[$key] = $sortkey['VALUE'];
-                                        }
-                                        array_multisort($values, SORT_ASC, $arItem['VALUES']);
-                                        unset($values);
-                                    }
-                                    ?>
-                                    <? foreach ($arItem["VALUES"] as $val => $ar): ?>
-                                        <li class="checklist__item">
-                                            <label data-role="label_<?= $ar["CONTROL_ID"] ?>"
-                                                   class="checkbox-text <? echo $ar["DISABLED"] ? 'disabled' : '' ?>"
-                                                   for="<? echo $ar["CONTROL_ID"] ?>">
-                                                <span class="bx_filter_input_checkbox checkbox1 <? echo $ar["DISABLED"] ? 'checkbox_disabled' : '' ?>"
-                                                      data-role="label_span_<?= $ar["CONTROL_ID"] ?>">
-                                                    <input
-                                                            class="checkbox1__input"
-                                                            type="checkbox"
-                                                            value="<? echo $ar["HTML_VALUE"] ?>"
-                                                            name="<? echo $ar["CONTROL_NAME"] ?>"
-                                                            id="<? echo $ar["CONTROL_ID"] ?>"
-                                                        <? echo $ar["DISABLED"] ? 'disabled' : '' ?>
-                                                        <? echo $ar["CHECKED"] ? 'checked="checked"' : '' ?>
-                                                        onclick="smartFilter.click(this)"
-                                                            data-role="label_input_<?= $ar["CONTROL_ID"] ?>"
-                                                    />
-                                                    <span class="bx_filter_param_text checkbox1__visual"
-                                                          title="<?= $ar["VALUE"]; ?>"><?= $ar["VALUE"]; ?><?
-                                                        if ($arParams["DISPLAY_ELEMENT_COUNT"] !== "N" && isset($ar["ELEMENT_COUNT"])):
-                                                            ?> (<span
-                                                                data-role="count_<?= $ar["CONTROL_ID"] ?>"><? echo $ar["ELEMENT_COUNT"]; ?></span>)<?
-                                                        endif; ?>
-                                                            <svg class="checkbox1__mark" width="12" height="11" aria-hidden="true">
-                                                                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#mark1"></use>
-                                                            </svg>
-                                                    </span>
-                                                </span>
-                                                <span class="checkbox-text__label"><?= $ar["VALUE"]; ?></span>
-                                            </label>
-                                        </li>
-                                    <?endforeach; ?>
-                                </ul>
+                                <div class="filter__param-data-inner1">
+                                    <div class="filter__param-data-inner2">
+                                        <ul class="checklist">
+                                            <?
+                                            if (is_array($arItem["VALUES"]) && !$arItem["VALUES"][array_key_first($arItem["VALUES"])]['SORT']) {
+                                                foreach ($arItem["VALUES"] as $sortKey => $sortkey) {
+                                                    $values[$sortKey] = $sortkey['VALUE'];
+                                                }
+                                                array_multisort($values, SORT_ASC, $arItem['VALUES']);
+                                                unset($values);
+                                            }
+                                            ?>
+                                            <? foreach ($arItem["VALUES"] as $val => $ar): ?>
+                                                <li>
+                                                    <label class="checkbox-text bx_filter_param_label<?= $ar["DISABLED"] ? ' disabled' : '' ?>"
+                                                           data-role="label_<?= $ar["CONTROL_ID"] ?>"
+                                                           for="<?= $ar["CONTROL_ID"] ?>">
+                                                        <span class="checkbox bx_filter_input_checkbox">
+                                                            <input class="checkbox__input"
+                                                                   type="checkbox"
+                                                                   name="<?= $ar["CONTROL_NAME"] ?>"
+                                                                   id="<?= $ar["CONTROL_ID"] ?>"
+                                                                   value="<?= $ar["HTML_VALUE"] ?>"
+                                                                   <?= $ar["DISABLED"] ? 'disabled' : '' ?>
+                                                                   <?= $ar["CHECKED"] ? 'checked="checked"' : '' ?>
+                                                                   onclick="smartFilter.click(this)"
+                                                                   data-role="label_input_<?= $ar["CONTROL_ID"] ?>">
+                                                            <span class="checkbox__visual">
+                                                                <svg class="checkbox__mark" width="10" height="8" aria-hidden="true">
+                                                                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#mark1"></use>
+                                                                </svg>
+                                                            </span>
+                                                        </span>
+                                                        <span class="checkbox-text__label bx_filter_param_text"
+                                                              title="<?= htmlspecialcharsbx($ar["VALUE"]) ?>"><?= $ar["VALUE"] ?><?php
+                                                            if ($arParams["DISPLAY_ELEMENT_COUNT"] !== "N" && isset($ar["ELEMENT_COUNT"])):
+                                                                ?> (<span data-role="count_<?= $ar["CONTROL_ID"] ?>"><?= $ar["ELEMENT_COUNT"] ?></span>)<?php
+                                                            endif; ?></span>
+                                                    </label>
+                                                </li>
+                                            <?endforeach; ?>
+                                        </ul>
+                                    </div>
+                                </div>
                             <?
                             }
                             ?>
@@ -597,15 +586,13 @@ $templateData = array(
                     </div>
                 </div>
             </div>
-            <div class="filter__buttons1">
-                <input class="btn btn_black btn_small" type="submit" id="set_filter"
+            <div class="filter__buttons">
+                <input class="btn btn_tiny btn_black" type="submit" id="set_filter"
                        name="set_filter" value="<?= GetMessage("CT_BCSF_SET_FILTER") ?>"/>
-                <input class="btn btn_black btn_hollow btn_small" type="submit" id="del_filter" name="del_filter"
+                <input class="btn btn_tiny btn_black btn_hollow" type="submit" id="del_filter" name="del_filter"
                        value="<?= GetMessage("CT_BCSF_DEL_FILTER") ?>"/>
             </div>
         </form>
-    </div>
-</div>
 <script>
     var smartFilter = new JCSmartFilter('<?echo CUtil::JSEscape($arResult["FORM_ACTION"])?>', 'vertical');
 </script>

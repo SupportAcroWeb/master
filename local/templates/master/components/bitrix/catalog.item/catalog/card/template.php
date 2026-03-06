@@ -28,23 +28,48 @@ use Bitrix\Main\Localization\Loc;
  * @var CatalogSectionComponent $component
  */
 ?>
+<?php
+$arrivalDate = '';
+if (!empty($item['DISPLAY_PROPERTIES']['DATA_POSTUPLENIYA']['DISPLAY_VALUE'])) {
+    $arrivalDateRaw = $item['DISPLAY_PROPERTIES']['DATA_POSTUPLENIYA']['DISPLAY_VALUE'];
+    $arrivalDate = is_array($arrivalDateRaw) ? implode(' / ', $arrivalDateRaw) : (string)$arrivalDateRaw;
+} elseif (!empty($item['PROPERTIES']['DATA_POSTUPLENIYA']['VALUE'])) {
+    $arrivalDateRaw = $item['PROPERTIES']['DATA_POSTUPLENIYA']['VALUE'];
+    $arrivalDate = is_array($arrivalDateRaw) ? implode(' / ', $arrivalDateRaw) : (string)$arrivalDateRaw;
+}
+$showArrivalDate = !$actualItem['CAN_BUY'] && $arrivalDate !== '';
+$isPriceZero = !empty($price) && (float)$price['PRICE'] <= 0;
+$printPrice = '';
+if (!empty($price)) {
+    if ($arParams['PRODUCT_DISPLAY_MODE'] === 'N' && $haveOffers && isset($minOffer)) {
+//        $printPrice = Loc::getMessage('CT_BCI_TPL_MESS_PRICE_SIMPLE_MODE', [
+//            '#PRICE#' => $price['PRINT_PRICE'],
+//            '#VALUE#' => $measureRatio,
+//            '#UNIT#' => $minOffer['ITEM_MEASURE']['TITLE'],
+//        ]);
+        $printPrice = Loc::getMessage('CT_BCI_TPL_MESS_PRICE_SIMPLE_MODE_2', [
+                '#PRICE#' => $price['PRINT_PRICE'],
+        ]);
+    } else {
+        $printPrice = $price['PRINT_PRICE'];
+    }
+}
+?>
 
-    <div class="card-product3__col-photo">
-        <? if ($itemHasDetailUrl): ?>
+    <div class="card-product__photo">
+        <?php if ($itemHasDetailUrl): ?>
         <a href="<?= $item['DETAIL_PAGE_URL'] ?>" title="<?= $imgTitle ?>" data-entity="image-wrapper">
-            <? else: ?>
-            <span data-entity="image-wrapper">
-    <? endif; ?>
+        <?php else: ?>
+        <span data-entity="image-wrapper">
+        <?php endif; ?>
             <span class="product-item-image-slider-slide-container slide" id="<?= $itemIds['PICT_SLIDER'] ?>"
                 <?= ($showSlider ? '' : 'style="display: none;"') ?>
                 data-slider-interval="<?= $arParams['SLIDER_INTERVAL'] ?>" data-slider-wrap="true">
-                <?
+                <?php
                 if ($showSlider) {
                     foreach ($morePhoto as $key => $photo) {
-                        ?>
-                        <img class="product-item-image-slide item <?= ($key == 0 ? 'active' : '') ?>"
-                             src="<?= $photo['SRC'] ?>" alt="<?= $imgTitle ?>">
-                        <?
+                        ?><img class="product-item-image-slide item <?= ($key == 0 ? 'active' : '') ?>"
+                             src="<?= $photo['SRC'] ?>" alt="<?= $imgTitle ?>"><?php
                     }
                 }
                 ?>
@@ -52,128 +77,115 @@ use Bitrix\Main\Localization\Loc;
             <img class="product-item-image-original" id="<?= $itemIds['PICT'] ?>"
                  src="<?= $item['PREVIEW_PICTURE']['SRC'] ?>" alt="<?= $imgTitle ?>"
                 <?= ($showSlider ? 'style="display: none;"' : '') ?>>
-            <?
+            <?php
             if ($item['SECOND_PICT']) {
                 $bgImage = !empty($item['PREVIEW_PICTURE_SECOND']) ? $item['PREVIEW_PICTURE_SECOND']['SRC'] : $item['PREVIEW_PICTURE']['SRC'];
-                ?>
-                <img class="product-item-image-alternative" id="<?= $itemIds['SECOND_PICT'] ?>"
+                ?><img class="product-item-image-alternative" id="<?= $itemIds['SECOND_PICT'] ?>"
                      src="<?= $bgImage ?>" alt="<?= $imgTitle ?>"
-                    <?= ($item['PREVIEW_PICTURE']['SRC'] ? 'style="display: none;"' : '') ?>>
-                <?
+                    <?= ($item['PREVIEW_PICTURE']['SRC'] ? 'style="display: none;"' : '') ?>><?php
             }
-
             if ($arParams['SHOW_DISCOUNT_PERCENT'] === 'Y' && !empty($price) && false) {
-                ?>
-                <div class="product-item-label-ring <?= $discountPositionClass ?>" id="<?= $itemIds['DSC_PERC'] ?>"
+                ?><div class="product-item-label-ring <?= $discountPositionClass ?>" id="<?= $itemIds['DSC_PERC'] ?>"
                     <?= ($price['PERCENT'] > 0 ? '' : 'style="display: none;"') ?>>
                     <span><?= -$price['PERCENT'] ?>%</span>
-                </div>
-                <?
+                </div><?php
             }
-
             ?>
             <div class="product-item-image-slider-control-container" id="<?= $itemIds['PICT_SLIDER'] ?>_indicator"
                 <?= ($showSlider ? '' : 'style="display: none;"') ?>>
-                <?
+                <?php
                 if ($showSlider) {
                     foreach ($morePhoto as $key => $photo) {
-                        ?>
-                        <div class="product-item-image-slider-control<?= ($key == 0 ? ' active' : '') ?>"
-                             data-go-to="<?= $key ?>"></div>
-                        <?
+                        ?><div class="product-item-image-slider-control<?= ($key == 0 ? ' active' : '') ?>"
+                             data-go-to="<?= $key ?>"></div><?php
                     }
                 }
                 ?>
             </div>
-            <?
-            if ($arParams['SLIDER_PROGRESS'] === 'Y') {
-                ?>
-                <div class="product-item-image-slider-progress-bar-container">
-                    <div class="product-item-image-slider-progress-bar" id="<?= $itemIds['PICT_SLIDER'] ?>_progress_bar"
-                         style="width: 0;"></div>
-                </div>
-                <?
+            <?php if ($arParams['SLIDER_PROGRESS'] === 'Y'): ?>
+            <div class="product-item-image-slider-progress-bar-container">
+                <div class="product-item-image-slider-progress-bar" id="<?= $itemIds['PICT_SLIDER'] ?>_progress_bar"
+                     style="width: 0;"></div>
+            </div>
+            <?php endif; ?>
+        <?php if ($itemHasDetailUrl): ?>
+        </a>
+        <?php else: ?>
+        </span>
+        <?php endif; ?>
+        <?php
+        $arLabelsClass = [
+            'NEWPRODUCT' => 'badge1_black',
+            'SALELEADER' => 'badge1_red',
+            'SPECIALOFFER' => 'badge1_orange',
+        ];
+        ?>
+        <div class="card-product__badges" id="<?= $itemIds['STICKER_ID'] ?>" <?= empty($item['LABEL_ARRAY_VALUE']) ? 'style="display: none;"' : '' ?>>
+            <?php
+            if (!empty($item['LABEL_ARRAY_VALUE'])) {
+                foreach ($item['LABEL_ARRAY_VALUE'] as $code => $value) {
+                    ?><span title="<?= htmlspecialcharsbx($value) ?>"
+                          class="badge1 <?= $arLabelsClass[$code] ?? 'badge1_black' ?>"><?= $value ?></span><?php
+                }
             }
             ?>
-                <? if ($itemHasDetailUrl): ?>
-        </a>
-    <? else: ?>
-        </span>
-    <? endif; ?>
-        <?
-        if ($item['LABEL']) {
-            $arLabelsClass = [
-                'NEWPRODUCT' => 'badge1_black',
-                'SALELEADER' => 'badge1_red',
-                'SPECIALOFFER' => 'badge1_orange',
-            ];
-            ?>
-            <div class="card-product3__badges" id="<?= $itemIds['STICKER_ID'] ?>">
-                <?
-                if (!empty($item['LABEL_ARRAY_VALUE'])) {
-                    foreach ($item['LABEL_ARRAY_VALUE'] as $code => $value) {
-                        ?>
-                        <span title="<?= $value ?>"
-                              class="badge1 <?= $arLabelsClass[$code] ?: 'badge1_black' ?>"><?= $value ?></span>
-                        <?
-                    }
+        </div>
+    </div>
+    <div class="card-product__name">
+        <?php if ($itemHasDetailUrl): ?>
+        <a href="<?= $item['DETAIL_PAGE_URL'] ?>" title="<?= $productTitle ?>"><?= $productTitle ?></a>
+        <?php else: ?>
+        <span><?= $productTitle ?></span>
+        <?php endif; ?>
+    </div>
+    <div class="card-product__status <?= $actualItem['CAN_BUY'] ? 'instock' : 'outofstock' ?>"><?= $actualItem['CAN_BUY'] ? 'В наличии' : 'Нет в наличии' ?></div>
+    <div class="card-product__description" <?= empty($item['PREVIEW_TEXT']) ? 'style="display: none;"' : '' ?>><?= $item['PREVIEW_TEXT'] ?? '' ?></div>
+    <div class="card-product__bar">
+        <div class="card-product__price">
+            <span class="card-product__price1" id="<?= $itemIds['PRICE'] ?>">
+                <?php
+                if ($isPriceZero) {
+                    echo 'Цена по запросу';
+                } else {
+                    echo $printPrice ?: '';
                 }
                 ?>
-            </div>
-            <?
-        }
-        ?>
-    </div>
-    <div class="card-product3__col-data">
-        <div class="card-product3__name">
-            <? if ($itemHasDetailUrl): ?>
-            <a href="<?= $item['DETAIL_PAGE_URL'] ?>" title="<?= $productTitle ?>">
-                <? endif; ?>
-                <?= $productTitle ?>
-                <? if ($itemHasDetailUrl): ?>
-            </a>
-        <? endif; ?>
+            </span>
         </div>
-        <? if (!empty($item['PREVIEW_TEXT'])): ?>
-            <div class="card-product3__description"><?= $item['PREVIEW_TEXT'] ?></div>
-        <? endif; ?>
-        <? if ($actualItem['CAN_BUY']): ?>
-            <div class="card-product3__status status_instock">В наличии</div>
-        <? else: ?>
-            <div class="card-product3__status status_outstock">Нет в наличии</div>
-        <? endif; ?>
-        <?
-        $arrivalDate = '';
-        if (!empty($item['DISPLAY_PROPERTIES']['DATA_POSTUPLENIYA']['DISPLAY_VALUE'])) {
-            $arrivalDateRaw = $item['DISPLAY_PROPERTIES']['DATA_POSTUPLENIYA']['DISPLAY_VALUE'];
-            $arrivalDate = is_array($arrivalDateRaw) ? implode(' / ', $arrivalDateRaw) : (string)$arrivalDateRaw;
-        } elseif (!empty($item['PROPERTIES']['DATA_POSTUPLENIYA']['VALUE'])) {
-            $arrivalDateRaw = $item['PROPERTIES']['DATA_POSTUPLENIYA']['VALUE'];
-            $arrivalDate = is_array($arrivalDateRaw) ? implode(' / ', $arrivalDateRaw) : (string)$arrivalDateRaw;
-        }
-        $showArrivalDate = !$actualItem['CAN_BUY'] && $arrivalDate !== '';
-        ?>
-        <? if (!$haveOffers && !empty($item['DISPLAY_PROPERTIES'])): ?>
-            <div class="card-product3__col-specs" data-entity="props-block">
-                <div class="card-product3__label2">Характеристики</div>
-                <div class="card-product3__specs">
-                    <?
-                    foreach ($item['DISPLAY_PROPERTIES'] as $code => $displayProperty) {
-                        ?>
-                        <div<?= (!isset($item['PROPERTY_CODE_MOBILE'][$code]) ? ' class="hidden-xs"' : '') ?>>
-                            <span><?= $displayProperty['NAME'] ?></span>
-                            <span><?= (is_array($displayProperty['DISPLAY_VALUE'])
-                                    ? implode(' / ', $displayProperty['DISPLAY_VALUE'])
-                                    : $displayProperty['DISPLAY_VALUE']) ?></span>
-                        </div>
-                        <?
-                    }
-                    ?>
-                </div>
-            </div>
-        <? endif; ?>
+        <?php if ($itemHasDetailUrl): ?>
+        <a href="<?= $item['DETAIL_PAGE_URL'] ?>" class="btn-arrow1" title="<?= $productTitle ?>">
+            <svg width="14" height="14" aria-hidden="true">
+                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
+            </svg>
+        </a>
+        <?php else: ?>
+        <span class="btn-arrow1">
+            <svg width="14" height="14" aria-hidden="true">
+                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
+            </svg>
+        </span>
+        <?php endif; ?>
     </div>
-    <div class="card-product3__col-btn">
+
+    <?php /* Скрытые блоки для функционала */ ?>
+    <?php if (!$haveOffers && !empty($item['DISPLAY_PROPERTIES'])): ?>
+    <div class="card-product3__col-specs" data-entity="props-block" style="display: none;">
+        <div class="card-product3__label2">Характеристики</div>
+        <div class="card-product3__specs">
+            <?php
+            foreach ($item['DISPLAY_PROPERTIES'] as $code => $displayProperty) {
+                ?><div<?= (!isset($item['PROPERTY_CODE_MOBILE'][$code]) ? ' class="hidden-xs"' : '') ?>>
+                    <span><?= $displayProperty['NAME'] ?></span>
+                    <span><?= (is_array($displayProperty['DISPLAY_VALUE'])
+                            ? implode(' / ', $displayProperty['DISPLAY_VALUE'])
+                            : $displayProperty['DISPLAY_VALUE']) ?></span>
+                </div><?php
+            }
+            ?>
+        </div>
+    </div>
+    <?php endif; ?>
+    <div class="card-product3__col-btn" style="display: none;">
         <button data-action="showSpecs" class="card-product3__btn-info" type="button">
             <svg aria-hidden="true" width="6" height="15">
                 <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#info1"></use>
@@ -181,10 +193,7 @@ use Bitrix\Main\Localization\Loc;
             <span class="v-h">Характеристики</span>
         </button>
     </div>
-    <?
-    $isPriceZero = !empty($price) && (float)$price['PRICE'] <= 0;
-    ?>
-    <div class="card-product3__col1" data-entity="price-block" <?= $isPriceZero ? 'style="display: none;"' : '' ?>>
+    <div class="card-product3__col1" data-entity="price-block" style="display: none;">
         <div>
             <div class="card-product3__label1">С НДС (1 <?= $actualItem['ITEM_MEASURE']['TITLE'] ?>
                 )
@@ -219,21 +228,17 @@ use Bitrix\Main\Localization\Loc;
             ?>
         </div>
     </div>
-    <? if ($isPriceZero): ?>
-    <div class="card-product3__col1">
+    <div class="card-product3__col1" style="display: none;">
         <div>
-            <div class="card-product3__label1">С НДС (1 <?= $actualItem['ITEM_MEASURE']['TITLE'] ?>
-                )
-            </div>
+            <div class="card-product3__label1">С НДС (1 <?= $actualItem['ITEM_MEASURE']['TITLE'] ?>)</div>
             <span class="card-product3__price1 no_price">Цена по запросу</span>
         </div>
     </div>
-    <? endif; ?>
-    <div class="card-product3__col2" <?= $isPriceZero ? 'style="display: none;"' : '' ?>>
+    <div class="card-product3__col2" style="display: none;">
         <div class="card-product3__col2-inner">
-            <? if ($showArrivalDate): ?>
+            <?php if ($showArrivalDate): ?>
                 <span class="card-product3__arrival-date">Дата поступления: <?= htmlspecialcharsbx($arrivalDate) ?></span>
-            <? endif; ?>
+            <?php endif; ?>
             <div class="card-product3__sum">
                 <span>На сумму</span>
                 <span class="card-product3__price3"
@@ -241,14 +246,14 @@ use Bitrix\Main\Localization\Loc;
             </div>
         </div>
     </div>
-    <? if ($isPriceZero): ?>
-    <div class="card-product3__col2">
+    <?php if ($isPriceZero): ?>
+    <div class="card-product3__col2" style="display: none;">
         <div>
             <span class="card-product3__price3 no_price">Цена по запросу</span>
         </div>
     </div>
-    <? endif; ?>
-    <div class="card-product3__col3">
+    <?php endif; ?>
+    <div class="card-product3__col3" style="display: none;">
         <?
         if (!$haveOffers) {
             if ($actualItem['CAN_BUY'] && $arParams['USE_PRODUCT_QUANTITY']) {
@@ -302,7 +307,7 @@ use Bitrix\Main\Localization\Loc;
         }
         ?>
     </div>
-    <div class="card-product3__col4">
+    <div class="card-product3__col4" style="display: none;">
         <div data-entity="buttons-block">
             <?
             $classBtn = 'btn btn_primary';

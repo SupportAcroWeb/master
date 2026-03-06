@@ -87,7 +87,7 @@ if ($cache->initCache($cacheTime, $cacheId, $cacheDir)) {
             }
         }
     }
-    
+
     $cache->endDataCache($elementIds);
 }
 
