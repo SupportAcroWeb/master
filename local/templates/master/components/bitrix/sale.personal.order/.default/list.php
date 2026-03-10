@@ -31,17 +31,11 @@ foreach ($arParams as $key => $val)
         $arChildParams[$key] = $val;
 ?>
 
-<div class="container container_bordered1">
-    <div class="block-user-cabinet__content">
-        <div class="block-user-cabinet__column">
-            <?
-            $APPLICATION->IncludeComponent(
-                "bitrix:sale.personal.order.list",
-                "",
-                $arChildParams,
-                $component
-            );
-            ?>
-        </div>
-    </div>
-</div>
+<?
+$APPLICATION->IncludeComponent(
+    "bitrix:sale.personal.order.list",
+    "",
+    $arChildParams,
+    $component
+);
+?>

@@ -46,65 +46,70 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
         }
     }
     ?>
-
-<div class="block-user-cabinet__top">
-    <div class="block-user-cabinet__title">мои заказы</div>
-</div>
-
-<div class="filter-user-cabinet">
-    <?php
+<?php
     $nothing = !isset($_REQUEST["filter_history"]) && !isset($_REQUEST["show_all"]);
-    $clearFromLink = array("filter_history", "filter_status", "show_all", "show_canceled");
+    $clearFromLink = ["filter_history", "filter_status", "show_all", "show_canceled"];
 
-    // Текущие заказы
     if ($nothing || $filterHistory === 'N') {
-        ?>
-        <span class="filter-user-cabinet__title active">Текущие</span>
-        <?php
+        $currentTab = 'current';
+    } elseif ($filterShowCanceled === 'Y') {
+        $currentTab = 'cancelled';
     } else {
-        ?>
-        <a href="<?= $APPLICATION->GetCurPageParam("", $clearFromLink, false) ?>" class="filter-user-cabinet__title">Текущие</a>
-        <?php
+        $currentTab = 'completed';
     }
+?>
 
-    // История заказов
-    if ($filterHistory === 'Y' && $filterShowCanceled !== 'Y') {
-        ?>
-        <span class="filter-user-cabinet__title active">История заказов</span>
-        <?php
-    } else {
-        ?>
-        <a href="<?= $APPLICATION->GetCurPageParam("filter_history=Y", $clearFromLink, false) ?>" class="filter-user-cabinet__title">История заказов</a>
-        <?php
-    }
+<div class="order-tabs">
+    <?php if ($currentTab === 'current'): ?>
+        <button class="order-tabs__item is-active" type="button">Текущие</button>
+    <?php else: ?>
+        <a
+            href="<?= $APPLICATION->GetCurPageParam("", $clearFromLink, false) ?>"
+            class="order-tabs__item"
+        >
+            Текущие
+        </a>
+    <?php endif ?>
 
-    // Отмененные
-    if ($filterShowCanceled === 'Y') {
-        ?>
-        <span class="filter-user-cabinet__title active">Отмененные</span>
-        <?php
-    } else {
-        ?>
-        <a href="<?= $APPLICATION->GetCurPageParam("filter_history=Y&show_canceled=Y", $clearFromLink, false) ?>" class="filter-user-cabinet__title">Отмененные</a>
-        <?php
-    }
-    ?>
+    <?php if ($currentTab === 'completed'): ?>
+        <button class="order-tabs__item is-active" type="button">Завершённые</button>
+    <?php else: ?>
+        <a
+            href="<?= $APPLICATION->GetCurPageParam("filter_history=Y", $clearFromLink, false) ?>"
+            class="order-tabs__item"
+        >
+            Завершённые
+        </a>
+    <?php endif ?>
+
+    <?php if ($currentTab === 'cancelled'): ?>
+        <button class="order-tabs__item is-active" type="button">Отменённые</button>
+    <?php else: ?>
+        <a
+            href="<?= $APPLICATION->GetCurPageParam("filter_history=Y&show_canceled=Y", $clearFromLink, false) ?>"
+            class="order-tabs__item"
+        >
+            Отменённые
+        </a>
+    <?php endif ?>
 </div>
-<?php if (!empty($arResult['ORDERS'])): ?>
-<div class="tables-user-cabinet">
-    
-    <div class="tables-user-cabinet__content" data-entity="items-row">
-        <!-- Заголовок таблицы -->
-        <div class="tables-user-cabinet__main-table">
-            <div class="tables-user-cabinet__value">№</div>
-            <div class="tables-user-cabinet__value">Создан</div>
-            <div class="tables-user-cabinet__value">Сумма</div>
-            <div class="tables-user-cabinet__value">Статус оплаты</div>
-            <div class="tables-user-cabinet__value">Статус заказа</div>
-            <div class="tables-user-cabinet__value"></div>
-            <div class="tables-user-cabinet__value"></div>
-        </div>
 
+<?php if (!empty($arResult['ORDERS'])): ?>
+<div class="order-tabs__content is-active" data-tab="<?= htmlspecialcharsbx($currentTab) ?>">
+    <div class="orders-table-wrapper" data-entity="items-row">
+        <table class="orders-table">
+            <thead class="orders-table__header">
+                <tr>
+                    <th>№</th>
+                    <th>Создан</th>
+                    <th>Сумма</th>
+                    <th>Статус оплаты</th>
+                    <th>Статус заказа</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
         <?php
         $paymentChangeData = [];
         $orderHeaderStatus = null;
@@ -167,53 +172,96 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
             }
             ?>
 
-        <div class="tables-user-cabinet__table" data-entity="item">
-            <div class="tables-user-cabinet__value">
-                <span>Заказ</span>
-                № <?= htmlspecialcharsbx($order['ORDER']['ACCOUNT_NUMBER']) ?>
-            </div>
-            <div class="tables-user-cabinet__value">
-                <span>Создан</span>
-                <?= htmlspecialcharsbx($order['ORDER']['DATE_INSERT_FORMATED']) ?>
-            </div>
-            <div class="tables-user-cabinet__value">
-                <span>Сумма</span>
-                <?= html_entity_decode($order['ORDER']['FORMATED_PRICE'], ENT_QUOTES, 'UTF-8') ?>
-            </div>
-            <div class="tables-user-cabinet__value <?= $paymentStatusClass ?>">
-                <span>Статус оплаты</span>
-                <svg aria-hidden="true" width="16" height="16">
-                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#<?= $paymentStatusIcon ?>"></use>
-                </svg>
-                <?= htmlspecialcharsbx($paymentStatusText) ?>
-            </div>
-            <div class="tables-user-cabinet__value <?= $orderStatusClass ?>">
-                <span>Статус заказа</span>
-                <svg aria-hidden="true" width="16" height="16">
-                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#<?= $orderStatusIcon ?>"></use>
-                </svg>
-                <?= htmlspecialcharsbx($orderStatus['NAME']) ?>
-            </div>
-            <a href="<?= htmlspecialcharsbx($order["ORDER"]["URL_TO_COPY"]) ?>" class="tables-user-cabinet__value link">
-                Заказать повторно
-                <svg aria-hidden="true" width="13" height="13">
-                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
-                </svg>
-            </a>
-            <a href="<?= htmlspecialcharsbx($order["ORDER"]["URL_TO_DETAIL"]) ?>" class="tables-user-cabinet__value link">
-                Подробнее
-                <svg aria-hidden="true" width="13" height="13">
-                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
-                </svg>
-            </a>
-        </div>
+            <tr data-entity="item">
+                <td data-label="№">
+                    <div>№ <?= htmlspecialcharsbx($order['ORDER']['ACCOUNT_NUMBER']) ?></div>
+                </td>
+                <td data-label="Создан">
+                    <div><?= htmlspecialcharsbx($order['ORDER']['DATE_INSERT_FORMATED']) ?></div>
+                </td>
+                <td data-label="Сумма">
+                    <div><?= html_entity_decode($order['ORDER']['FORMATED_PRICE'], ENT_QUOTES, 'UTF-8') ?></div>
+                </td>
+                <td data-label="Статус оплаты">
+                    <div>
+                        <?php
+                        $payClass = 'order-status';
+                        $payIcon = 'status-pending';
+                        if ($paymentStatusClass === 'status_paid') {
+                            $payClass .= ' order-status--success';
+                            $payIcon = 'status-success';
+                        } else {
+                            $payClass .= ' order-status--pending';
+                            $payIcon = 'status-pending';
+                        }
+                        ?>
+                        <span class="<?= $payClass ?>">
+                            <svg aria-hidden="true" width="18" height="18">
+                                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#<?= $payIcon ?>"></use>
+                            </svg>
+                            <?= htmlspecialcharsbx($paymentStatusText) ?>
+                        </span>
+                    </div>
+                </td>
+                <td data-label="Статус заказа">
+                    <div>
+                        <?php
+                        $orderClass = 'order-status';
+                        $orderIconSprite = 'status-pending';
+                        if ($orderStatusClass === 'status_cancel') {
+                            $orderClass .= ' order-status--cancel';
+                            $orderIconSprite = 'status-cancel';
+                        } elseif ($orderStatusClass === 'status_paid') {
+                            $orderClass .= ' order-status--success';
+                            $orderIconSprite = 'status-success';
+                        } else {
+                            $orderClass .= ' order-status--pending';
+                            $orderIconSprite = 'status-pending';
+                        }
+                        ?>
+                        <span class="<?= $orderClass ?>">
+                            <svg aria-hidden="true" width="18" height="18">
+                                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#<?= $orderIconSprite ?>"></use>
+                            </svg>
+                            <?= htmlspecialcharsbx($orderStatus['NAME']) ?>
+                        </span>
+                    </div>
+                </td>
+                <td class="cell--details">
+                    <div>
+                        <a
+                            class="btn-text btn-text_primary"
+                            href="<?= htmlspecialcharsbx($order["ORDER"]["URL_TO_DETAIL"]) ?>"
+                        >
+                            <span>подробнее</span>
+                            <svg class="btn-text__icon" width="14" height="14" aria-hidden="true">
+                                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
+                            </svg>
+                        </a>
+                    </div>
+                </td>
+                <td class="cell--details">
+                    <div>
+                        <a
+                            class="btn-text btn-text_primary"
+                            href="<?= htmlspecialcharsbx($order["ORDER"]["URL_TO_COPY"]) ?>"
+                        >
+                            <span>повторить заказ</span>
+                            <svg class="btn-text__icon" width="14" height="14" aria-hidden="true">
+                                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
+                            </svg>
+                        </a>
+                    </div>
+                </td>
+            </tr>
 
         <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
-    
 
     <?php
-    // Выводим пагинацию
+    // Выводим пагинацию (data-атрибуты остаются из шаблона system.pagenavigation)
     if (!empty($arResult["NAV_STRING"])) {
         echo $arResult["NAV_STRING"];
     }

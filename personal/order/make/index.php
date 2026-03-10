@@ -4,7 +4,7 @@ $APPLICATION->SetTitle("Оформление заказа");
 ?><?$APPLICATION->IncludeComponent(
 	"bitrix:sale.order.ajax", 
 	".default", 
-	[
+	array(
 		"ACTION_VARIABLE" => "soa-action",
 		"ADDITIONAL_PICT_PROP_3" => "MORE_PHOTO",
 		"ALLOW_APPEND_ORDER" => "Y",
@@ -31,19 +31,20 @@ $APPLICATION->SetTitle("Оформление заказа");
 		"PAY_SYSTEMS_PER_PAGE" => "9",
 		"PICKUPS_PER_PAGE" => "5",
 		"PICKUP_MAP_TYPE" => "yandex",
-		"PRODUCT_COLUMNS_HIDDEN" => [
+		"PRODUCT_COLUMNS_HIDDEN" => array(
 			0 => "PREVIEW_TEXT",
-		],
-		"PRODUCT_COLUMNS_VISIBLE" => [
+		),
+		"PRODUCT_COLUMNS_VISIBLE" => array(
 			0 => "PREVIEW_PICTURE",
 			1 => "PREVIEW_TEXT",
 			2 => "PROPS",
 			3 => "DISCOUNT_PRICE_PERCENT_FORMATED",
 			4 => "PRICE_FORMATED",
-		],
-		"PROPS_FADE_LIST_1" => "",
-		"PROPS_FADE_LIST_2" => [
-		],
+		),
+		"PROPS_FADE_LIST_1" => array(
+		),
+		"PROPS_FADE_LIST_2" => array(
+		),
 		"SEND_NEW_USER_NOTIFY" => "N",
 		"SERVICES_IMAGES_SCALING" => "adaptive",
 		"SET_TITLE" => "N",
@@ -82,20 +83,20 @@ $APPLICATION->SetTitle("Оформление заказа");
 		"USE_PREPAYMENT" => "N",
 		"USE_YM_GOALS" => "N",
 		"COMPONENT_TEMPLATE" => ".default",
-		"BUYER_PROPS_GROUP_ID" => "5",
-		"ORGANIZATION_PROPS_GROUP_ID" => "6",
-		"ADDRESS_PROPS_GROUP_ID" => "7",
-		"ADDITIONAL_PROPS_GROUP_ID" => "9",
-		"RESTRICTED_PAY_SYSTEMS" => [
+		"BUYER_PROPS_GROUP_ID" => "1",
+		"ORGANIZATION_PROPS_GROUP_ID" => "1",
+		"ADDRESS_PROPS_GROUP_ID" => "1",
+		"ADDITIONAL_PROPS_GROUP_ID" => "1",
+		"RESTRICTED_PAY_SYSTEMS" => array(
 			0 => "2",
-			1 => "7",
-		],
-		"USER_CONSENT_IDS" => [
+		),
+		"USER_CONSENT_IDS" => array(
 			0 => "2",
-		],
-		"EXTERNAL_DELIVERY_PROPS_GROUP_ID" => "10",
+		),
+		"EXTERNAL_DELIVERY_PROPS_GROUP_ID" => "1",
 		"USER_CONSENT_IS_CHECKED_2" => "N",
-		"USER_CONSENT_REQUIRED_2" => "Y"
-	],
+		"USER_CONSENT_REQUIRED_2" => "Y",
+		"ADDITIONAL_PICT_PROP_5" => "-"
+	),
 	false
 );?><br><?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

@@ -8,32 +8,37 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 use Acroweb\Mage\Helpers\TemplateHelper;
 
 ?>
-<div class="block-breadcrumbs">
-    <div class="container"> <?
-        TemplateHelper::includePartial('breadcrumbs'); ?>
-        <h1 class="title2"><? $APPLICATION->ShowTitle(false, false); ?></h1>
-    </div>
-</div>
-<div class="block-user-cabinet block1 favorites-cabinet<?php TemplateHelper::showDivClass('organizationClass'); ?>">
-    <div class="container<?php TemplateHelper::showDivClass('personalClass'); ?>">
-        <div class="nav-user-cabinet">
-            <? $APPLICATION->IncludeComponent(
-                "bitrix:menu",
-                "personal_menu",
-                array(
-                    "ALLOW_MULTI_SELECT" => "N",
-                    "CHILD_MENU_TYPE" => "personal",
-                    "DELAY" => "N",
-                    "MAX_LEVEL" => "1",
-                    "MENU_CACHE_GET_VARS" => array(),
-                    "MENU_CACHE_TIME" => "3600",
-                    "MENU_CACHE_TYPE" => "N",
-                    "MENU_CACHE_USE_GROUPS" => "Y",
-                    "ROOT_MENU_TYPE" => "personal",
-                    "USE_EXT" => "N",
-                    "COMPONENT_TEMPLATE" => "personal_menu"
-                ),
-                false
-            ); ?>
-        </div>
-    </div>
+<div class="container">
+    <?
+    TemplateHelper::includePartial('breadcrumbs'); ?>
+    <div class="layout-sidebar features-wrapper">
+        <aside class="layout-sidebar__aside lk-aside">
+            <div class="lk-aside__inner">
+                <button class="lk-aside__toggle" type="button">
+                    <span class="lk-aside__toggle-text"><? $APPLICATION->ShowTitle(false, false); ?></span>
+                    <span class="lk-aside__toggle-icon"></span>
+                </button>
+                <? $APPLICATION->IncludeComponent(
+                        "bitrix:menu",
+                        "personal_menu",
+                        array(
+                                "ALLOW_MULTI_SELECT" => "N",
+                                "CHILD_MENU_TYPE" => "personal",
+                                "DELAY" => "N",
+                                "MAX_LEVEL" => "1",
+                                "MENU_CACHE_GET_VARS" => array(),
+                                "MENU_CACHE_TIME" => "3600",
+                                "MENU_CACHE_TYPE" => "N",
+                                "MENU_CACHE_USE_GROUPS" => "Y",
+                                "ROOT_MENU_TYPE" => "personal",
+                                "USE_EXT" => "N",
+                                "COMPONENT_TEMPLATE" => "personal_menu"
+                        ),
+                        false
+                ); ?>
+
+            </div>
+        </aside>
+        <div class="layout-sidebar__main lk-main">
+            <div class="lk-main__inner">
+                <h2 class="title2 title"><? $APPLICATION->ShowTitle(false, false); ?></h2>

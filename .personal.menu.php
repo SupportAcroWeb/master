@@ -8,8 +8,8 @@ $aMenuLinks = Array(
         ""
     ),
     Array(
-        "Данные организации",
-        "/personal/dannye-organizatsii/",
+        "Безопасность",
+        "/personal/safety/",
         Array(),
         Array(),
         ""
@@ -17,13 +17,6 @@ $aMenuLinks = Array(
     Array(
         "Мои заказы",
         "/personal/moi-zakazy/",
-        Array(),
-        Array(),
-        ""
-    ),
-    Array(
-        "Избранное",
-        "/personal/favorites/",
         Array(),
         Array(),
         ""

@@ -18,32 +18,6 @@ $(document).ready(function () {
     });
 
     /**
-     * Показать ошибку в поле ИНН
-     * 
-     * @param {string} message Текст ошибки
-     * @param {jQuery} $input Поле ввода
-     */
-    function showInnError(message, $input) {
-        const $formGroup = $input.closest('.form-group1');
-        
-        $formGroup.addClass('form-group_error');
-        $formGroup.find('.form-group__error, .error').remove();
-        $formGroup.append('<label class="form-group__error error">' + message + '</label>');
-    }
-
-    /**
-     * Очистить ошибку в поле ИНН
-     * 
-     * @param {jQuery} $input Поле ввода
-     */
-    function clearInnError($input) {
-        const $formGroup = $input.closest('.form-group1');
-        
-        $formGroup.removeClass('form-group_error');
-        $formGroup.find('.form-group__error, .error').remove();
-    }
-
-    /**
      * Показать ошибку в произвольном поле
      * 
      * @param {string} message Текст ошибки
