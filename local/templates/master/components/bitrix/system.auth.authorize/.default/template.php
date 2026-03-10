@@ -21,30 +21,16 @@ global $APPLICATION;
 $APPLICATION->SetTitle('');
 ?>
 
-<div class="container">
-    <div class="block-login__top">
-        <h1 class="title2">авторизация</h1>
-        <p>
-            У Вас еще нет учётной записи?
-        </p>
-        <a href="<?= $arResult['AUTH_REGISTER_URL'] ?>" class="btn-text2">
-            <span>зарегистрироваться</span>
-            <svg aria-hidden="true" width="14" height="14">
-                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
-            </svg>
-        </a>
-    </div>
-</div>
-
-<div class="container container_bordered1">
-    <form 
-        data-validate 
-        data-onsubmit-trigger="auth_form_submit" 
-        name="form_auth" 
-        method="post" 
-        target="_top" 
-        action="<?= $arResult['AUTH_URL'] ?>" 
-        class="form"
+<div class="form-block">
+    <h1 class="title2 title">Авторизация</h1>
+    <form
+        data-validate
+        data-onsubmit-trigger="auth_form_submit"
+        name="form_auth"
+        method="post"
+        target="_top"
+        action="<?= $arResult['AUTH_URL'] ?>"
+        class="form-grid1"
     >
         <input type="hidden" name="AUTH_FORM" value="Y">
         <input type="hidden" name="TYPE" value="AUTH">
@@ -55,95 +41,128 @@ $APPLICATION->SetTitle('');
             <input type="hidden" name="<?= $key ?>" value="<?= $value ?>">
         <?php endforeach ?>
 
-        <div class="form-grid1 form-grid1_pad">
-            <div class="form-grid1__row">
-                <div class="form-group1">
-                    <input 
-                        id="auth_login_email" 
-                        class="field-input1 form-group1__field" 
-                        placeholder=" " 
-                        type="text" 
-                        name="USER_LOGIN" 
-                        value="<?= htmlspecialcharsbx($arResult['LAST_LOGIN']) ?>"
-                        required
-                    >
-                    <label class="form-group1__label form-group1__label_req" for="auth_login_email">E-mail</label>
-                </div>
+        <div class="form-grid1__row">
+            <div class="form-group1">
+                <input
+                    id="auth_login"
+                    class="field-input1 form-group__field"
+                    type="text"
+                    name="USER_LOGIN"
+                    placeholder=" "
+                    value="<?= htmlspecialcharsbx($arResult['LAST_LOGIN']) ?>"
+                    required
+                >
+                <label class="form-group1__label" for="auth_login">
+                    Логин <span class="req">*</span>
+                </label>
             </div>
-            <div class="form-grid1__row">
-                <div class="form-group1">
-                    <input 
-                        id="auth_login_password" 
-                        class="field-input1 form-group1__field" 
-                        placeholder=" " 
-                        type="password" 
-                        name="USER_PASSWORD" 
-                        required
-                    >
-                    <label class="form-group1__label form-group1__label_req" for="auth_login_password">Пароль</label>
-                    <div class="form-group1__icon">
-                        <img class="eye1" src="<?= SITE_TEMPLATE_PATH ?>/img/eye1.svg" alt="">
-                        <img class="eye2 hidden" src="<?= SITE_TEMPLATE_PATH ?>/img/eye2.svg" alt="">
-                    </div>
-                    <?php if ($arParams['~AUTH_RESULT'] || $arResult['ERROR_MESSAGE']): ?>
-                        <div class="form-error1">
-                            <?php
-                            ShowMessage($arParams['~AUTH_RESULT']);
-                            ShowMessage($arResult['ERROR_MESSAGE']);
-                            ?>
-                        </div>
-                    <?php endif ?>
-                </div>
-            </div>
-
-            <?php if ($arResult['CAPTCHA_CODE']): ?>
-                <div class="form-grid1__row">
-                    <div class="form-group1">
-                        <input type="hidden" name="captcha_sid" value="<?= $arResult['CAPTCHA_CODE'] ?>">
-                        <img 
-                            src="/bitrix/tools/captcha.php?captcha_sid=<?= $arResult['CAPTCHA_CODE'] ?>" 
-                            width="180" 
-                            height="40" 
-                            alt="CAPTCHA"
-                        >
-                    </div>
-                </div>
-                <div class="form-grid1__row">
-                    <div class="form-group1">
-                        <input 
-                            class="field-input1 form-group1__field" 
-                            type="text" 
-                            name="captcha_word" 
-                            maxlength="50" 
-                            placeholder=" "
-                            autocomplete="off"
-                            required
-                        >
-                        <label class="form-group1__label form-group1__label_req">
-                            <?= GetMessage('AUTH_CAPTCHA_PROMT') ?>
-                        </label>
-                    </div>
-                </div>
-            <?php endif ?>
-
-            <?php if ($arResult['SECURE_AUTH']): ?>
-                <span class="bx-auth-secure" id="bx_auth_secure" title="<?= GetMessage('AUTH_SECURE_NOTE') ?>" style="display:none">
-                    <div class="bx-auth-secure-icon"></div>
-                </span>
-                <noscript>
-                    <span class="bx-auth-secure" title="<?= GetMessage('AUTH_NONSECURE_NOTE') ?>">
-                        <div class="bx-auth-secure-icon bx-auth-secure-unlock"></div>
-                    </span>
-                </noscript>
-            <?php endif ?>
         </div>
 
-        <div class="form-grid1__buttons">
-            <button class="btn btn_primary" type="submit" name="Login">
-                Авторизоваться
-            </button>
-            <a href="<?= $arResult['AUTH_FORGOT_PASSWORD_URL'] ?>" class="forgot-password">
+        <div class="form-grid1__row">
+            <div class="form-group1 form-group1--password">
+                <input
+                    id="password"
+                    class="field-input1 form-group__field"
+                    type="password"
+                    name="USER_PASSWORD"
+                    placeholder=" "
+                    required
+                >
+                <label class="form-group1__label" for="password">
+                    Пароль <span class="req">*</span>
+                </label>
+                <div class="password-toggle">
+                    <button type="button" class="password-toggle__btn show">
+                        <svg class="btn-text__icon" width="24" height="24" aria-hidden="true">
+                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#eye-on1"></use>
+                        </svg>
+                    </button>
+                    <button type="button" class="password-toggle__btn hide">
+                        <svg class="btn-text__icon" width="24" height="24" aria-hidden="true">
+                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#eye-off1"></use>
+                        </svg>
+                    </button>
+                </div>
+
+                <?php if ($arParams['~AUTH_RESULT'] || $arResult['ERROR_MESSAGE']): ?>
+                    <div class="form-error1">
+                        <?php
+                        ShowMessage($arParams['~AUTH_RESULT']);
+                        ShowMessage($arResult['ERROR_MESSAGE']);
+                        ?>
+                    </div>
+                <?php endif ?>
+
+                <?php if ($arResult['SECURE_AUTH']): ?>
+                    <span
+                        class="bx-auth-secure"
+                        id="bx_auth_secure"
+                        title="<?= GetMessage('AUTH_SECURE_NOTE') ?>"
+                        style="display:none"
+                    >
+                        <div class="bx-auth-secure-icon"></div>
+                    </span>
+                    <noscript>
+                        <span
+                            class="bx-auth-secure"
+                            title="<?= GetMessage('AUTH_NONSECURE_NOTE') ?>"
+                        >
+                            <div class="bx-auth-secure-icon bx-auth-secure-unlock"></div>
+                        </span>
+                    </noscript>
+                <?php endif ?>
+            </div>
+        </div>
+
+        <?php if ($arResult['CAPTCHA_CODE']): ?>
+            <div class="form-grid1__row">
+                <div class="form-group1">
+                    <input type="hidden" name="captcha_sid" value="<?= $arResult['CAPTCHA_CODE'] ?>">
+                    <img
+                        src="/bitrix/tools/captcha.php?captcha_sid=<?= $arResult['CAPTCHA_CODE'] ?>"
+                        width="180"
+                        height="40"
+                        alt="CAPTCHA"
+                    >
+                </div>
+            </div>
+            <div class="form-grid1__row">
+                <div class="form-group1">
+                    <input
+                        class="field-input1 form-group__field"
+                        type="text"
+                        name="captcha_word"
+                        maxlength="50"
+                        placeholder=" "
+                        autocomplete="off"
+                        required
+                    >
+                    <label class="form-group1__label">
+                        <?= GetMessage('AUTH_CAPTCHA_PROMT') ?>
+                    </label>
+                </div>
+            </div>
+        <?php endif ?>
+
+        <div class="form-grid1__row form-grid1__btns">
+            <a
+                href="<?= $arResult['AUTH_FORGOT_PASSWORD_URL'] ?>"
+                class="btn-text btn-text_primary btn-text_dotted form-grid1__btns_top"
+            >
                 Забыли пароль?
+            </a>
+            <button
+                class="btn btn_small btn_black btn_wide form-grid1__btns_m"
+                type="submit"
+                name="Login"
+            >
+                войти
+            </button>
+            <a
+                href="<?= $arResult['AUTH_REGISTER_URL'] ?>"
+                class="btn btn_small btn_grey btn_wide form-grid1__btns_bottom"
+            >
+                зарегистрироваться
             </a>
         </div>
 

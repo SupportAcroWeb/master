@@ -21,24 +21,16 @@ global $APPLICATION;
 $APPLICATION->SetTitle('Восстановление пароля');
 ?>
 
-<div class="container">
-    <div class="block-login__top">
-        <h1 class="title2">восстановление пароля</h1>
-        <p>
-            Подтвердите адрес вашей электронной почты. На него будет отправлен пароль.
-        </p>
-    </div>
-</div>
-
-<div class="container container_bordered1">
-    <form 
-        data-validate 
-        data-onsubmit-trigger="forgot_password_submit" 
-        name="bform" 
-        method="post" 
-        target="_top" 
-        action="<?= $arResult['AUTH_URL'] ?>" 
-        class="form"
+<div class="form-block">
+    <h1 class="title2 title">Восстановление пароля</h1>
+    <form
+        data-validate
+        data-onsubmit-trigger="forgot_password_submit"
+        name="bform"
+        method="post"
+        target="_top"
+        action="<?= $arResult['AUTH_URL'] ?>"
+        class="form-grid1"
     >
         <input type="hidden" name="AUTH_FORM" value="Y">
         <input type="hidden" name="TYPE" value="SEND_PWD">
@@ -47,20 +39,20 @@ $APPLICATION->SetTitle('Восстановление пароля');
             <input type="hidden" name="backurl" value="<?= $arResult['BACKURL'] ?>">
         <?php endif ?>
 
-        <div class="form-grid1">
-            <div class="form-grid1__row">
-                <div class="form-group1">
-                    <input 
-                        id="forgot_password_email" 
-                        class="field-input1 form-group1__field" 
-                        placeholder=" " 
-                        type="text" 
-                        name="USER_LOGIN" 
-                        value="<?= htmlspecialcharsbx($arResult['USER_EMAIL']) ?>"
-                        required
-                    >
-                    <label class="form-group1__label form-group1__label_req" for="forgot_password_email">E-mail</label>
-                </div>
+        <div class="form-grid1__row">
+            <div class="form-group1">
+                <input
+                    id="forgot_password_email"
+                    class="field-input1 form-group__field"
+                    type="text"
+                    name="USER_LOGIN"
+                    placeholder=" "
+                    value="<?= htmlspecialcharsbx($arResult['USER_EMAIL']) ?>"
+                    required
+                >
+                <label class="form-group1__label" for="forgot_password_email">
+                    E-mail <span class="req">*</span>
+                </label>
             </div>
         </div>
 
@@ -70,15 +62,19 @@ $APPLICATION->SetTitle('Восстановление пароля');
             </div>
         <?php endif ?>
 
-        <div class="form-grid1__buttons">
-            <button class="btn btn_primary" type="submit" name="send_account_info">
+        <div class="form-grid1__row form-grid1__btns">
+            <button
+                class="btn btn_small btn_black btn_wide form-grid1__btns_m"
+                type="submit"
+                name="send_account_info"
+            >
                 Отправить пароль
             </button>
-            <a href="<?= $arResult['AUTH_AUTH_URL'] ?>" class="btn-text2">
-                <span>к авторизации</span>
-                <svg aria-hidden="true" width="14" height="14">
-                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
-                </svg>
+            <a
+                href="<?= $arResult['AUTH_AUTH_URL'] ?>"
+                class="btn btn_small btn_grey btn_wide form-grid1__btns_bottom"
+            >
+                к авторизации
             </a>
         </div>
     </form>

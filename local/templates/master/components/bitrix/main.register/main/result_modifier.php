@@ -34,24 +34,3 @@ foreach ($registerFields as $field) {
         $arResult['VALUES'][$field] = $postData['REGISTER'][$field];
     }
 }
-
-// Дополняем VALUES данными из полей формы (организация и доп. информация)
-$formFields = [
-    // Поля для создания организации
-    'ORG_INN',
-    'ORG_NAME',
-    'ORG_KPP',
-    'ORG_UR_ADDRESS',
-    'ORG_FILE',
-    // Пользовательское поле профиля
-    'UF_DOP_INFO',
-];
-
-foreach ($formFields as $field) {
-    if (!isset($arResult['VALUES'][$field])) {
-        $arResult['VALUES'][$field] = $request->get($field) ?: '';
-    }
-}
-
-// Состояние чекбокса согласия
-$arResult['VALUES']['agreement'] = $request->get('agreement') === 'Y';
