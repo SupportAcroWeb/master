@@ -50,6 +50,7 @@ unset($currencyList, $templateLibrary);
 $mainId = $this->GetEditAreaId($arResult['ID']);
 $itemIds = array(
     'ID' => $mainId,
+    'ARTICLE_ID' => $mainId . '_article',
     'DISCOUNT_PERCENT_ID' => $mainId . '_dsc_pict',
     'STICKER_ID' => $mainId . '_sticker',
     'BIG_SLIDER_ID' => $mainId . '_big_slider',
@@ -127,6 +128,120 @@ if ($arParams['SHOW_SKU_DESCRIPTION'] === 'Y') {
     $showDescription = !empty($arResult['PREVIEW_TEXT']) || !empty($arResult['DETAIL_TEXT']);
 }
 
+$getDimensionSortValue = static function (string $valueName): ?float {
+    $normalizedValue = trim(html_entity_decode($valueName, ENT_QUOTES | ENT_HTML5));
+
+    if ($normalizedValue === '' || $normalizedValue === '-') {
+        return null;
+    }
+
+    if (preg_match('/-?\d+(?:[.,]\d+)?/u', $normalizedValue, $matches) !== 1) {
+        return null;
+    }
+
+    return (float)str_replace(',', '.', $matches[0]);
+};
+
+$prepareDimensionValues = static function (array $values) use ($getDimensionSortValue): array {
+    $preparedValues = [];
+
+    foreach ($values as $value) {
+        $valueId = (string)($value['ID'] ?? '');
+        $valueName = trim((string)($value['NAME'] ?? ''));
+        $sortValue = $getDimensionSortValue($valueName);
+
+        if ($valueId === '' || $sortValue === null) {
+            continue;
+        }
+
+        $preparedValues[$valueId] = [
+            'id' => (int)$value['ID'],
+            'name' => $valueName,
+            'sort' => $sortValue,
+        ];
+    }
+
+    uasort($preparedValues, static function (array $first, array $second): int {
+        if ($first['sort'] === $second['sort']) {
+            return strnatcasecmp($first['name'], $second['name']);
+        }
+
+        return $first['sort'] <=> $second['sort'];
+    });
+
+    return $preparedValues;
+};
+
+$sizeTable = [
+    'widthPropId' => 0,
+    'heightPropId' => 0,
+    'widths' => [],
+    'heights' => [],
+    'cells' => [],
+];
+$hasSizeTable = false;
+
+if ($haveOffers && !empty($arResult['OFFERS_PROP']) && !empty($arResult['SKU_PROPS'])) {
+    $widthSkuProperty = null;
+    $heightSkuProperty = null;
+
+    foreach ($arResult['SKU_PROPS'] as $skuProperty) {
+        if (!isset($arResult['OFFERS_PROP'][$skuProperty['CODE']])) {
+            continue;
+        }
+
+        $propertyNameLower = mb_strtolower((string)$skuProperty['NAME']);
+        $propertyCodeUpper = mb_strtoupper((string)$skuProperty['CODE']);
+
+        if (
+            $widthSkuProperty === null
+            && ($propertyCodeUpper === 'WIDTH' || mb_strpos($propertyNameLower, 'шир') !== false)
+        ) {
+            $widthSkuProperty = $skuProperty;
+            continue;
+        }
+
+        if (
+            $heightSkuProperty === null
+            && ($propertyCodeUpper === 'HEIGHT' || mb_strpos($propertyNameLower, 'выс') !== false)
+        ) {
+            $heightSkuProperty = $skuProperty;
+        }
+    }
+
+    if ($widthSkuProperty !== null && $heightSkuProperty !== null) {
+        $sizeTable['widthPropId'] = (int)$widthSkuProperty['ID'];
+        $sizeTable['heightPropId'] = (int)$heightSkuProperty['ID'];
+        $sizeTable['widths'] = $prepareDimensionValues($widthSkuProperty['VALUES']);
+        $sizeTable['heights'] = $prepareDimensionValues($heightSkuProperty['VALUES']);
+
+        foreach ($arResult['OFFERS'] as $offer) {
+            $widthValueId = (string)($offer['TREE']['PROP_' . $sizeTable['widthPropId']] ?? '');
+            $heightValueId = (string)($offer['TREE']['PROP_' . $sizeTable['heightPropId']] ?? '');
+
+            if (
+                $widthValueId === ''
+                || $heightValueId === ''
+                || !isset($sizeTable['widths'][$widthValueId], $sizeTable['heights'][$heightValueId])
+            ) {
+                continue;
+            }
+
+            $offerPrice = $offer['ITEM_PRICES'][$offer['ITEM_PRICE_SELECTED']] ?? null;
+            $sizeTable['cells'][$heightValueId][$widthValueId] = [
+                'offerId' => (int)$offer['ID'],
+                'widthValueId' => (int)$widthValueId,
+                'heightValueId' => (int)$heightValueId,
+                'price' => $offerPrice
+                    ? ((float)$offerPrice['PRICE'] > 0 ? (string)$offerPrice['PRINT_PRICE'] : 'По запросу')
+                    : '',
+            ];
+        }
+
+        $hasSizeTable = !empty($sizeTable['widths']) && !empty($sizeTable['heights']);
+    }
+}
+
 $showBuyBtn = in_array('BUY', $arParams['ADD_TO_BASKET_ACTION']);
 $buyButtonClassName = in_array('BUY', $arParams['ADD_TO_BASKET_ACTION_PRIMARY']) ? 'btn-default' : 'btn-link';
 $showAddBtn = in_array('ADD', $arParams['ADD_TO_BASKET_ACTION']);
@@ -187,12 +302,20 @@ if (!empty($arParams['LABEL_PROP_POSITION'])) {
 }
 
 // Получаем артикул
-$artic = '';
-if (!empty($arResult['PROPERTIES']['ARTNUMBER']['VALUE'])) {
-    $artic = $arResult['PROPERTIES']['ARTNUMBER']['VALUE'];
-} elseif (!empty($arResult['PROPERTIES']['CML2_ARTICLE']['VALUE'])) {
-    $artic = $arResult['PROPERTIES']['CML2_ARTICLE']['VALUE'];
-}
+$getArticleValue = static function (array $item): string {
+    if (!empty($item['PROPERTIES']['ARTNUMBER']['VALUE'])) {
+        return (string) $item['PROPERTIES']['ARTNUMBER']['VALUE'];
+    }
+
+    if (!empty($item['PROPERTIES']['CML2_ARTICLE']['VALUE'])) {
+        return (string) $item['PROPERTIES']['CML2_ARTICLE']['VALUE'];
+    }
+
+    return '';
+};
+
+$artic = $getArticleValue($arResult);
+$currentArtic = $haveOffers ? ($getArticleValue($actualItem) ?: $artic) : $artic;
 
 // Дата поступления
 $arrivalDate = '';
@@ -206,544 +329,473 @@ if (!empty($arResult['DISPLAY_PROPERTIES']['DATA_POSTUPLENIYA']['DISPLAY_VALUE']
 $showArrivalDate = !$actualItem['CAN_BUY'] && $arrivalDate !== '';
 ?>
 
+    <?php
+    $badgeClasses = [
+        'P' => 'badge2_blue',
+        'M' => 'badge2_yellow',
+        'K' => 'badge2_red',
+        'N' => 'badge2_green',
+        'S' => 'badge2_orange',
+        'H' => 'badge2_grey',
+    ];
+    $badgeValues = [];
+    if (!empty($arResult['DISPLAY_PROPERTIES']['PROP_411']['VALUE'])) {
+        $badgeValues = is_array($arResult['DISPLAY_PROPERTIES']['PROP_411']['VALUE'])
+            ? $arResult['DISPLAY_PROPERTIES']['PROP_411']['VALUE']
+            : [$arResult['DISPLAY_PROPERTIES']['PROP_411']['VALUE']];
+    }
+    $isPriceZero = !empty($price) && (float)$price['PRICE'] <= 0;
+    ?>
     <div class="catalog-detail-wrapper" id="<?= $itemIds['ID'] ?>" itemscope itemtype="http://schema.org/Product">
         <div class="container container_bordered1">
-            <div class="catalog-detail">
-                <div class="catalog-detail__inner1">
-                    <div class="catalog-detail__preview">
-                        <div data-swiper="preview" class="swiper swiper-preview" id="<?= $itemIds['BIG_SLIDER_ID'] ?>">
-                            <div class="swiper-wrapper" data-entity="images-container">
-                                <?php
-                                if (!empty($actualItem['MORE_PHOTO'])) {
-                                    foreach ($actualItem['MORE_PHOTO'] as $key => $photo) {
-                                        ?>
-                                        <div class="swiper-slide" data-entity="image" data-id="<?= $photo['ID'] ?>">
-                                            <img src="<?= $photo['SRC'] ?>" alt="<?= $alt ?>"
-                                                title="<?= $title ?>"<?= ($key == 0 ? ' itemprop="image"' : '') ?>>
-                                        </div>
-                                        <?php
-                                    }
-                                }
-                                ?>
-                            </div>
-                        </div>
+            <div class="grid-detail">
+                <div class="grid-detail__data">
+                    <div
+                        class="catalog-detail__code"
+                        id="<?= $itemIds['ARTICLE_ID'] ?>"
+                        <?= $currentArtic === '' ? 'style="display: none;"' : '' ?>
+                    >
+                        Артикул: <?= htmlspecialcharsbx($currentArtic) ?>
                     </div>
+                    <h1 class="catalog-detail__name"><?= $name ?></h1>
 
-                    <div class="catalog-detail__photos">
-                        <div class="catalog-detail__badges" id="<?= $itemIds['STICKER_ID'] ?>"
-                            <?= (!$arResult['LABEL'] ? 'style="display: none;"' : '') ?>>
+                    <?php if ($showDescription): ?>
+                        <div class="textblock1" id="<?= $itemIds['DESCRIPTION_ID'] ?>_short">
                             <?php
-                            if ($arResult['LABEL'] && !empty($arResult['LABEL_ARRAY_VALUE'])) {
-                                $arLabelsClass = [
-                                    'NEWPRODUCT' => 'badge1 badge1_black',
-                                    'SALELEADER' => 'badge1 badge1_orange',
-                                    'SPECIALOFFER' => 'badge1 badge1_red',
-                                ];
-                                foreach ($arResult['LABEL_ARRAY_VALUE'] as $code => $value) {
-                                    ?>
-                                    <span class="<?= $arLabelsClass[$code] ?: 'badge1 badge1_black' ?>"
-                                        title="<?= $value ?>"><?= $value ?></span>
-                                    <?php
-                                }
-                            }
-
-                            // Скидка
-                            if ($arParams['SHOW_DISCOUNT_PERCENT'] === 'Y') {
-                                if ($haveOffers) {
-                                    ?>
-                                    <span class="badge1 badge1_red" id="<?= $itemIds['DISCOUNT_PERCENT_ID'] ?>"
-                                        style="display: none;"></span>
-                                    <?php
-                                } else {
-                                    if ($price['DISCOUNT'] > 0) {
-                                        ?>
-                                        <span class="badge1 badge1_red" id="<?= $itemIds['DISCOUNT_PERCENT_ID'] ?>"
-                                            title="<?= -$price['PERCENT'] ?>%">
-                                        <?= -$price['PERCENT'] ?>%
-                                    </span>
-                                        <?php
-                                    }
-                                }
+                            if (
+                                $arResult['PREVIEW_TEXT'] != ''
+                                && (
+                                    $arParams['DISPLAY_PREVIEW_TEXT_MODE'] === 'S'
+                                    || ($arParams['DISPLAY_PREVIEW_TEXT_MODE'] === 'E' && $arResult['DETAIL_TEXT'] == '')
+                                )
+                            ) {
+                                echo $arResult['PREVIEW_TEXT_TYPE'] === 'html'
+                                    ? $arResult['PREVIEW_TEXT']
+                                    : '<p>' . $arResult['PREVIEW_TEXT'] . '</p>';
                             }
                             ?>
                         </div>
+                    <?php endif; ?>
 
-                        <div data-swiper="photos" class="swiper swiper-photos">
-                            <div class="swiper-wrapper">
+                    <?php if ($haveOffers && !empty($arResult['OFFERS_PROP'])): ?>
+                        <div class="catalog-detail__params catalog-detail__params_offer">
+                            <?php foreach ($arResult['SKU_PROPS'] as $skuProperty): ?>
                                 <?php
-                                if (!empty($actualItem['MORE_PHOTO'])) {
-                                    foreach ($actualItem['MORE_PHOTO'] as $key => $photo) {
-                                        ?>
-                                        <a href="<?= $photo['SRC'] ?>" data-fancybox="photo-big" class="swiper-slide"
-                                        data-entity="slider-control" data-value="<?= $photo['ID'] ?>">
-                                            <img src="<?= $photo['SRC'] ?>" alt="<?= $alt ?>">
-                                        </a>
-                                        <?php
-                                    }
-                                }
-                                ?>
-                            </div>
-                            <?php if ($showSliderControls): ?>
-                                <button class="swiper-nav swiper-nav_prev" type="button" data-entity="slider-control-left">
-                                    <svg aria-hidden="true" width="11" height="20">
-                                        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#chevron1"></use>
-                                    </svg>
-                                    <span class="v-h">Назад</span>
-                                </button>
-                                <button class="swiper-nav swiper-nav_next" type="button" data-entity="slider-control-right">
-                                    <svg aria-hidden="true" width="11" height="20">
-                                        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#chevron1"></use>
-                                    </svg>
-                                    <span class="v-h">Вперед</span>
-                                </button>
-                            <?php endif; ?>
-                        </div>
-
-                        <?php
-                        // Скрытый контейнер для слайдеров торговых предложений
-                        if ($showSliderControls && $haveOffers) {
-                            foreach ($arResult['OFFERS'] as $keyOffer => $offer) {
-                                if (!isset($offer['MORE_PHOTO_COUNT']) || $offer['MORE_PHOTO_COUNT'] <= 0)
+                                if (!isset($arResult['OFFERS_PROP'][$skuProperty['CODE']])) {
                                     continue;
+                                }
 
-                                $strVisible = $arResult['OFFERS_SELECTED'] == $keyOffer ? '' : 'none';
-                                ?>
-                                <div class="product-item-detail-slider-controls-block"
-                                    id="<?= $itemIds['SLIDER_CONT_OF_ID'] . $offer['ID'] ?>"
-                                    style="display: <?= $strVisible ?>;">
-                                    <?php
-                                    foreach ($offer['MORE_PHOTO'] as $keyPhoto => $photo) {
-                                        ?>
-                                        <div class="product-item-detail-slider-controls-image<?= ($keyPhoto == 0 ? ' active' : '') ?>"
-                                            data-entity="slider-control"
-                                            data-value="<?= $offer['ID'] . '_' . $photo['ID'] ?>" style="display: none;">
-                                            <img src="<?= $photo['SRC'] ?>">
-                                        </div>
-                                        <?php
-                                    }
-                                    ?>
-                                </div>
-                                <?php
-                            }
-                        } elseif ($showSliderControls) {
-                            ?>
-                            <div class="product-item-detail-slider-controls-block" id="<?= $itemIds['SLIDER_CONT_ID'] ?>"
-                                style="display: none;">
-                                <?php
-                                if (!empty($actualItem['MORE_PHOTO'])) {
-                                    foreach ($actualItem['MORE_PHOTO'] as $key => $photo) {
-                                        ?>
-                                        <div class="product-item-detail-slider-controls-image<?= ($key == 0 ? ' active' : '') ?>"
-                                            data-entity="slider-control" data-value="<?= $photo['ID'] ?>">
-                                            <img src="<?= $photo['SRC'] ?>">
-                                        </div>
-                                        <?php
-                                    }
+                                $propertyId = (int)$skuProperty['ID'];
+                                $selectedValueId = (string)($actualItem['TREE']['PROP_' . $propertyId] ?? '');
+                                $propertyName = (string)$skuProperty['NAME'];
+                                $propertyNameLower = mb_strtolower($propertyName);
+                                $isDimensionProp = mb_strpos($propertyNameLower, 'шир') !== false
+                                    || mb_strpos($propertyNameLower, 'выс') !== false;
+
+                                if ($isDimensionProp) {
+                                    continue;
                                 }
                                 ?>
-                            </div>
-                            <?php
-                        }
-                        ?>
-                    </div>
+                                <fieldset class="catalog-detail__param">
+                                    <legend class="catalog-detail__title"><?= htmlspecialcharsbx($propertyName) ?></legend>
+                                    <div class="params-list">
+                                        <?php foreach ($skuProperty['VALUES'] as $value): ?>
+                                            <?php
+                                            $valueName = htmlspecialcharsbx((string)$value['NAME']);
+                                            $checked = $selectedValueId !== '' && $selectedValueId === (string)$value['ID'];
+                                            ?>
+                                            <label class="radio-parameter">
+                                                <input
+                                                    class="radio-parameter__input"
+                                                    type="radio"
+                                                    name="sku_prop_<?= $propertyId ?>"
+                                                    value="<?= (int)$value['ID'] ?>"
+                                                    data-sku-radio="<?= $propertyId ?>_<?= (int)$value['ID'] ?>"
+                                                    <?= $checked ? 'checked' : '' ?>
+                                                >
+                                                <span class="radio-parameter__visual">
+                                                    <?php if (
+                                                        $skuProperty['SHOW_MODE'] === 'PICT'
+                                                        && !empty($value['PICT']['SRC'])
+                                                    ): ?>
+                                                        <span
+                                                            class="radio-parameter__color"
+                                                            style="background-image: url('<?= htmlspecialcharsbx($value['PICT']['SRC']) ?>');"
+                                                        ></span>
+                                                    <?php endif; ?>
+                                                    <span><?= $valueName ?></span>
+                                                </span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </fieldset>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($badgeValues)): ?>
+                        <div class="badges-list1">
+                            <?php foreach ($badgeValues as $value): ?>
+                                <?php if (isset($badgeClasses[$value])): ?>
+                                    <span class="badge2 <?= $badgeClasses[$value] ?>"><?= htmlspecialcharsbx($value) ?></span>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($arResult['DISPLAY_PROPERTIES'])): ?>
+                        <h2 class="catalog-detail__title">Характеристики</h2>
+                        <div class="table-specs1-wrapper">
+                            <table class="table-specs1">
+                                <?php
+                                $propCount = 0;
+                                foreach ($arResult['DISPLAY_PROPERTIES'] as $property) {
+                                    if ($propCount >= 5) {
+                                        break;
+                                    }
+                                    ?>
+                                    <tr>
+                                        <td><?= $property['NAME'] ?></td>
+                                        <td><?= is_array($property['DISPLAY_VALUE'])
+                                                ? implode(' / ', $property['DISPLAY_VALUE'])
+                                                : $property['DISPLAY_VALUE'] ?></td>
+                                    </tr>
+                                    <?php
+                                    $propCount++;
+                                }
+                                ?>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($haveOffers && !empty($arResult['OFFERS_PROP'])): ?>
+                        <div id="<?= $itemIds['TREE_ID'] ?>" style="display: none;">
+                            <?php foreach ($arResult['SKU_PROPS'] as $skuProperty): ?>
+                                <?php
+                                if (!isset($arResult['OFFERS_PROP'][$skuProperty['CODE']])) {
+                                    continue;
+                                }
+
+                                $propertyId = $skuProperty['ID'];
+                                $skuProps[] = array(
+                                    'ID' => $propertyId,
+                                    'SHOW_MODE' => $skuProperty['SHOW_MODE'],
+                                    'VALUES' => $skuProperty['VALUES'],
+                                    'VALUES_COUNT' => $skuProperty['VALUES_COUNT']
+                                );
+                                ?>
+                                <div class="product-item-detail-info-container" data-entity="sku-line-block">
+                                    <ul class="product-item-scu-item-list">
+                                        <?php foreach ($skuProperty['VALUES'] as &$value): ?>
+                                            <?php $value['NAME'] = htmlspecialcharsbx($value['NAME']); ?>
+                                            <?php if ($skuProperty['SHOW_MODE'] === 'PICT'): ?>
+                                                <li
+                                                    class="product-item-scu-item-color-container"
+                                                    title="<?= $value['NAME'] ?>"
+                                                    data-treevalue="<?= $propertyId ?>_<?= $value['ID'] ?>"
+                                                    data-onevalue="<?= $value['ID'] ?>"
+                                                >
+                                                    <div class="product-item-scu-item-color-block">
+                                                        <div
+                                                            class="product-item-scu-item-color"
+                                                            title="<?= $value['NAME'] ?>"
+                                                            style="background-image: url('<?= $value['PICT']['SRC'] ?>');"
+                                                        ></div>
+                                                    </div>
+                                                </li>
+                                            <?php else: ?>
+                                                <li
+                                                    class="product-item-scu-item-text-container"
+                                                    title="<?= $value['NAME'] ?>"
+                                                    data-treevalue="<?= $propertyId ?>_<?= $value['ID'] ?>"
+                                                    data-onevalue="<?= $value['ID'] ?>"
+                                                >
+                                                    <div class="product-item-scu-item-text-block">
+                                                        <div class="product-item-scu-item-text"><?= $value['NAME'] ?></div>
+                                                    </div>
+                                                </li>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($arResult['SHOW_OFFERS_PROPS']): ?>
+                        <div id="<?= $itemIds['DISPLAY_MAIN_PROP_DIV'] ?>" style="display: none;"></div>
+                    <?php endif; ?>
                 </div>
 
-                <div class="catalog-detail__inner2">
-
-                    <div class="catalog-detail__data">
-                        <div class="catalog-detail__data-top">
-                            <h1 class="catalog-detail__name"><?= $name ?></h1>
-                            <?php if ($artic): ?>
-                                <div class="catalog-detail__code">Артикул: <?= $artic ?></div>
-                            <?php endif; ?>
+                <div class="grid-detail__order">
+                    <div class="grid-detail__order-inner">
+                        <div class="catalog-detail__status <?= $actualItem['CAN_BUY'] ? 'instock' : 'outstock' ?>">
+                            <?= $actualItem['CAN_BUY'] ? 'В наличии' : 'Нет в наличии' ?>
                         </div>
-                        <div class="catalog-detail__data-bottom">
-                            <?php if ($showDescription): ?>
-                                <div class="text-cutter1">
-                                    <div class="catalog-detail__description" id="<?= $itemIds['DESCRIPTION_ID'] ?>_short">
-                                        <?php
-                                        if (
-                                            $arResult['PREVIEW_TEXT'] != ''
-                                            && (
-                                                $arParams['DISPLAY_PREVIEW_TEXT_MODE'] === 'S'
-                                                || ($arParams['DISPLAY_PREVIEW_TEXT_MODE'] === 'E' && $arResult['DETAIL_TEXT'] == '')
-                                            )
-                                        ) {
-                                            echo $arResult['PREVIEW_TEXT_TYPE'] === 'html' ? $arResult['PREVIEW_TEXT'] : '<p>' . $arResult['PREVIEW_TEXT'] . '</p>';
-                                        }
-                                        ?>
-                                    </div>
-                                    <a data-action="scroll" class="btn-text btn-text_2" href="#description">Подробнее</a>
-                                </div>
-                            <?php endif; ?>
-                            <?php if (!empty($arResult['DISPLAY_PROPERTIES'])):
-                                $badgeClasses = [
-                                    'P' => 'badge2_blue',
-                                    'M' => 'badge2_yellow',
-                                    'K' => 'badge2_red',
-                                    'N' => 'badge2_green',
-                                    'S' => 'badge2_orange',
-                                    'H' => 'badge2_grey',
-                                ];
 
-                                $badgeValues = [];
-                                if (!empty($arResult['DISPLAY_PROPERTIES']['PROP_411']['VALUE'])) {
-                                    $badgeValues = is_array($arResult['DISPLAY_PROPERTIES']['PROP_411']['VALUE'])
-                                        ? $arResult['DISPLAY_PROPERTIES']['PROP_411']['VALUE']
-                                        : [$arResult['DISPLAY_PROPERTIES']['PROP_411']['VALUE']];
-                                }
+                        <?php if ($showArrivalDate): ?>
+                            <div class="catalog-detail__arrival-date">Дата поступления: <?= htmlspecialcharsbx($arrivalDate) ?></div>
+                        <?php endif; ?>
 
-                                if (!empty($badgeValues)): ?>
-                            <div class="badges-list1">
-                                <?php foreach ($badgeValues as $value): ?>
-                                    <?php if (isset($badgeClasses[$value])): ?>
-                                        <span class="badge2 <?= $badgeClasses[$value] ?>"><?= htmlspecialcharsbx($value) ?></span>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </div>
-                                <?php endif; ?>
-                            <h2 class="catalog-detail__title">Характеристики</h2>
-                            <div class="table-specs1-wrapper">
-                                <table class="table-specs1">
-                                    <?php
-                                    $propCount = 0;
-                                    foreach ($arResult['DISPLAY_PROPERTIES'] as $property) {
-                                        if ($propCount >= 5) break;
-                                        ?>
-                                        <tr>
-                                            <td><?= $property['NAME'] ?></td>
-                                            <td><?= (is_array($property['DISPLAY_VALUE'])
-                                                    ? implode(' / ', $property['DISPLAY_VALUE'])
-                                                    : $property['DISPLAY_VALUE']) ?>
-                                            </td>
-                                        </tr>
-                                        <?php
-                                        $propCount++;
-                                    }
-                                    ?>
-                                </table>
-                                <a data-action="scroll" class="btn-text btn-text_2" href="#specs">Все характеристики</a>
-                            </div>
-                            <?php endif; ?>
-                            <?php
-                            // Торговые предложения (SKU)
-                            if ($haveOffers && !empty($arResult['OFFERS_PROP'])) {
-                                ?>
-                                <div id="<?= $itemIds['TREE_ID'] ?>">
-                                    <?php
-                                    foreach ($arResult['SKU_PROPS'] as $skuProperty) {
-                                        if (!isset($arResult['OFFERS_PROP'][$skuProperty['CODE']]))
-                                            continue;
-
-                                        $propertyId = $skuProperty['ID'];
-                                        $skuProps[] = array(
-                                            'ID' => $propertyId,
-                                            'SHOW_MODE' => $skuProperty['SHOW_MODE'],
-                                            'VALUES' => $skuProperty['VALUES'],
-                                            'VALUES_COUNT' => $skuProperty['VALUES_COUNT']
-                                        );
-                                        ?>
-                                        <div class="product-item-detail-info-container" data-entity="sku-line-block">
-                                            <div class="product-item-detail-info-container-title"><?= htmlspecialcharsEx($skuProperty['NAME']) ?></div>
-                                            <div class="product-item-scu-container">
-                                                <div class="product-item-scu-block">
-                                                    <div class="product-item-scu-list">
-                                                        <ul class="product-item-scu-item-list">
-                                                            <?php
-                                                            foreach ($skuProperty['VALUES'] as &$value) {
-                                                                $value['NAME'] = htmlspecialcharsbx($value['NAME']);
-
-                                                                if ($skuProperty['SHOW_MODE'] === 'PICT') {
-                                                                    ?>
-                                                                    <li class="product-item-scu-item-color-container"
-                                                                        title="<?= $value['NAME'] ?>"
-                                                                        data-treevalue="<?= $propertyId ?>_<?= $value['ID'] ?>"
-                                                                        data-onevalue="<?= $value['ID'] ?>">
-                                                                        <div class="product-item-scu-item-color-block">
-                                                                            <div class="product-item-scu-item-color"
-                                                                                title="<?= $value['NAME'] ?>"
-                                                                                style="background-image: url('<?= $value['PICT']['SRC'] ?>');">
-                                                                            </div>
-                                                                        </div>
-                                                                    </li>
-                                                                    <?php
-                                                                } else {
-                                                                    ?>
-                                                                    <li class="product-item-scu-item-text-container"
-                                                                        title="<?= $value['NAME'] ?>"
-                                                                        data-treevalue="<?= $propertyId ?>_<?= $value['ID'] ?>"
-                                                                        data-onevalue="<?= $value['ID'] ?>">
-                                                                        <div class="product-item-scu-item-text-block">
-                                                                            <div class="product-item-scu-item-text"><?= $value['NAME'] ?></div>
-                                                                        </div>
-                                                                    </li>
-                                                                    <?php
-                                                                }
-                                                            }
-                                                            ?>
-                                                        </ul>
-                                                        <div style="clear: both;"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <?php
-                                    }
-                                    ?>
-                                </div>
-                                <?php
-                            }
-
-                            // Дополнительные свойства в основном блоке
-                            if ($arResult['SHOW_OFFERS_PROPS']) {
-                                ?>
-                                <dl class="product-item-detail-properties" id="<?= $itemIds['DISPLAY_MAIN_PROP_DIV'] ?>"
-                                    style="display: none;"></dl>
-                                <?php
-                            }
-                            ?>
-                        </div>
-                    </div>
-
-                    <div class="catalog-detail__order">
-                        <div class="catalog-detail__grid1">
-                            <div>
-
-                                <div class="catalog-detail__status <?= ($actualItem['CAN_BUY'] ? 'status_instock' : 'status_outstock') ?>">
-                                    <?= ($actualItem['CAN_BUY'] ? 'В наличии' : 'Нет в наличии') ?>
-                                </div>
-                                <?php if ($showArrivalDate): ?>
-                                    <div class="catalog-detail__arrival-date">Дата поступления: <?= htmlspecialcharsbx($arrivalDate) ?></div>
-                                <?php endif; ?>
-
-                                <?php
-                                // Количество товара на складе
-                                if ($arParams['SHOW_MAX_QUANTITY'] !== 'N') {
-                                    if ($haveOffers) {
-                                        ?>
-                                        <div class="product-item-detail-info-container"
-                                            id="<?= $itemIds['QUANTITY_LIMIT'] ?>" style="display: none;">
-                                            <div class="product-item-detail-info-container-title">
-                                                <?= $arParams['MESS_SHOW_MAX_QUANTITY'] ?>:
-                                                <span class="product-item-quantity"
-                                                    data-entity="quantity-limit-value"></span>
-                                            </div>
-                                        </div>
-                                        <?php
-                                    } else {
-                                        if (
-                                            $measureRatio
-                                            && (float)$actualItem['PRODUCT']['QUANTITY'] > 0
-                                            && $actualItem['CHECK_QUANTITY']
-                                        ) {
-                                            ?>
-                                            <div class="product-item-detail-info-container"
-                                                id="<?= $itemIds['QUANTITY_LIMIT'] ?>" style="display: none;">
-                                                <div class="product-item-detail-info-container-title">
-                                                    <?= $arParams['MESS_SHOW_MAX_QUANTITY'] ?>:
-                                                    <span class="product-item-quantity" data-entity="quantity-limit-value">
-                                                    <?php
-                                                    if ($arParams['SHOW_MAX_QUANTITY'] === 'M') {
-                                                        if ((float)$actualItem['PRODUCT']['QUANTITY'] / $measureRatio >= $arParams['RELATIVE_QUANTITY_FACTOR']) {
-                                                            echo $arParams['MESS_RELATIVE_QUANTITY_MANY'];
-                                                        } else {
-                                                            echo $arParams['MESS_RELATIVE_QUANTITY_FEW'];
-                                                        }
-                                                    } else {
-                                                        echo $actualItem['PRODUCT']['QUANTITY'] . ' ' . $actualItem['ITEM_MEASURE']['TITLE'];
-                                                    }
-                                                    ?>
-                                                </span>
-                                                </div>
-                                            </div>
-                                            <?php
-                                        }
-                                    }
-                                }
-                                ?>
-
-                                <?php
-                                $isPriceZero = !empty($price) && (float)$price['PRICE'] <= 0;
-                                ?>
-                                <div class="catalog-detail__prices" <?= $isPriceZero ? 'style="display: none;"' : '' ?>>
-                                    <?php if ($arParams['PRICE_VAT_INCLUDE']): ?>
-                                        <span class="catalog-detail__label1">
-                                    С НДС (1 <?= $actualItem['ITEM_MEASURE']['TITLE'] ?>)
-                                </span>
-                                    <?php else: ?>
-                                        <span class="catalog-detail__label1">
-                                    Без НДС (1 <?= $actualItem['ITEM_MEASURE']['TITLE'] ?>)
-                                </span>
-                                    <?php endif; ?>
-                                    <span class="catalog-detail__price1" id="<?= $itemIds['PRICE_ID'] ?>">
-                                    <?= $price['PRINT_PRICE'] ?>
-                                </span>
-                                    <?php if ($arParams['SHOW_OLD_PRICE'] === 'Y'): ?>
-                                        <span class="catalog-detail__price2" id="<?= $itemIds['OLD_PRICE_ID'] ?>"
-                                            style="display: <?= ($showDiscount ? '' : 'none') ?>;">
-                                    <?= ($showDiscount ? $price['PRINT_BASE_PRICE'] : '') ?>
-                                </span>
-                                    <?php endif; ?>
-
-                                    <?php /* if ($arParams['SHOW_OLD_PRICE'] === 'Y' && $showDiscount): ?>
-                                        <span class="catalog-detail__label1" id="<?= $itemIds['DISCOUNT_PRICE_ID'] ?>">
-                                            Скидка: <?= $price['PRINT_DISCOUNT'] ?>
-                                        </span>
-                                    <?php endif; */?>
-
-                                    <?php
-                                    // Диапазоны цен
-                                    if ($arParams['USE_PRICE_COUNT']) {
-                                        $showRanges = !$haveOffers && count($actualItem['ITEM_QUANTITY_RANGES']) > 1;
-                                        $useRatio = $arParams['USE_RATIO_IN_RANGES'] === 'Y';
-                                        ?>
-                                        <div class="product-item-detail-info-container"
-                                            <?= $showRanges ? '' : 'style="display: none;"' ?>
-                                            data-entity="price-ranges-block">
-                                            <div class="product-item-detail-info-container-title">
-                                                <?= $arParams['MESS_PRICE_RANGES_TITLE'] ?>
-                                                <span data-entity="price-ranges-ratio-header">
-                                                (<?= (Loc::getMessage(
-                                                        'CT_BCE_CATALOG_RATIO_PRICE',
-                                                        array('#RATIO#' => ($useRatio ? $measureRatio : '1') . ' ' . $actualItem['ITEM_MEASURE']['TITLE'])
-                                                    )) ?>)
-                                            </span>
-                                            </div>
-                                            <dl class="product-item-detail-properties" data-entity="price-ranges-body">
+                        <div class="catalog-detail__params catalog-detail__params_panel">
+                            <?php if ($haveOffers && !empty($arResult['OFFERS_PROP'])): ?>
+                                <fieldset class="catalog-detail__param catalog-detail__param_filters">
+                                    <legend class="catalog-detail__title">Расчет параметров:</legend>
+                                    <div class="form-grid1__wrapper">
+                                        <div class="form-grid1">
+                                            <?php foreach ($arResult['SKU_PROPS'] as $skuProperty): ?>
                                                 <?php
-                                                if ($showRanges) {
-                                                    foreach ($actualItem['ITEM_QUANTITY_RANGES'] as $range) {
-                                                        if ($range['HASH'] !== 'ZERO-INF') {
-                                                            $itemPrice = false;
+                                                if (!isset($arResult['OFFERS_PROP'][$skuProperty['CODE']])) {
+                                                    continue;
+                                                }
 
-                                                            foreach ($arResult['ITEM_PRICES'] as $itemPrice) {
-                                                                if ($itemPrice['QUANTITY_HASH'] === $range['HASH']) {
-                                                                    break;
-                                                                }
-                                                            }
+                                                $propertyId = (int)$skuProperty['ID'];
+                                                $selectedValueId = (string)($actualItem['TREE']['PROP_' . $propertyId] ?? '');
+                                                $propertyName = (string)$skuProperty['NAME'];
+                                                $propertyNameLower = mb_strtolower($propertyName);
+                                                $isDimensionProp = mb_strpos($propertyNameLower, 'шир') !== false
+                                                    || mb_strpos($propertyNameLower, 'выс') !== false;
+                                                $dimensionValues = $prepareDimensionValues($skuProperty['VALUES']);
 
-                                                            if ($itemPrice) {
-                                                                ?>
-                                                                <dt>
-                                                                    <?php
-                                                                    echo Loc::getMessage(
-                                                                            'CT_BCE_CATALOG_RANGE_FROM',
-                                                                            array('#FROM#' => $range['SORT_FROM'] . ' ' . $actualItem['ITEM_MEASURE']['TITLE'])
-                                                                        ) . ' ';
-
-                                                                    if (is_infinite($range['SORT_TO'])) {
-                                                                        echo Loc::getMessage('CT_BCE_CATALOG_RANGE_MORE');
-                                                                    } else {
-                                                                        echo Loc::getMessage(
-                                                                            'CT_BCE_CATALOG_RANGE_TO',
-                                                                            array('#TO#' => $range['SORT_TO'] . ' ' . $actualItem['ITEM_MEASURE']['TITLE'])
-                                                                        );
-                                                                    }
-                                                                    ?>
-                                                                </dt>
-                                                                <dd><?= ($useRatio ? $itemPrice['PRINT_RATIO_PRICE'] : $itemPrice['PRINT_PRICE']) ?></dd>
-                                                                <?php
-                                                            }
-                                                        }
-                                                    }
+                                                if (!$isDimensionProp || empty($dimensionValues)) {
+                                                    continue;
                                                 }
                                                 ?>
-                                            </dl>
+                                                <div class="form-grid1__row form-grid1__row_2">
+                                                    <div class="form-group1">
+                                                        <label class="form-group1__label"><?= htmlspecialcharsbx($propertyName) ?></label>
+                                                        <select
+                                                            class="select1 select-wide"
+                                                            data-select1
+                                                            data-sku-select="<?= $propertyId ?>"
+                                                            name="sku_select_<?= $propertyId ?>"
+                                                            autocomplete="off"
+                                                        >
+                                                            <?php foreach ($dimensionValues as $value): ?>
+                                                                <option
+                                                                    value="<?= (int)$value['id'] ?>"
+                                                                    <?= $selectedValueId !== '' && $selectedValueId === (string)$value['id'] ? 'selected' : '' ?>
+                                                                >
+                                                                    <?= htmlspecialcharsbx((string)$value['name']) ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
                                         </div>
-                                        <?php
-                                        unset($showRanges, $useRatio, $itemPrice, $range);
-                                    }
-                                    ?>
+                                    </div>
+                                </fieldset>
+                            <?php endif; ?>
 
-                                    <span id="<?= $itemIds['PRICE_TOTAL'] ?>">на сумму <strong><?= $price['PRINT_RATIO_PRICE'] ?></strong></span>
-                                </div>
-                                <?php if ($isPriceZero): ?>
-                                <div class="catalog-detail__prices">
-                                    <?php if ($arParams['PRICE_VAT_INCLUDE']): ?>
-                                        <span class="catalog-detail__label1">
-                                    С НДС (1 <?= $actualItem['ITEM_MEASURE']['TITLE'] ?>)
-                                </span>
-                                    <?php else: ?>
-                                        <span class="catalog-detail__label1">
-                                    Без НДС (1 <?= $actualItem['ITEM_MEASURE']['TITLE'] ?>)
-                                </span>
-                                    <?php endif; ?>
-                                    <span class="catalog-detail__price1 no_price">Цена по запросу</span>
-                                </div>
+                            <?php
+                            if ($arParams['SHOW_MAX_QUANTITY'] !== 'N') {
+                                if ($haveOffers) {
+                                    ?>
+                                    <div id="<?= $itemIds['QUANTITY_LIMIT'] ?>" style="display: none;">
+                                        <span data-entity="quantity-limit-value"></span>
+                                    </div>
+                                    <?php
+                                } elseif (
+                                    $measureRatio
+                                    && (float)$actualItem['PRODUCT']['QUANTITY'] > 0
+                                    && $actualItem['CHECK_QUANTITY']
+                                ) {
+                                    ?>
+                                    <div id="<?= $itemIds['QUANTITY_LIMIT'] ?>" style="display: none;">
+                                        <span data-entity="quantity-limit-value">
+                                            <?php
+                                            if ($arParams['SHOW_MAX_QUANTITY'] === 'M') {
+                                                echo (float)$actualItem['PRODUCT']['QUANTITY'] / $measureRatio >= $arParams['RELATIVE_QUANTITY_FACTOR']
+                                                    ? $arParams['MESS_RELATIVE_QUANTITY_MANY']
+                                                    : $arParams['MESS_RELATIVE_QUANTITY_FEW'];
+                                            } else {
+                                                echo $actualItem['PRODUCT']['QUANTITY'] . ' ' . $actualItem['ITEM_MEASURE']['TITLE'];
+                                            }
+                                            ?>
+                                        </span>
+                                    </div>
+                                    <?php
+                                }
+                            }
+                            ?>
+
+                            <div class="catalog-detail__param catalog-detail__param_amount">
+                                <?php if (!$isPriceZero): ?>
+                                    <table class="order-info">
+                                        <?php if ($arParams['SHOW_OLD_PRICE'] === 'Y'): ?>
+                                            <tr class="order-info__line1" data-old-price-row style="display: <?= $showDiscount ? '' : 'none' ?>;">
+                                                <td>Старая цена (1 <?= htmlspecialcharsbx($actualItem['ITEM_MEASURE']['TITLE']) ?>)</td>
+                                                <td>
+                                                    <span class="order-info__value1" id="<?= $itemIds['OLD_PRICE_ID'] ?>">
+                                                        <?= $showDiscount ? $price['PRINT_BASE_PRICE'] : '' ?>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        <?php endif; ?>
+                                        <tr class="order-info__line2">
+                                            <td>Новая цена (1 <?= htmlspecialcharsbx($actualItem['ITEM_MEASURE']['TITLE']) ?>)</td>
+                                            <td>
+                                                <span class="order-info__value2">
+                                                    <span id="<?= $itemIds['PRICE_ID'] ?>"><?= $price['PRINT_PRICE'] ?></span>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <tr class="order-info__line3">
+                                            <td>Общая стоимость:</td>
+                                            <td>
+                                                <span class="order-info__value3" id="<?= $itemIds['PRICE_TOTAL'] ?>">
+                                                    на сумму <strong><?= $price['PRINT_RATIO_PRICE'] ?></strong>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                <?php else: ?>
+                                    <table class="order-info">
+                                        <tr class="order-info__line2">
+                                            <td>Цена</td>
+                                            <td><span class="order-info__value2"><span id="<?= $itemIds['PRICE_ID'] ?>">Цена по запросу</span></span></td>
+                                        </tr>
+                                    </table>
+                                <?php endif; ?>
+
+                                <span id="<?= $itemIds['DISCOUNT_PRICE_ID'] ?>" style="display: none;"></span>
+
+                                <?php if ($arParams['USE_PRICE_COUNT']): ?>
+                                    <?php $showRanges = !$haveOffers && count($actualItem['ITEM_QUANTITY_RANGES']) > 1; ?>
+                                    <div data-entity="price-ranges-block" style="<?= $showRanges ? '' : 'display: none;' ?>">
+                                        <?php $useRatio = $arParams['USE_RATIO_IN_RANGES'] === 'Y'; ?>
+                                        <span data-entity="price-ranges-ratio-header" style="display: none;">
+                                            <?= Loc::getMessage(
+                                                'CT_BCE_CATALOG_RATIO_PRICE',
+                                                ['#RATIO#' => ($useRatio ? $measureRatio : '1') . ' ' . $actualItem['ITEM_MEASURE']['TITLE']]
+                                            ) ?>
+                                        </span>
+                                        <dl data-entity="price-ranges-body" style="display: none;">
+                                            <?php
+                                            if ($showRanges) {
+                                                foreach ($actualItem['ITEM_QUANTITY_RANGES'] as $range) {
+                                                    if ($range['HASH'] === 'ZERO-INF') {
+                                                        continue;
+                                                    }
+
+                                                    $itemPrice = false;
+                                                    foreach ($arResult['ITEM_PRICES'] as $rangePrice) {
+                                                        if ($rangePrice['QUANTITY_HASH'] === $range['HASH']) {
+                                                            $itemPrice = $rangePrice;
+                                                            break;
+                                                        }
+                                                    }
+
+                                                    if (!$itemPrice) {
+                                                        continue;
+                                                    }
+                                                    ?>
+                                                    <dt>
+                                                        <?php
+                                                        echo Loc::getMessage(
+                                                            'CT_BCE_CATALOG_RANGE_FROM',
+                                                            ['#FROM#' => $range['SORT_FROM'] . ' ' . $actualItem['ITEM_MEASURE']['TITLE']]
+                                                        ) . ' ';
+                                                        echo is_infinite($range['SORT_TO'])
+                                                            ? Loc::getMessage('CT_BCE_CATALOG_RANGE_MORE')
+                                                            : Loc::getMessage(
+                                                                'CT_BCE_CATALOG_RANGE_TO',
+                                                                ['#TO#' => $range['SORT_TO'] . ' ' . $actualItem['ITEM_MEASURE']['TITLE']]
+                                                            );
+                                                        ?>
+                                                    </dt>
+                                                    <dd><?= $useRatio ? $itemPrice['PRINT_RATIO_PRICE'] : $itemPrice['PRINT_PRICE'] ?></dd>
+                                                    <?php
+                                                }
+                                            }
+                                            ?>
+                                        </dl>
+                                    </div>
                                 <?php endif; ?>
                             </div>
-                            <button class="catalog-detail__btn-favorite btn-favorites" data-id="<?= $arResult['ID'] ?>"
-                                    type="button" id="<?= $itemIds['COMPARE_LINK'] ?>">
-                                <svg aria-hidden="true" width="22" height="20">
-                                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#heart1"></use>
-                                </svg>
-                            </button>
-                            <?php if ($arParams['DISPLAY_COMPARE']): ?>
-                                <div class="product-item-detail-compare-container" style="display: none;">
-                                    <div class="product-item-detail-compare">
-                                        <div class="checkbox">
-                                            <label id="<?= $itemIds['COMPARE_LINK'] ?>">
-                                                <input type="checkbox" data-entity="compare-checkbox">
-                                                <span data-entity="compare-title"><?= $arParams['MESS_BTN_COMPARE'] ?></span>
-                                            </label>
+
+                            <div class="catalog-detail__param catalog-detail__param_btns grid2">
+                                <div class="catalog-detail__btns_top">
+                                    <?php if ($arParams['USE_PRODUCT_QUANTITY']): ?>
+                                        <div
+                                            class="stepcounter"
+                                            data-entity="quantity-block"
+                                            style="<?= !$actualItem['CAN_BUY'] ? 'display: none;' : '' ?>"
+                                        >
+                                            <button class="stepcounter__btn" type="button" id="<?= $itemIds['QUANTITY_DOWN_ID'] ?>">
+                                                <svg aria-hidden="true" width="14" height="2">
+                                                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#minus2"></use>
+                                                </svg>
+                                                <span class="v-h">Уменьшить количество</span>
+                                            </button>
+                                            <input
+                                                class="stepcounter__input"
+                                                type="number"
+                                                id="<?= $itemIds['QUANTITY_ID'] ?>"
+                                                value="<?= $price['MIN_QUANTITY'] ?>"
+                                                readonly
+                                            >
+                                            <button class="stepcounter__btn" type="button" id="<?= $itemIds['QUANTITY_UP_ID'] ?>">
+                                                <svg aria-hidden="true" width="14" height="14">
+                                                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#plus2"></use>
+                                                </svg>
+                                                <span class="v-h">Увеличить количество</span>
+                                            </button>
+                                            <span id="<?= $itemIds['QUANTITY_MEASURE'] ?>" style="display: none;">
+                                                <?= $actualItem['ITEM_MEASURE']['TITLE'] ?>
+                                            </span>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <div data-entity="main-button-container">
+                                        <div id="<?= $itemIds['BASKET_ACTIONS_ID'] ?>" style="<?= $actualItem['CAN_BUY'] ? '' : 'display: none;' ?>">
+                                            <?php if ($showAddBtn): ?>
+                                                <a
+                                                    href="javascript:void(0);"
+                                                    class="btn btn_small btn_black"
+                                                    id="<?= $itemIds['ADD_BASKET_LINK'] ?>"
+                                                    data-product-id="<?= $arResult['ID'] ?>"
+                                                >
+                                                    <svg width="16" height="18" aria-hidden="true">
+                                                        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#cart1"></use>
+                                                    </svg>
+                                                    <span>В корзину</span>
+                                                </a>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
-                            <?php endif; ?>
+
+                                <a
+                                    href="javascript:void(0);"
+                                    class="btn btn_small btn_grey btn_wide"
+                                    id="<?= $itemIds['NOT_AVAILABLE_MESS'] ?>"
+                                    style="<?= $actualItem['CAN_BUY'] ? 'display: none;' : '' ?>"
+                                    rel="nofollow"
+                                >
+                                    <?= $arParams['MESS_NOT_AVAILABLE'] ?>
+                                </a>
+
+                                <?php if ($actualItem['CAN_BUY']): ?>
+                                    <button data-hystmodal="#modalBuy1Click" class="btn btn_small btn_grey btn_wide" type="button">
+                                        Купить в 1 клик
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                         </div>
 
-                        <div class="catalog-detail__grid2">
-                            <?php
-                            // Количество товара
-                            if ($arParams['USE_PRODUCT_QUANTITY']) {
-                                ?>
-                                <div class="stepcounter" style="<?= (!$actualItem['CAN_BUY'] ? 'display: none;' : '') ?>"
-                                    data-entity="quantity-block">
-                                    <button class="stepcounter__btn" type="button" id="<?= $itemIds['QUANTITY_DOWN_ID'] ?>">
-                                        <svg aria-hidden="true" width="14" height="2">
-                                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#minus1"></use>
-                                        </svg>
-                                        <span class="v-h">Уменьшить количество</span>
-                                    </button>
-                                    <input class="stepcounter__input" type="number" id="<?= $itemIds['QUANTITY_ID'] ?>"
-                                        value="<?= $price['MIN_QUANTITY'] ?>" readonly>
-                                    <button class="stepcounter__btn" type="button" id="<?= $itemIds['QUANTITY_UP_ID'] ?>">
-                                        <svg aria-hidden="true" width="14" height="14">
-                                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#plus1"></use>
-                                        </svg>
-                                        <span class="v-h">Увеличить количество</span>
-                                    </button>
-                                    <span style="display: none;" id="<?= $itemIds['QUANTITY_MEASURE'] ?>">
-                                <?= $actualItem['ITEM_MEASURE']['TITLE'] ?>
-                            </span>
-                                </div>
-                                <?php
-                            }
-                            ?>
+                        <button
+                            class="catalog-detail__btn-favorite btn-favorites"
+                            data-id="<?= $arResult['ID'] ?>"
+                            type="button"
+                            id="<?= $itemIds['COMPARE_LINK'] ?>"
+                        >
+                            <svg aria-hidden="true" width="22" height="20">
+                                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#heart1"></use>
+                            </svg>
+                        </button>
 
-                            <?
-                            if ($actualItem['CAN_BUY']) {
-                                ?>
-                                <div data-entity="main-button-container">
-                                    <div id="<?= $itemIds['BASKET_ACTIONS_ID'] ?>" <?= ($actualItem['CAN_BUY'] ? '' : 'style="display: none;"') ?>>
-                                        <?php if ($showAddBtn): ?>
-                                            <a href="javascript:void(0);" class="btn btn_primary"
-                                            id="<?= $itemIds['ADD_BASKET_LINK'] ?>"
-                                            data-product-id="<?= $arResult['ID'] ?>" style="width: 100%;">
-                                                В корзину
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-
-                                <button data-hystmodal="#modalBuy1Click"
-                                        class="btn btn_primary btn_hollow btn_wide"
-                                        type="button">Купить в 1 клик
-                                </button>
-                                <?
-                            }
-                            ?>
-                        </div>
                         <?php if ($showSubscribe): ?>
                             <?php
                             $APPLICATION->IncludeComponent(
@@ -763,127 +815,305 @@ $showArrivalDate = !$actualItem['CAN_BUY'] && $arrivalDate !== '';
                             ?>
                         <?php endif; ?>
                     </div>
+                </div>
 
+                <div class="grid-detail__photo">
+                    <div class="grid-detail__photo-inner">
+                        <div class="catalog-detail__badges" id="<?= $itemIds['STICKER_ID'] ?>" <?= !$arResult['LABEL'] ? 'style="display: none;"' : '' ?>>
+                            <?php
+                            if ($arResult['LABEL'] && !empty($arResult['LABEL_ARRAY_VALUE'])) {
+                                $arLabelsClass = [
+                                    'NEWPRODUCT' => 'badge1 badge1_black',
+                                    'SALELEADER' => 'badge1 badge1_orange',
+                                    'SPECIALOFFER' => 'badge1 badge1_red',
+                                ];
+                                foreach ($arResult['LABEL_ARRAY_VALUE'] as $code => $value) {
+                                    ?>
+                                    <span class="<?= $arLabelsClass[$code] ?: 'badge1 badge1_black' ?>" title="<?= $value ?>">
+                                        <?= $value ?>
+                                    </span>
+                                    <?php
+                                }
+                            }
+
+                            if ($arParams['SHOW_DISCOUNT_PERCENT'] === 'Y') {
+                                if ($haveOffers) {
+                                    ?>
+                                    <span class="badge1 badge1_red" id="<?= $itemIds['DISCOUNT_PERCENT_ID'] ?>" style="display: none;"></span>
+                                    <?php
+                                } elseif ($price['DISCOUNT'] > 0) {
+                                    ?>
+                                    <span class="badge1 badge1_red" id="<?= $itemIds['DISCOUNT_PERCENT_ID'] ?>" title="<?= -$price['PERCENT'] ?>%">
+                                        <?= -$price['PERCENT'] ?>%
+                                    </span>
+                                    <?php
+                                }
+                            }
+                            ?>
+                        </div>
+
+                        <div class="swiper-holder">
+                            <div class="swiper-photos-wrapper">
+                                <div data-swiper="photos" class="swiper swiper-photos" id="<?= $itemIds['BIG_SLIDER_ID'] ?>">
+                                    <div class="swiper-wrapper" data-entity="images-container">
+                                        <?php if (!empty($actualItem['MORE_PHOTO'])): ?>
+                                            <?php foreach ($actualItem['MORE_PHOTO'] as $key => $photo): ?>
+                                                <a
+                                                    href="<?= $photo['SRC'] ?>"
+                                                    data-fancybox="photo-big"
+                                                    class="swiper-slide"
+                                                    data-entity="image"
+                                                    data-id="<?= $photo['ID'] ?>"
+                                                >
+                                                    <img
+                                                        src="<?= $photo['SRC'] ?>"
+                                                        alt="<?= $alt ?>"
+                                                        title="<?= $title ?>"<?= $key === 0 ? ' itemprop="image"' : '' ?>
+                                                    >
+                                                </a>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <?php if ($showSliderControls): ?>
+                                    <button class="swiper-nav swiper-nav_prev" type="button" data-entity="slider-control-left">
+                                        <svg width="16" height="16" aria-hidden="true">
+                                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow2"></use>
+                                        </svg>
+                                        <span class="v-h">Назад</span>
+                                    </button>
+                                    <button class="swiper-nav swiper-nav_next" type="button" data-entity="slider-control-right">
+                                        <svg width="16" height="16" aria-hidden="true">
+                                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow2"></use>
+                                        </svg>
+                                        <span class="v-h">Вперед</span>
+                                    </button>
+                                <?php endif; ?>
+                                <div class="swiper-pagination"></div>
+                            </div>
+
+                            <div data-swiper="preview" class="swiper swiper-preview">
+                                <div class="swiper-wrapper">
+                                    <?php if (!empty($actualItem['MORE_PHOTO'])): ?>
+                                        <?php foreach ($actualItem['MORE_PHOTO'] as $photo): ?>
+                                            <div
+                                                class="swiper-slide"
+                                                data-entity="slider-control"
+                                                data-value="<?= $photo['ID'] ?>"
+                                            >
+                                                <img src="<?= $photo['SRC'] ?>" alt="<?= $alt ?>">
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="block1 catalog-detail-tabs" id="<?= $itemIds['TABS_ID'] ?>">
-        <div class="container">
-            <div class="tab-nav1">
-                <?php if ($showDescription): ?>
-                    <button data-action="showTab2" data-tab="description" class="tab-nav1__btn active" type="button">
-                        <?= $arParams['MESS_DESCRIPTION_TAB'] ?>
-                    </button>
-                <?php endif; ?>
-
-                <?php if (!empty($arResult['DISPLAY_PROPERTIES']) || $arResult['SHOW_OFFERS_PROPS']): ?>
-                    <button data-action="showTab2" data-tab="specs" class="tab-nav1__btn" type="button">
-                        <?= $arParams['MESS_PROPERTIES_TAB'] ?>
-                    </button>
-                <?php endif; ?>
-
-                <?php if ($arParams['USE_COMMENTS'] === 'Y'): ?>
-                    <button data-action="showTab2" data-tab="comments" class="tab-nav1__btn" type="button">
-                        <?= $arParams['MESS_COMMENTS_TAB'] ?>
-                    </button>
-                <?php endif; ?>
-            </div>
+    <div class="tabs2" data-tab="container" id="<?= $itemIds['TABS_ID'] ?>">
+        <div class="tabs2-nav">
+            <button data-action="tab1" data-alias="description" class="tabs2-nav__btn active" type="button">Описание</button>
+            <button data-action="tab1" data-alias="specs" class="tabs2-nav__btn" type="button">Характеристики</button>
+            <?php if ($hasSizeTable): ?>
+                <button data-action="tab1" data-alias="sizes" class="tabs2-nav__btn" type="button">Таблица размеров</button>
+            <?php endif; ?>
+            <button data-action="tab1" data-alias="setup" class="tabs2-nav__btn" type="button">Монтаж</button>
+            <button data-action="tab1" data-alias="delivery" class="tabs2-nav__btn" type="button">Доставка и оплата</button>
+            <button data-action="tab1" data-alias="certificates" class="tabs2-nav__btn" type="button">Сертификаты</button>
         </div>
-        <div class="container container_bordered1" id="<?= $itemIds['TAB_CONTAINERS_ID'] ?>">
-            <?php if ($showDescription): ?>
-                <div data-tab-content="description" class="catalog-detail-tabs__content" id="description">
-                    <h2 class="title4">Описание</h2>
-                    <div class="textblock1 textblock1_big" id="<?= $itemIds['DESCRIPTION_ID'] ?>">
-                        <?php
-                        if ($arResult['DETAIL_TEXT'] != '') {
-                            echo $arResult['DETAIL_TEXT_TYPE'] === 'html' ? $arResult['DETAIL_TEXT'] : '<p>' . $arResult['~DETAIL_TEXT'] . '</p>';
-                        }
-                        ?>
+
+        <div id="<?= $itemIds['TAB_CONTAINERS_ID'] ?>">
+            <div class="tabs2__content active" data-tab="content" data-alias="description" id="description">
+                <div class="grid4">
+                    <div>
+                        <div class="textblock1" id="<?= $itemIds['DESCRIPTION_ID'] ?>">
+                            <h2 class="title6">Описание</h2>
+                            <?php
+                            if ($arResult['DETAIL_TEXT'] != '') {
+                                echo $arResult['DETAIL_TEXT_TYPE'] === 'html'
+                                    ? $arResult['DETAIL_TEXT']
+                                    : '<p>' . $arResult['~DETAIL_TEXT'] . '</p>';
+                            }
+                            ?>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="rblock1">
+                            <div class="textblock1">
+                                <h3>Преимущества</h3>
+                                <ul>
+                                    <li>РАЗМЕЩЕНИЕ - устанавливаем люк, привязываясь к инженерным коммуникациям, а не к раскладке облицовочного материала.</li>
+                                    <li>ПРАКТИЧНОСТЬ - установка стандартных размеров люка, которые всегда в наличии.</li>
+                                    <li>УНИВЕРСАЛЬНОСТЬ - в люк можно инсталлировать любое покрытие: керамическую плитку, панели, зеркала и т.д.</li>
+                                    <li>ИННОВАЦИИ - алюминиевый кант защищает отделочный материал от сколов в момент открывания люка, в отличие от других моделей.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs2__content" data-tab="content" data-alias="specs" id="specs">
+                <h2 class="title6">Характеристики</h2>
+                <div class="specs-list-wrapper">
+                    <?php if (!empty($arResult['DISPLAY_PROPERTIES'])): ?>
+                        <ul class="specs-list specs-list_columned">
+                            <?php foreach ($arResult['DISPLAY_PROPERTIES'] as $property): ?>
+                                <li class="specs-list__row">
+                                    <div class="specs-list__key"><?= $property['NAME'] ?></div>
+                                    <div class="specs-list__value">
+                                        <?= is_array($property['DISPLAY_VALUE'])
+                                            ? implode(' / ', $property['DISPLAY_VALUE'])
+                                            : $property['DISPLAY_VALUE'] ?>
+                                    </div>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+
+                    <?php if ($arResult['SHOW_OFFERS_PROPS']): ?>
+                        <ul class="specs-list specs-list_columned" id="<?= $itemIds['DISPLAY_PROP_DIV'] ?>"></ul>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <?php if ($hasSizeTable): ?>
+                <div class="tabs2__content tab-sizes" data-tab="content" data-alias="sizes">
+                    <div class="grid5">
+                        <h2 class="title6">Таблица размеров</h2>
+                        <div class="color-items">
+                            <span class="color-item">
+                                <span class="color-item__color green"></span>
+                                <span class="color-item__name">Стандартный размер</span>
+                            </span>
+                            <span class="color-item">
+                                <span class="color-item__color"></span>
+                                <span class="color-item__name">Нестандартный размер</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div
+                        class="table-variants"
+                        data-size-table
+                        data-width-prop-id="<?= $sizeTable['widthPropId'] ?>"
+                        data-height-prop-id="<?= $sizeTable['heightPropId'] ?>"
+                    >
+                        <span class="table-variants__label"><span>Ширина, мм</span></span>
+                        <span class="table-variants__label vertical"><span>Высота, мм</span></span>
+                        <div class="table-variants__scroll">
+                            <table>
+                                <tr>
+                                    <td></td>
+                                    <?php foreach ($sizeTable['widths'] as $width): ?>
+                                        <td><span class="table-variants__item"><?= htmlspecialcharsbx($width['name']) ?></span></td>
+                                    <?php endforeach; ?>
+                                </tr>
+                                <?php foreach ($sizeTable['heights'] as $heightId => $height): ?>
+                                    <tr>
+                                        <td><span class="table-variants__item"><?= htmlspecialcharsbx($height['name']) ?></span></td>
+                                        <?php foreach ($sizeTable['widths'] as $widthId => $width): ?>
+                                            <?php
+                                            $cell = $sizeTable['cells'][$heightId][$widthId] ?? null;
+                                            $isActiveSize = $cell !== null && (int)$cell['offerId'] === (int)$actualItem['ID'];
+                                            ?>
+                                            <td>
+                                                <?php if ($cell !== null): ?>
+                                                    <button
+                                                        type="button"
+                                                        class="table-variants__item green<?= $isActiveSize ? ' active' : '' ?>"
+                                                        data-size-offer-id="<?= $cell['offerId'] ?>"
+                                                        data-width-value-id="<?= $cell['widthValueId'] ?>"
+                                                        data-height-value-id="<?= $cell['heightValueId'] ?>"
+                                                    >
+                                                        <?= $cell['price'] ?>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <span class="table-variants__item disabled"></span>
+                                                <?php endif; ?>
+                                            </td>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </table>
+                        </div>
                     </div>
                 </div>
             <?php endif; ?>
 
-            <?php if (!empty($arResult['DISPLAY_PROPERTIES']) || $arResult['SHOW_OFFERS_PROPS']): ?>
-                <div data-tab-content="specs" class="catalog-detail-tabs__content" id="specs" style="display: none;">
-                    <h2 class="title4">Характеристики</h2>
-                    <?php if (!empty($arResult['DISPLAY_PROPERTIES'])): ?>
-                        <dl class="table-specs2">
-                            <?php
-                            foreach ($arResult['DISPLAY_PROPERTIES'] as $property) {
-                                ?>
-                                <dt><?= $property['NAME'] ?></dt>
-                                <dd><?= (
-                                    is_array($property['DISPLAY_VALUE'])
-                                        ? implode(' / ', $property['DISPLAY_VALUE'])
-                                        : $property['DISPLAY_VALUE']
-                                    ) ?>
-                                </dd>
-                                <?php
-                            }
-                            unset($property);
-                            ?>
-                        </dl>
-                    <?php endif; ?>
-
-                    <?php if ($arResult['SHOW_OFFERS_PROPS']): ?>
-                        <dl class="table-specs2" id="<?= $itemIds['DISPLAY_PROP_DIV'] ?>"></dl>
-                    <?php endif; ?>
+            <div class="tabs2__content tab-setup" data-tab="content" data-alias="setup">
+                <h2 class="title6">Монтаж</h2>
+                <div class="grid4">
+                    <div>
+                        <div class="mounting-title">Заголовок 1</div>
+                        <a data-fancybox href="<?= SITE_TEMPLATE_PATH ?>/img/about.webp">
+                            <img class="tab-setup__photo" src="<?= SITE_TEMPLATE_PATH ?>/img/about.webp" alt="">
+                        </a>
+                    </div>
+                    <div>
+                        <div class="mounting-title">Заголовок 2</div>
+                        <a data-fancybox href="<?= SITE_TEMPLATE_PATH ?>/img/category1.webp">
+                            <img class="tab-setup__photo" src="<?= SITE_TEMPLATE_PATH ?>/img/category1.webp" alt="">
+                        </a>
+                    </div>
                 </div>
-            <?php endif; ?>
+            </div>
 
-            <?php if ($arParams['USE_COMMENTS'] === 'Y'): ?>
-                <div data-tab-content="comments" class="catalog-detail-tabs__content" style="display: none;">
-                    <?php
-                    $componentCommentsParams = array(
-                        'ELEMENT_ID' => $arResult['ID'],
-                        'ELEMENT_CODE' => '',
-                        'IBLOCK_ID' => $arParams['IBLOCK_ID'],
-                        'SHOW_DEACTIVATED' => $arParams['SHOW_DEACTIVATED'],
-                        'URL_TO_COMMENT' => '',
-                        'WIDTH' => '',
-                        'COMMENTS_COUNT' => '5',
-                        'BLOG_USE' => $arParams['BLOG_USE'],
-                        'FB_USE' => $arParams['FB_USE'],
-                        'FB_APP_ID' => $arParams['FB_APP_ID'],
-                        'VK_USE' => $arParams['VK_USE'],
-                        'VK_API_ID' => $arParams['VK_API_ID'],
-                        'CACHE_TYPE' => $arParams['CACHE_TYPE'],
-                        'CACHE_TIME' => $arParams['CACHE_TIME'],
-                        'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
-                        'BLOG_TITLE' => '',
-                        'BLOG_URL' => $arParams['BLOG_URL'],
-                        'PATH_TO_SMILE' => '',
-                        'EMAIL_NOTIFY' => $arParams['BLOG_EMAIL_NOTIFY'],
-                        'AJAX_POST' => 'Y',
-                        'SHOW_SPAM' => 'Y',
-                        'SHOW_RATING' => 'N',
-                        'FB_TITLE' => '',
-                        'FB_USER_ADMIN_ID' => '',
-                        'FB_COLORSCHEME' => 'light',
-                        'FB_ORDER_BY' => 'reverse_time',
-                        'VK_TITLE' => '',
-                        'TEMPLATE_THEME' => $arParams['~TEMPLATE_THEME']
-                    );
-                    if (isset($arParams["USER_CONSENT"]))
-                        $componentCommentsParams["USER_CONSENT"] = $arParams["USER_CONSENT"];
-                    if (isset($arParams["USER_CONSENT_ID"]))
-                        $componentCommentsParams["USER_CONSENT_ID"] = $arParams["USER_CONSENT_ID"];
-                    if (isset($arParams["USER_CONSENT_IS_CHECKED"]))
-                        $componentCommentsParams["USER_CONSENT_IS_CHECKED"] = $arParams["USER_CONSENT_IS_CHECKED"];
-                    if (isset($arParams["USER_CONSENT_IS_LOADED"]))
-                        $componentCommentsParams["USER_CONSENT_IS_LOADED"] = $arParams["USER_CONSENT_IS_LOADED"];
-                    $APPLICATION->IncludeComponent(
-                        'bitrix:catalog.comments',
-                        '',
-                        $componentCommentsParams,
-                        $component,
-                        array('HIDE_ICONS' => 'Y')
-                    );
-                    ?>
+            <div class="tabs2__content tab-delivery" data-tab="content" data-alias="delivery">
+                <h2 class="title6">Доставка и оплата</h2>
+                <div class="grid4">
+                    <div class="rblock2">
+                        <div class="textblock1">
+                            <h3 class="title2">
+                                <img src="<?= SITE_TEMPLATE_PATH ?>/img/pic-delivery1.svg" alt="">
+                                <span>Доставка</span>
+                            </h3>
+                            <p><strong>Экономьте время на получении заказа:</strong></p>
+                            <ul>
+                                <li>Курьерская доставка работает с 9:00 до 19:00. После поступления товара с вами свяжутся для согласования удобного времени и адреса.</li>
+                                <li>Самовывоз из магазина. Когда заказ поступит на склад, вы получите уведомление и сможете забрать его в выбранной точке.</li>
+                                <li>Постамат. После доставки на точку выдачи на телефон или e-mail придет код получения.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="rblock2">
+                        <div class="textblock1">
+                            <h3 class="title2">
+                                <img src="<?= SITE_TEMPLATE_PATH ?>/img/pic-payment1.svg" alt="">
+                                <span>Оплата</span>
+                            </h3>
+                            <p><strong>Оплачивайте покупки удобным способом:</strong></p>
+                            <ul>
+                                <li>Наличными при самовывозе или доставке курьером.</li>
+                                <li>Банковской картой при оформлении заказа на сайте или при получении.</li>
+                                <li>Безналичным расчетом по выставленному счету.</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-            <?php endif; ?>
+            </div>
+
+            <div class="tabs2__content tab-certificates" data-tab="content" data-alias="certificates">
+                <h2 class="title6">Сертификаты</h2>
+                <div class="grid4">
+                    <a class="card-file" href="javascript:void(0);">
+                        <span>Сертификат соответствия товара</span>
+                        <svg width="21" height="21" aria-hidden="true">
+                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#download1"></use>
+                        </svg>
+                    </a>
+                    <a class="card-file" href="javascript:void(0);">
+                        <span>Паспорт изделия</span>
+                        <svg width="21" height="21" aria-hidden="true">
+                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#download1"></use>
+                        </svg>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1546,11 +1776,11 @@ if ($haveOffers) {
         if ($arResult['SHOW_OFFERS_PROPS']) {
             if (!empty($jsOffer['DISPLAY_PROPERTIES'])) {
                 foreach ($jsOffer['DISPLAY_PROPERTIES'] as $property) {
-                    $current = '<dt>' . $property['NAME'] . '</dt><dd>' . (
+                    $current = '<li class="specs-list__row"><div class="specs-list__key">' . $property['NAME'] . '</div><div class="specs-list__value">' . (
                         is_array($property['VALUE'])
                             ? implode(' / ', $property['VALUE'])
                             : $property['VALUE']
-                        ) . '</dd>';
+                        ) . '</div></li>';
                     $strAllProps .= $current;
 
                     if (isset($arParams['MAIN_BLOCK_OFFERS_PROPERTY_CODE'][$property['CODE']])) {
@@ -1604,6 +1834,7 @@ if ($haveOffers) {
             unset($range, $itemPrice);
         }
 
+        $jsOffer['ARTICLE'] = $getArticleValue($fullOffer) ?: $artic;
         $jsOffer['DISPLAY_PROPERTIES'] = $strAllProps;
         $jsOffer['DISPLAY_PROPERTIES_MAIN_BLOCK'] = $strMainProps;
         $jsOffer['PRICE_RANGES_RATIO_HTML'] = $strPriceRangesRatio;
@@ -1774,6 +2005,175 @@ $jsParams["IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED"] =
         });
 
         var <?=$obName?> = new JCCatalogElement(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);
+
+        (function () {
+            var root = document.getElementById('<?=CUtil::JSEscape($itemIds['ID'])?>');
+            var tabsRoot = document.getElementById('<?=CUtil::JSEscape($itemIds['TABS_ID'])?>');
+            var hiddenTree = document.getElementById('<?=CUtil::JSEscape($itemIds['TREE_ID'])?>');
+            var articleNode = document.getElementById('<?=CUtil::JSEscape($itemIds['ARTICLE_ID'])?>');
+            var oldPriceRow = root ? root.querySelector('[data-old-price-row]') : null;
+            var sizeTableNode = tabsRoot ? tabsRoot.querySelector('[data-size-table]') : null;
+            var sizeWidthPropId = sizeTableNode ? String(sizeTableNode.getAttribute('data-width-prop-id') || '') : '';
+            var sizeHeightPropId = sizeTableNode ? String(sizeTableNode.getAttribute('data-height-prop-id') || '') : '';
+            var offersById = {};
+            var offerIndexById = {};
+
+            if (!root || !hiddenTree || !<?=$obName?>.offers) {
+                return;
+            }
+
+            <?=$obName?>.offers.forEach(function (offer) {
+                offersById[String(offer.ID)] = offer;
+            });
+
+            <?=$obName?>.offers.forEach(function (offer, index) {
+                offerIndexById[String(offer.ID)] = index;
+            });
+
+            function setSelectValue(select, value, silent) {
+                if (!select) {
+                    return;
+                }
+
+                silent = silent === true;
+
+                if (select.tomselect) {
+                    select.tomselect.setValue(String(value), silent);
+                    return;
+                }
+
+                select.value = String(value);
+            }
+
+            function clickHiddenTreeItem(treeValue) {
+                var hiddenItem = hiddenTree.querySelector('[data-treevalue="' + treeValue + '"]');
+                if (hiddenItem) {
+                    hiddenItem.click();
+                }
+            }
+
+            function syncArticle(offer) {
+                if (!articleNode) {
+                    return;
+                }
+
+                if (offer && offer.ARTICLE) {
+                    articleNode.style.display = '';
+                    articleNode.textContent = 'Артикул: ' + offer.ARTICLE;
+                    return;
+                }
+
+                articleNode.style.display = 'none';
+                articleNode.textContent = '';
+            }
+
+            function syncOldPriceRow(offer) {
+                if (!oldPriceRow || !offer || !offer.ITEM_PRICES || !offer.ITEM_PRICES[offer.ITEM_PRICE_SELECTED]) {
+                    return;
+                }
+
+                var offerPrice = offer.ITEM_PRICES[offer.ITEM_PRICE_SELECTED];
+                oldPriceRow.style.display = offerPrice.PRICE !== offerPrice.BASE_PRICE ? '' : 'none';
+            }
+
+            function syncSizeTable(offerId) {
+                if (!sizeTableNode) {
+                    return;
+                }
+
+                sizeTableNode.querySelectorAll('[data-size-offer-id]').forEach(function (cell) {
+                    cell.classList.toggle('active', cell.getAttribute('data-size-offer-id') === String(offerId));
+                });
+            }
+
+            function selectSizeOffer(cell) {
+                var offerId;
+                var offerIndex;
+                var rootTop;
+
+                if (!cell) {
+                    return;
+                }
+
+                offerId = String(cell.getAttribute('data-size-offer-id') || '');
+                offerIndex = offerIndexById[offerId];
+
+                if (!offerId || offerIndex === undefined) {
+                    return;
+                }
+
+                <?=$obName?>.setOffer(offerIndex);
+
+                rootTop = Math.max(root.getBoundingClientRect().top + window.pageYOffset - 20, 0);
+                window.scrollTo({ top: rootTop, behavior: 'smooth' });
+            }
+
+            function syncVisibleControls(offerId) {
+                var offer = offersById[String(offerId)];
+
+                if (!offer || !offer.TREE) {
+                    return;
+                }
+
+                Object.keys(offer.TREE).forEach(function (propCode) {
+                    var propId = propCode.replace('PROP_', '');
+                    var valueId = String(offer.TREE[propCode]);
+                    var radio = root.querySelector('[data-sku-radio="' + propId + '_' + valueId + '"]');
+                    var select = root.querySelector('[data-sku-select="' + propId + '"]');
+
+                    if (radio) {
+                        radio.checked = true;
+                    }
+
+                    if (select) {
+                        setSelectValue(select, valueId, true);
+                    }
+                });
+
+                syncArticle(offer);
+                syncOldPriceRow(offer);
+                syncSizeTable(offerId);
+            }
+
+            root.querySelectorAll('[data-sku-radio]').forEach(function (input) {
+                input.addEventListener('change', function () {
+                    if (this.checked) {
+                        clickHiddenTreeItem(this.getAttribute('data-sku-radio'));
+                    }
+                });
+            });
+
+            root.querySelectorAll('[data-sku-select]').forEach(function (select) {
+                select.addEventListener('change', function () {
+                    clickHiddenTreeItem(this.getAttribute('data-sku-select') + '_' + this.value);
+                });
+            });
+
+            if (sizeTableNode) {
+                sizeTableNode.addEventListener('click', function (event) {
+                    var cell = event.target.closest('[data-size-offer-id]');
+
+                    if (!cell || !sizeTableNode.contains(cell)) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    selectSizeOffer(cell);
+                });
+            }
+
+            if (<?=$obName?>.offers[<?=$obName?>.offerNum]) {
+                syncVisibleControls(<?=$obName?>.offers[<?=$obName?>.offerNum].ID);
+            }
+
+            BX.addCustomEvent('onCatalogElementChangeOffer', function (eventData) {
+                if (!eventData || !eventData.newId || !offersById[String(eventData.newId)]) {
+                    return;
+                }
+
+                syncVisibleControls(eventData.newId);
+            });
+        })();
     </script>
 <?php
 unset($actualItem, $itemIds, $jsParams);

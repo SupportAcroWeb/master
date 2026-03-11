@@ -3159,6 +3159,8 @@ a {
   display: block;
 }
 .table-variants__item {
+  appearance: none;
+  background: none;
   height: 40px;
   border-radius: 20px;
   border: 1px #e6e6e6 solid;
@@ -3171,13 +3173,22 @@ a {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  font-size: 16px;
-  font-weight: 400;
+  font-size: 9px;
   color: rgba(87, 87, 87, 0.7);
   width: 100%;
+  padding: 0;
 }
 .table-variants__item.green {
   background-color: rgba(51, 181, 18, 0.2);
+}
+.table-variants__item.active {
+  border-color: var(--theme-color-accent);
+  background-color: var(--theme-color-accent);
+  color: #fff;
+}
+.table-variants__item.disabled {
+  background-color: #f6f6f6;
+  color: rgba(87, 87, 87, 0.35);
 }
 tr:first-child .table-variants__item, td:first-child .table-variants__item {
   padding-top: 2px;
@@ -3187,6 +3198,9 @@ tr:first-child .table-variants__item, td:first-child .table-variants__item {
 }
 tr:not(:first-child) .table-variants__item, td:not(:first-child) .table-variants__item {
   cursor: pointer;
+}
+tr:not(:first-child) .table-variants__item.disabled, td:not(:first-child) .table-variants__item.disabled {
+  cursor: default;
 }
 tr:first-child .highlighted .table-variants__item, td.highlighted:first-child .table-variants__item {
   background-color: var(--theme-color-text-common);

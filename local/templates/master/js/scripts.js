@@ -178,8 +178,16 @@ AW.initSwiperGallery = function ($el) {
   });
 };
 
-AW.initDetailSwipers = function () {
-  const previewSlider = new Swiper($('[data-swiper="preview"]')[0], {
+AW.initDetailSwipers = function ($container) {
+  const $scope = $container && $container.length ? $container : $(document);
+  const $preview = $scope.find('[data-swiper="preview"]').first();
+  const $photos = $scope.find('[data-swiper="photos"]').first();
+
+  if (!$preview.length || !$photos.length) {
+    return;
+  }
+
+  const previewSlider = new Swiper($preview[0], {
     loop: false,
     spaceBetween: 12,
     slidesPerView: 5,
@@ -188,7 +196,7 @@ AW.initDetailSwipers = function () {
     freeMode: true,
     watchSlidesProgress: true,
   });
-  const photosSlider = new Swiper($('[data-swiper="photos"]')[0], {
+  const photosSlider = new Swiper($photos[0], {
     loop: true,
     spaceBetween: 0,
     slidesPerView: 1,
@@ -196,16 +204,12 @@ AW.initDetailSwipers = function () {
       swiper: previewSlider,
     },
     pagination: {
-      el: ".swiper-pagination",
+      el: $photos.closest(".swiper-photos-wrapper").find(".swiper-pagination")[0],
       type: "fraction",
     },
     navigation: {
-      nextEl: $('[data-swiper="photos"]')
-        .closest(".swiper-photos-wrapper")
-        .find(".swiper-nav_next")[0],
-      prevEl: $('[data-swiper="photos"]')
-        .closest(".swiper-photos-wrapper")
-        .find(".swiper-nav_prev")[0],
+      nextEl: $photos.closest(".swiper-photos-wrapper").find(".swiper-nav_next")[0],
+      prevEl: $photos.closest(".swiper-photos-wrapper").find(".swiper-nav_prev")[0],
     },
   });
 };
@@ -296,13 +300,9 @@ $(document).ready(() => {
     AW.initSwiperGallery($(this));
   });
 
-  if (
-    $(".catalog-detail").length &&
-    $('[data-swiper="preview"]').length &&
-    $('[data-swiper="photos"]').length
-  ) {
-    AW.initDetailSwipers();
-  }
+  $(".catalog-detail-wrapper").each(function () {
+    AW.initDetailSwipers($(this));
+  });
 
   $(".btn-catalog").on("click", function () {
     $(".header").toggleClass("header_catalog");

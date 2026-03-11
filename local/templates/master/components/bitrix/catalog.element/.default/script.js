@@ -553,17 +553,25 @@
 					case 7: // service
 						if (this.product.useSlider)
 						{
-							this.product.slider = {
-								ID: this.visual.SLIDER_CONT_ID,
-								CONT: BX(this.visual.SLIDER_CONT_ID),
-								COUNT: this.product.sliderCount
-							};
-							this.product.slider.ITEMS = this.getEntities(this.product.slider.CONT, 'slider-control');
-							for (j = 0; j < this.product.slider.ITEMS.length; j++)
+							if (this.isSwiperGallery())
 							{
-								BX.bind(this.product.slider.ITEMS[j], 'mouseenter', BX.delegate(this.onSliderControlHover, this));
-								BX.bind(this.product.slider.ITEMS[j], 'mouseleave', BX.delegate(this.onSliderControlLeave, this));
-								BX.bind(this.product.slider.ITEMS[j], 'click', BX.delegate(this.selectSliderImg, this));
+								this.syncProductSliderWithVisiblePreview(this.product.sliderCount);
+								this.bindVisibleSwiperPreview();
+							}
+							else
+							{
+								this.product.slider = {
+									ID: this.visual.SLIDER_CONT_ID,
+									CONT: BX(this.visual.SLIDER_CONT_ID),
+									COUNT: this.product.sliderCount
+								};
+								this.product.slider.ITEMS = this.getEntities(this.product.slider.CONT, 'slider-control');
+								for (j = 0; j < this.product.slider.ITEMS.length; j++)
+								{
+									BX.bind(this.product.slider.ITEMS[j], 'mouseenter', BX.delegate(this.onSliderControlHover, this));
+									BX.bind(this.product.slider.ITEMS[j], 'mouseleave', BX.delegate(this.onSliderControlLeave, this));
+									BX.bind(this.product.slider.ITEMS[j], 'click', BX.delegate(this.selectSliderImg, this));
+								}
 							}
 
 							this.setCurrentImg(this.product.sliderPict[0], true, true);
@@ -606,19 +614,32 @@
 									this.offers[i].SLIDER[j].HEIGHT = parseInt(this.offers[i].SLIDER[j].HEIGHT, 10);
 								}
 
-								this.slider.controls[i] = {
-									ID: this.visual.SLIDER_CONT_OF_ID + this.offers[i].ID,
-									OFFER_ID: this.offers[i].ID,
-									CONT: BX(this.visual.SLIDER_CONT_OF_ID + this.offers[i].ID),
-									COUNT: this.offers[i].SLIDER_COUNT
-								};
-
-								this.slider.controls[i].ITEMS = this.getEntities(this.slider.controls[i].CONT, 'slider-control');
-								for (j = 0; j < this.slider.controls[i].ITEMS.length; j++)
+								if (this.isSwiperGallery())
 								{
-									BX.bind(this.slider.controls[i].ITEMS[j], 'mouseenter', BX.delegate(this.onSliderControlHover, this));
-									BX.bind(this.slider.controls[i].ITEMS[j], 'mouseleave', BX.delegate(this.onSliderControlLeave, this));
-									BX.bind(this.slider.controls[i].ITEMS[j], 'click', BX.delegate(this.selectSliderImg, this));
+									this.slider.controls[i] = {
+										ID: '',
+										OFFER_ID: this.offers[i].ID,
+										CONT: this.getSwiperPreviewContainer(),
+										COUNT: this.offers[i].SLIDER_COUNT,
+										ITEMS: []
+									};
+								}
+								else
+								{
+									this.slider.controls[i] = {
+										ID: this.visual.SLIDER_CONT_OF_ID + this.offers[i].ID,
+										OFFER_ID: this.offers[i].ID,
+										CONT: BX(this.visual.SLIDER_CONT_OF_ID + this.offers[i].ID),
+										COUNT: this.offers[i].SLIDER_COUNT
+									};
+
+									this.slider.controls[i].ITEMS = this.getEntities(this.slider.controls[i].CONT, 'slider-control');
+									for (j = 0; j < this.slider.controls[i].ITEMS.length; j++)
+									{
+										BX.bind(this.slider.controls[i].ITEMS[j], 'mouseenter', BX.delegate(this.onSliderControlHover, this));
+										BX.bind(this.slider.controls[i].ITEMS[j], 'mouseleave', BX.delegate(this.onSliderControlLeave, this));
+										BX.bind(this.slider.controls[i].ITEMS[j], 'click', BX.delegate(this.selectSliderImg, this));
+									}
 								}
 							}
 						}
@@ -1375,9 +1396,182 @@
 			this.node.sliderControlRight && (this.node.sliderControlRight.style.display = display);
 		},
 
+		isSwiperGallery: function()
+		{
+			return !!(this.obBigSlider && this.obBigSlider.getAttribute('data-swiper') === 'photos');
+		},
+
+		getSwiperPreview: function()
+		{
+			return this.obProduct ? this.obProduct.querySelector('[data-swiper="preview"]') : null;
+		},
+
+		getSwiperPreviewContainer: function()
+		{
+			var preview = this.getSwiperPreview();
+
+			return preview ? preview.querySelector('.swiper-wrapper') : null;
+		},
+
+		syncProductSliderWithVisiblePreview: function(count)
+		{
+			var previewContainer = this.getSwiperPreviewContainer();
+
+			this.product.slider = {
+				ID: '',
+				CONT: previewContainer,
+				COUNT: parseInt(count, 10) || 0,
+				ITEMS: this.getEntities(previewContainer, 'slider-control')
+			};
+		},
+
+		clearNodeChildren: function(node)
+		{
+			while (node && node.firstChild)
+			{
+				node.removeChild(node.firstChild);
+			}
+		},
+
+		bindVisibleSwiperPreview: function()
+		{
+			var i = 0,
+				items = this.getEntities(this.getSwiperPreviewContainer(), 'slider-control');
+
+			for (i = 0; i < items.length; i++)
+			{
+				BX.bind(items[i], 'mouseenter', BX.delegate(this.onSliderControlHover, this));
+				BX.bind(items[i], 'mouseleave', BX.delegate(this.onSliderControlLeave, this));
+				BX.bind(items[i], 'click', BX.delegate(this.selectSliderImg, this));
+			}
+		},
+
+		createSwiperImageNode: function(image, index)
+		{
+			var imgAttrs = {
+				src: image.SRC,
+				alt: this.config.alt,
+				title: this.config.title
+			};
+
+			if (index === 0)
+			{
+				imgAttrs.itemprop = 'image';
+			}
+
+			return BX.create('A', {
+				attrs: {
+					href: image.SRC,
+					'data-fancybox': 'photo-big',
+					'data-entity': 'image',
+					'data-id': image.ID
+				},
+				props: {
+					className: 'swiper-slide' + (index === 0 ? ' active' : '')
+				},
+				children: [
+					BX.create('IMG', {
+						attrs: imgAttrs
+					})
+				]
+			});
+		},
+
+		createSwiperPreviewNode: function(image, index, offerId)
+		{
+			var value = offerId ? offerId + '_' + image.ID : image.ID;
+
+			return BX.create('DIV', {
+				attrs: {
+					'data-entity': 'slider-control',
+					'data-value': value,
+					'data-id': image.ID
+				},
+				props: {
+					className: 'swiper-slide' + (index === 0 ? ' active' : '')
+				},
+				children: [
+					BX.create('IMG', {
+						attrs: {
+							src: image.SRC,
+							alt: this.config.alt
+						}
+					})
+				]
+			});
+		},
+
+		refreshSwiperInstance: function(swiperNode)
+		{
+			var swiper = swiperNode && swiperNode.swiper ? swiperNode.swiper : null;
+
+			if (!swiper)
+			{
+				return;
+			}
+
+			if (swiper.params && swiper.params.loop && typeof swiper.loopDestroy === 'function')
+			{
+				swiper.loopDestroy();
+			}
+
+			if (swiper.params && swiper.params.loop && typeof swiper.loopCreate === 'function')
+			{
+				swiper.loopCreate();
+			}
+
+			typeof swiper.update === 'function' && swiper.update();
+			typeof swiper.updateSlidesClasses === 'function' && swiper.updateSlidesClasses();
+		},
+
+		syncSwiperState: function(img, index)
+		{
+			var i = 0,
+				controlValue = '',
+				preview = this.getSwiperPreview(),
+				previewItems = this.getEntities(this.getSwiperPreviewContainer(), 'slider-control'),
+				photosSwiper = this.obBigSlider && this.obBigSlider.swiper ? this.obBigSlider.swiper : null,
+				previewSwiper = preview && preview.swiper ? preview.swiper : null;
+
+			for (i = 0; i < previewItems.length; i++)
+			{
+				controlValue = previewItems[i].getAttribute('data-value') || '';
+
+				if (
+					previewItems[i].getAttribute('data-id') == img.ID
+					|| controlValue === String(img.ID)
+					|| controlValue.split('_').pop() === String(img.ID)
+				)
+				{
+					BX.addClass(previewItems[i], 'active');
+				}
+				else
+				{
+					BX.removeClass(previewItems[i], 'active');
+				}
+			}
+
+			if (index > -1 && photosSwiper)
+			{
+				if (photosSwiper.params && photosSwiper.params.loop && typeof photosSwiper.slideToLoop === 'function')
+				{
+					photosSwiper.slideToLoop(index, 0, false);
+				}
+				else if (typeof photosSwiper.slideTo === 'function')
+				{
+					photosSwiper.slideTo(index, 0, false);
+				}
+			}
+
+			if (index > -1 && previewSwiper && typeof previewSwiper.slideTo === 'function')
+			{
+				previewSwiper.slideTo(index, 0, false);
+			}
+		},
+
 		setCurrentImg: function(img, showImage, showPanelImage)
 		{
-			var images, l;
+			var images, l, currentIndex = -1;
 
 			this.currentImg.id = img.ID;
 			this.currentImg.src = img.SRC;
@@ -1392,6 +1586,8 @@
 				{
 					if (images[l].getAttribute('data-id') == img.ID)
 					{
+						currentIndex = l;
+
 						if (!BX.hasClass(images[l], 'active'))
 						{
 							this.node.sliderProgressBar && this.resetProgress();
@@ -1403,6 +1599,11 @@
 					{
 						BX.removeClass(images[l], 'active');
 					}
+				}
+
+				if (this.isSwiperGallery())
+				{
+					this.syncSwiperState(img, currentIndex);
 				}
 			}
 
@@ -2538,7 +2739,7 @@
 					this.isGift = false;
 				}
 
-				this.drawImages(this.offers[index].SLIDER);
+				this.drawImages(this.offers[index].SLIDER, this.offers[index].ID);
 				this.checkSliderControls(this.offers[index].SLIDER_COUNT);
 
 				for (i = 0; i < this.offers.length; i++)
@@ -2551,7 +2752,14 @@
 						}
 					}
 
-					if (this.slider.controls[i].ID)
+					if (this.isSwiperGallery())
+					{
+						if (i === index)
+						{
+							this.syncProductSliderWithVisiblePreview(this.offers[index].SLIDER_COUNT);
+						}
+					}
+					else if (this.slider.controls[i].ID)
 					{
 						if (i === index)
 						{
@@ -2676,13 +2884,37 @@
 			}
 			BX.adjust(this.obDescription, {html: currentDescription});
 		},
-		drawImages: function(images)
+		drawImages: function(images, offerId)
 		{
-			console.log('drawImages', images);
 			if (!this.node.imageContainer)
 				return;
 
-			var i, img, entities = this.getEntities(this.node.imageContainer, 'image');
+			var i,
+				img,
+				previewContainer,
+				entities = this.getEntities(this.node.imageContainer, 'image');
+
+			if (this.isSwiperGallery())
+			{
+				previewContainer = this.getSwiperPreviewContainer();
+
+				this.clearNodeChildren(this.node.imageContainer);
+				previewContainer && this.clearNodeChildren(previewContainer);
+
+				for (i = 0; i < images.length; i++)
+				{
+					this.node.imageContainer.appendChild(this.createSwiperImageNode(images[i], i));
+					previewContainer && previewContainer.appendChild(this.createSwiperPreviewNode(images[i], i, offerId));
+				}
+
+				this.refreshSwiperInstance(this.obBigSlider);
+				previewContainer && this.refreshSwiperInstance(this.getSwiperPreview());
+				this.bindVisibleSwiperPreview();
+				this.syncProductSliderWithVisiblePreview(images.length);
+
+				return;
+			}
+
 			for (i in entities)
 			{
 				if (entities.hasOwnProperty(i) && BX.type.isDomNode(entities[i]))
