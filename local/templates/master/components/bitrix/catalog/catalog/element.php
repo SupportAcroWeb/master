@@ -189,11 +189,6 @@ if (isset($arParams['USER_CONSENT_IS_CHECKED'])) {
 if (isset($arParams['USER_CONSENT_IS_LOADED'])) {
     $componentElementParams['USER_CONSENT_IS_LOADED'] = $arParams['USER_CONSENT_IS_LOADED'];
 } ?>
-<div class="block-breadcrumbs">
-    <div class="container"> <?
-        TemplateHelper::includePartial('breadcrumbs'); ?>
-    </div>
-</div>
 <?php
 $elementId = $APPLICATION->IncludeComponent(
     'bitrix:catalog.element',

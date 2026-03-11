@@ -8,10 +8,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 use Acroweb\Mage\Helpers\TemplateHelper;
 
 ?>
-<div class="block-breadcrumbs">
-    <div class="container"> <?
-        TemplateHelper::includePartial('breadcrumbs'); ?>
-    </div>
-</div>
+<div class="container"> <?
+    TemplateHelper::includePartial('breadcrumbs'); ?>
 
 

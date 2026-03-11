@@ -41,58 +41,72 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 
 ?>
 <script id="basket-item-template" type="text/html">
-	<div class="card-product3 card-product4{{#SHOW_RESTORE}} basket-item-restore-mode{{/SHOW_RESTORE}}{{#NOT_AVAILABLE}} basket-item-not-available{{/NOT_AVAILABLE}}"
+	<tr class="basket-item{{#SHOW_RESTORE}} basket-item-restore-mode{{/SHOW_RESTORE}}{{#NOT_AVAILABLE}} basket-item-not-available{{/NOT_AVAILABLE}}"
 		id="basket-item-{{ID}}" data-entity="basket-item" data-id="{{ID}}">
 		{{#SHOW_RESTORE}}
-			<div class="basket-items-list-item-notification" id="basket-item-height-aligner-{{ID}}">
-				{{#SHOW_LOADING}}
-					<div class="basket-items-list-item-overlay"></div>
-				{{/SHOW_LOADING}}
+            <td class="cart-table__cell1"></td>
+			<td class="basket-items-list-item-notification cart-table__cell2" id="basket-item-height-aligner-{{ID}}">
 				<div class="basket-items-list-item-removed-container">
 					<div>
 						<?= Loc::getMessage('SBB_BASKET_ITEM_DELETED_MSGVER_1', ['#NAME#' => '<strong>{{NAME}}</strong>']) ?>
 					</div>
-					<div class="basket-items-list-item-removed-block">
-						<a href="javascript:void(0)" data-entity="basket-item-restore-button">
-							<?=Loc::getMessage('SBB_BASKET_ITEM_RESTORE')?>
-						</a>
-						<span class="basket-items-list-item-clear-btn" data-entity="basket-item-close-restore-button"></span>
-					</div>
 				</div>
-			</div>
+			</td>
+            <td class="cart-table__cell3"></td>
+            <td class="cart-table__cell4"></td>
+            <td class="cart-table__cell5">
+                <div class="basket-items-list-item-removed-block">
+                    <a href="javascript:void(0)" data-entity="basket-item-restore-button">
+                        <?=Loc::getMessage('SBB_BASKET_ITEM_RESTORE')?>
+                    </a>
+                    <span class="basket-items-list-item-clear-btn" data-entity="basket-item-close-restore-button"></span>
+                </div>
+            </td>
 		{{/SHOW_RESTORE}}
 		{{^SHOW_RESTORE}}
-			<?
-			if (in_array('PREVIEW_PICTURE', $arParams['COLUMNS_LIST']))
-			{
+			<td class="cart-table__cell1">
+				<?
+				if (in_array('PREVIEW_PICTURE', $arParams['COLUMNS_LIST']))
+				{
+					?>
+					<div class="cart-table__preview">
+						{{#SHOW_LABEL}}
+							<div class="cart-table__badges">
+								{{#LABEL_VALUES}}
+									<span class="badge1 {{CLASS}}" title="{{NAME}}">{{NAME}}</span>
+								{{/LABEL_VALUES}}
+							</div>
+						{{/SHOW_LABEL}}
+						{{#DETAIL_PAGE_URL}}
+							<a href="{{DETAIL_PAGE_URL}}">
+						{{/DETAIL_PAGE_URL}}
+						<img src="{{{IMAGE_URL}}}{{^IMAGE_URL}}<?=$templateFolder?>/images/no_photo.png{{/IMAGE_URL}}" alt="{{NAME}}">
+						{{#DETAIL_PAGE_URL}}
+							</a>
+						{{/DETAIL_PAGE_URL}}
+					</div>
+					<?
+				}
 				?>
-				<div class="card-product3__col-photo">
+			</td>
+
+			<td class="cart-table__cell2">
+				<div class="cart-table__name">
 					{{#DETAIL_PAGE_URL}}
-						<a href="{{DETAIL_PAGE_URL}}">
+						<a href="{{DETAIL_PAGE_URL}}" data-entity="basket-item-name">
 					{{/DETAIL_PAGE_URL}}
-
-					<img src="{{{IMAGE_URL}}}{{^IMAGE_URL}}<?=$templateFolder?>/images/no_photo.png{{/IMAGE_URL}}" alt="{{NAME}}">
-
+					{{NAME}}
 					{{#DETAIL_PAGE_URL}}
 						</a>
 					{{/DETAIL_PAGE_URL}}
-
-					{{#SHOW_LABEL}}
-						<div class="card-product3__badges">
-							{{#LABEL_VALUES}}
-								<span class="badge1 {{CLASS}}" title="{{NAME}}">{{NAME}}</span>
-							{{/LABEL_VALUES}}
-						</div>
-					{{/SHOW_LABEL}}
 				</div>
-				<?
-			}
-			?>
 
-			<div class="card-product3__col-data">
-				<div class="card-product3__col-specs">
-					<div class="card-product3__label2"><?=Loc::getMessage('SBB_CHARACTERISTICS')?></div>
-					<div class="card-product3__specs">
+				{{#PREVIEW_TEXT}}
+					<div class="cart-table__article">{{PREVIEW_TEXT}}</div>
+				{{/PREVIEW_TEXT}}
+
+				<div class="cart-table__parameters">
+					<div class="cart-table__specs">
 						<?
 						if (!empty($arParams['PRODUCT_BLOCKS_ORDER']))
 						{
@@ -105,9 +119,12 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 										{
 											?>
 											{{#PROPS}}
-												<div data-entity="basket-item-property-value" data-property-code="{{CODE}}">
-													<span>{{{NAME}}}</span>
-													<span>{{{VALUE}}}</span>
+												<div
+													class="cart-table__spec"
+													data-entity="basket-item-property-value"
+													data-property-code="{{CODE}}"
+												>
+													{{{NAME}}}<span>{{{VALUE}}}</span>
 												</div>
 											{{/PROPS}}
 											<?
@@ -115,50 +132,34 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 										break;
 
 									case 'sku':
-										?>
+										 /* ?>
 										{{#SKU_BLOCK_LIST}}
-									 		{{#IS_IMAGE}}
-												<div class="basket-item-property-sku" data-entity="basket-item-sku-block">
-													<span>{{NAME}}</span>
-													<span>
-														<ul class="basket-item-scu-list">
-															{{#SKU_VALUES_LIST}}
-																<li class="basket-item-scu-item{{#SELECTED}} selected{{/SELECTED}}{{#NOT_AVAILABLE_OFFER}} not-available{{/NOT_AVAILABLE_OFFER}}"
-																	title="{{NAME}}"
-								 									data-entity="basket-item-sku-field"
-																	data-initial="{{#SELECTED}}true{{/SELECTED}}{{^SELECTED}}false{{/SELECTED}}"
-																	data-value-id="{{VALUE_ID}}"
-																	data-sku-name="{{NAME}}"
-																	data-property="{{PROP_CODE}}">
+											<div class="basket-item-property-sku" data-entity="basket-item-sku-block">
+												<span>{{NAME}}</span>
+												<span>
+													<ul class="basket-item-scu-list">
+														{{#SKU_VALUES_LIST}}
+															<li
+																class="basket-item-scu-item{{#SELECTED}} selected{{/SELECTED}}{{#NOT_AVAILABLE_OFFER}} not-available{{/NOT_AVAILABLE_OFFER}}"
+																title="{{NAME}}"
+																data-entity="basket-item-sku-field"
+																data-initial="{{#SELECTED}}true{{/SELECTED}}{{^SELECTED}}false{{/SELECTED}}"
+																data-value-id="{{VALUE_ID}}"
+																data-sku-name="{{NAME}}"
+																data-property="{{PROP_CODE}}"
+															>
+																{{#IS_IMAGE}}
 																	<span class="basket-item-scu-item-inner" style="background-image: url({{PICT}});"></span>
-																</li>
-															{{/SKU_VALUES_LIST}}
-														</ul>
-													</span>
-												</div>
-											{{/IS_IMAGE}}
-
-											{{^IS_IMAGE}}
-												<div class="basket-item-property-sku" data-entity="basket-item-sku-block">
-													<span>{{NAME}}</span>
-													<span>
-														<ul class="basket-item-scu-list">
-															{{#SKU_VALUES_LIST}}
-																<li class="basket-item-scu-item{{#SELECTED}} selected{{/SELECTED}}{{#NOT_AVAILABLE_OFFER}} not-available{{/NOT_AVAILABLE_OFFER}}"
-																	title="{{NAME}}"
-																	data-entity="basket-item-sku-field"
-																	data-initial="{{#SELECTED}}true{{/SELECTED}}{{^SELECTED}}false{{/SELECTED}}"
-																	data-value-id="{{VALUE_ID}}"
-																	data-sku-name="{{NAME}}"
-																	data-property="{{PROP_CODE}}">
+																{{/IS_IMAGE}}
+																{{^IS_IMAGE}}
 																	<span class="basket-item-scu-item-inner">{{NAME}}</span>
-																</li>
-															{{/SKU_VALUES_LIST}}
-														</ul>
-													</span>
-												</div>
-											{{/IS_IMAGE}}
-										{{/SKU_BLOCK_LIST}}
+																{{/IS_IMAGE}}
+															</li>
+														{{/SKU_VALUES_LIST}}
+													</ul>
+												</span>
+											</div>
+										{{/SKU_BLOCK_LIST}} */?>
 
 										{{#HAS_SIMILAR_ITEMS}}
 											<div class="basket-items-list-item-double" data-entity="basket-item-sku-notification">
@@ -183,6 +184,24 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 									case 'columns':
 										?>
 										{{#COLUMN_LIST}}
+											{{#IS_TEXT}}
+												<div class="cart-table__spec" data-entity="basket-item-property">
+													{{NAME}}<span data-column-property-code="{{CODE}}" data-entity="basket-item-property-column-value">{{VALUE}}</span>
+												</div>
+											{{/IS_TEXT}}
+											{{#IS_HTML}}
+												<div class="cart-table__spec" data-entity="basket-item-property">
+													{{NAME}}<span data-column-property-code="{{CODE}}" data-entity="basket-item-property-column-value">{{{VALUE}}}</span>
+												</div>
+											{{/IS_HTML}}
+											{{#IS_LINK}}
+												<div class="cart-table__spec" data-entity="basket-item-property">
+													{{NAME}}
+													<span data-column-property-code="{{CODE}}" data-entity="basket-item-property-column-value">
+														{{#VALUE}}{{{LINK}}}{{^IS_LAST}}<br>{{/IS_LAST}}{{/VALUE}}
+													</span>
+												</div>
+											{{/IS_LINK}}
 											{{#IS_IMAGE}}
 												<div class="basket-item-property-custom" data-entity="basket-item-property">
 													<span>{{NAME}}</span>
@@ -193,29 +212,6 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 													</span>
 												</div>
 											{{/IS_IMAGE}}
-
-											{{#IS_TEXT}}
-												<div class="basket-item-property-custom" data-entity="basket-item-property">
-													<span>{{NAME}}</span>
-													<span data-column-property-code="{{CODE}}" data-entity="basket-item-property-column-value">{{VALUE}}</span>
-												</div>
-											{{/IS_TEXT}}
-
-											{{#IS_HTML}}
-												<div class="basket-item-property-custom" data-entity="basket-item-property">
-													<span>{{NAME}}</span>
-													<span data-column-property-code="{{CODE}}" data-entity="basket-item-property-column-value">{{{VALUE}}}</span>
-												</div>
-											{{/IS_HTML}}
-
-											{{#IS_LINK}}
-												<div class="basket-item-property-custom" data-entity="basket-item-property">
-													<span>{{NAME}}</span>
-													<span data-column-property-code="{{CODE}}" data-entity="basket-item-property-column-value">
-														{{#VALUE}}{{{LINK}}}{{^IS_LAST}}<br>{{/IS_LAST}}{{/VALUE}}
-													</span>
-												</div>
-											{{/IS_LINK}}
 										{{/COLUMN_LIST}}
 										<?
 										break;
@@ -226,27 +222,22 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 					</div>
 				</div>
 
-				<div class="card-product3__name">
-					{{#DETAIL_PAGE_URL}}
-						<a href="{{DETAIL_PAGE_URL}}" data-entity="basket-item-name">
-					{{/DETAIL_PAGE_URL}}
-					{{NAME}}
-					{{#DETAIL_PAGE_URL}}
-						</a>
-					{{/DETAIL_PAGE_URL}}
-				</div>
-
-				{{#PREVIEW_TEXT}}
-					<div class="card-product3__description">{{PREVIEW_TEXT}}</div>
-				{{/PREVIEW_TEXT}}
-
-				<div class="card-product3__status {{#NOT_AVAILABLE}}status_outofstock{{/NOT_AVAILABLE}}{{^NOT_AVAILABLE}}status_instock{{/NOT_AVAILABLE}}">
+				<div class="cart-table__status {{#NOT_AVAILABLE}}outofstock{{/NOT_AVAILABLE}}{{^NOT_AVAILABLE}}instock{{/NOT_AVAILABLE}}">
 					{{#NOT_AVAILABLE}}
 						<?=Loc::getMessage('SBB_BASKET_ITEM_NOT_AVAILABLE')?>
 					{{/NOT_AVAILABLE}}
 					{{^NOT_AVAILABLE}}
 						<?=Loc::getMessage('SBB_BASKET_ITEM_AVAILABLE')?>
 					{{/NOT_AVAILABLE}}
+				</div>
+
+				<div class="cart-table__controls">
+					<button data-action="showSpecs" class="card-product3__btn-info" type="button">
+						<svg aria-hidden="true" width="6" height="15">
+							<use xlink:href="<?=SITE_TEMPLATE_PATH?>/img/sprite.svg#info1"></use>
+						</svg>
+						<span class="v-h"><?=Loc::getMessage('SBB_CHARACTERISTICS')?></span>
+					</button>
 				</div>
 
 				{{#DELAYED}}
@@ -270,113 +261,84 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 						</div>
 					</div>
 				{{/WARNINGS.length}}
-			</div>
+			</td>
 
-			<?
-			if ($usePriceInAdditionalColumn)
-			{
-				?>
-				<div class="card-product3__col1"{{#IS_PRICE_ZERO}} style="display: none;"{{/IS_PRICE_ZERO}}>
-					<div>
-						<div class="card-product3__label1">
-							<?= Loc::getMessage('SBB_BASKET_ITEM_PRICE_FOR_MSGVER_1', ['#MEASURE_RATIO#' => '1', '#MEASURE_TEXT#' => '{{MEASURE_TEXT}}']) ?>
-						</div>
-						<span class="card-product3__price1" id="basket-item-price-{{ID}}">{{{BASE_PRICE_FORMATED}}}</span>
-						{{#SHOW_DISCOUNT_PRICE}}
-							<span class="card-product3__price2">{{{BASE_FULL_PRICE_FORMATED}}}</span>
-						{{/SHOW_DISCOUNT_PRICE}}
+			<td class="cart-table__cell3">
+				<div class="cart-table__quantity">
+					<div class="stepcounter{{#NOT_AVAILABLE}} disabled{{/NOT_AVAILABLE}}" data-entity="basket-item-quantity-block">
+						<button class="stepcounter__btn" type="button" data-entity="basket-item-quantity-minus"{{#NOT_AVAILABLE}} disabled{{/NOT_AVAILABLE}}>
+							<svg aria-hidden="true" width="14" height="2">
+								<use xlink:href="<?=SITE_TEMPLATE_PATH?>/img/sprite.svg#minus2"></use>
+							</svg>
+							<span class="v-h"><?=Loc::getMessage('SBB_BASKET_ITEM_DECREASE')?></span>
+						</button>
+						<input class="stepcounter__input" type="number" value="{{QUANTITY}}"
+							{{#NOT_AVAILABLE}} disabled="disabled"{{/NOT_AVAILABLE}}
+							data-value="{{QUANTITY}}"
+							data-entity="basket-item-quantity-field"
+							id="basket-item-quantity-{{ID}}"
+							readonly>
+						<button class="stepcounter__btn" type="button" data-entity="basket-item-quantity-plus"{{#NOT_AVAILABLE}} disabled{{/NOT_AVAILABLE}}>
+							<svg aria-hidden="true" width="14" height="14">
+								<use xlink:href="<?=SITE_TEMPLATE_PATH?>/img/sprite.svg#plus2"></use>
+							</svg>
+							<span class="v-h"><?=Loc::getMessage('SBB_BASKET_ITEM_INCREASE')?></span>
+						</button>
 					</div>
-					{{#SHOW_LOADING}}
-						<div class="basket-items-list-item-overlay"></div>
-					{{/SHOW_LOADING}}
+					<?
+					if ($usePriceInAdditionalColumn)
+					{
+						?>
+						{{#IS_PRICE_ZERO}}
+							<div class="cart-table__price-per-unit no_price">Цена по запросу</div>
+						{{/IS_PRICE_ZERO}}
+						{{^IS_PRICE_ZERO}}
+							<div class="cart-table__price-per-unit">
+								<span id="basket-item-price-{{ID}}">{{{BASE_PRICE_FORMATED}}}</span>
+								(1 {{MEASURE_TEXT}})
+							</div>
+						{{/IS_PRICE_ZERO}}
+						<?
+					}
+					?>
 				</div>
-				{{#IS_PRICE_ZERO}}
-				<div class="card-product3__col1">
-					<div>
-						<div class="card-product3__label1">
-							<?= Loc::getMessage('SBB_BASKET_ITEM_PRICE_FOR_MSGVER_1', ['#MEASURE_RATIO#' => '1', '#MEASURE_TEXT#' => '{{MEASURE_TEXT}}']) ?>
-						</div>
-						<span class="card-product3__price1 no_price">Цена по запросу</span>
-					</div>
-				</div>
-				{{/IS_PRICE_ZERO}}
+			</td>
+
+			<td class="cart-table__cell4">
 				<?
-			}
-			?>
+				if ($useSumColumn)
+				{
+					?>
+					{{#IS_PRICE_ZERO}}
+						<div class="cart-table__price2 no_price">Цена по запросу</div>
+					{{/IS_PRICE_ZERO}}
+					{{^IS_PRICE_ZERO}}
+                        {{#SHOW_DISCOUNT_PRICE}}
+                        <div class="cart-table__price1">{{{BASE_FULL_PRICE_FORMATED}}}</div>
+                        {{/SHOW_DISCOUNT_PRICE}}
+						<div class="cart-table__price2" id="basket-item-sum-price-{{ID}}">{{{SUM_PRICE_FORMATED}}}</div>
 
-			<div class="card-product3__col3">
-				<div class="stepcounter{{#NOT_AVAILABLE}} disabled{{/NOT_AVAILABLE}}" data-entity="basket-item-quantity-block">
-					<button class="stepcounter__btn" type="button" data-entity="basket-item-quantity-minus"{{#NOT_AVAILABLE}} disabled{{/NOT_AVAILABLE}}>
-						<svg aria-hidden="true" width="14" height="2">
-							<use xlink:href="<?=SITE_TEMPLATE_PATH?>/img/sprite.svg#minus1"></use>
-						</svg>
-						<span class="v-h"><?=Loc::getMessage('SBB_BASKET_ITEM_DECREASE')?></span>
-					</button>
-					<input class="stepcounter__input" type="number" value="{{QUANTITY}}"
-						{{#NOT_AVAILABLE}} disabled="disabled"{{/NOT_AVAILABLE}}
-						data-value="{{QUANTITY}}" 
-						data-entity="basket-item-quantity-field"
-						id="basket-item-quantity-{{ID}}" 
-						readonly>
-					<button class="stepcounter__btn" type="button" data-entity="basket-item-quantity-plus"{{#NOT_AVAILABLE}} disabled{{/NOT_AVAILABLE}}>
-						<svg aria-hidden="true" width="14" height="14">
-							<use xlink:href="<?=SITE_TEMPLATE_PATH?>/img/sprite.svg#plus1"></use>
-						</svg>
-						<span class="v-h"><?=Loc::getMessage('SBB_BASKET_ITEM_INCREASE')?></span>
-					</button>
-				</div>
-				{{#SHOW_LOADING}}
-					<div class="basket-items-list-item-overlay"></div>
-				{{/SHOW_LOADING}}
-			</div>
-
-			<?
-			if ($useSumColumn)
-			{
+					{{/IS_PRICE_ZERO}}
+					<?
+				}
 				?>
-				<div class="card-product3__col2"{{#IS_PRICE_ZERO}} style="display: none;"{{/IS_PRICE_ZERO}}>
-					<div>
-						<span><?=Loc::getMessage('SBB_BASKET_ITEM_SUM')?></span>
-						<span class="card-product3__price3" id="basket-item-sum-price-{{ID}}">{{{SUM_PRICE_FORMATED}}}</span>
-					</div>
-					{{#SHOW_LOADING}}
-						<div class="basket-items-list-item-overlay"></div>
-					{{/SHOW_LOADING}}
-				</div>
-				{{#IS_PRICE_ZERO}}
-				<div class="card-product3__col2">
-					<div>
-						<span class="card-product3__price3 no_price">Цена по запросу</span>
-					</div>
-				</div>
-				{{/IS_PRICE_ZERO}}
-				<?
-			}
-			?>
-
-			<div class="card-product3__col-btn">
-				<button data-action="showSpecs" class="card-product3__btn-info" type="button">
-					<svg aria-hidden="true" width="6" height="15">
-						<use xlink:href="<?=SITE_TEMPLATE_PATH?>/img/sprite.svg#info1"></use>
-					</svg>
-					<span class="v-h"><?=Loc::getMessage('SBB_CHARACTERISTICS')?></span>
-				</button>
-			</div>
+			</td>
 
 			<?
 			if ($useActionColumn)
 			{
 				?>
-				<button type="button" class="card-product3__delete" data-entity="basket-item-delete">
-					<img src="<?=SITE_TEMPLATE_PATH?>/img/delete.svg" alt="">
-				</button>
+				<td class="cart-table__cell5">
+					<button class="cart-table__btn" type="button" data-entity="basket-item-delete">
+						<svg width="18" height="20" aria-hidden="true">
+							<use xlink:href="<?=SITE_TEMPLATE_PATH?>/img/sprite.svg#bin1"></use>
+						</svg>
+					</button>
+				</td>
 				<?
 			}
 			?>
 
-			{{#SHOW_LOADING}}
-				<div class="basket-items-list-item-overlay"></div>
-			{{/SHOW_LOADING}}
 		{{/SHOW_RESTORE}}
-	</div>
+	</tr>
 </script>

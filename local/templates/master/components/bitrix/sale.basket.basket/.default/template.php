@@ -203,99 +203,89 @@ if (empty($arResult['ERROR_MESSAGE']))
 		<?
 	}
 	?>
-	<div id="basket-root" class="bx-basket bx-<?=$arParams['TEMPLATE_THEME']?> bx-step-opacity block-cart" style="opacity: 0;">
-		<div class="container">
-			<a href="<?=$arParams['PATH_TO_CATALOG'] ?? '/'?>" class="back">
-				<svg aria-hidden="true" width="14" height="14">
-					<use xlink:href="<?=SITE_TEMPLATE_PATH?>/img/sprite.svg#arrow1"></use>
-				</svg>
-				<span><?=Loc::getMessage('SBB_BACK_TO_CATALOG')?></span>
-			</a>
-			<div class="heading-cols1">
-				<h1 class="title2"><?=Loc::getMessage('SBB_BASKET_TITLE')?></h1>
-				<button class="btn-text btn-text_primary" type="button" data-entity="basket-clear-button">
-					<img src="<?=SITE_TEMPLATE_PATH?>/img/delete.svg" alt="">
-					<span><?=Loc::getMessage('SBB_BASKET_CLEAR')?></span>
-				</button>
-			</div>
+	<div id="basket-root" class="bx-basket bx-<?=$arParams['TEMPLATE_THEME']?> bx-step-opacity block-cart" >
+		<div class="order-header">
+            <h1 class="title3"><?=Loc::getMessage('SBB_BASKET_TITLE')?></h1>
+            <button class="btn-text btn-text_primary" type="button" data-entity="basket-clear-button">
+                <?=Loc::getMessage('SBB_BASKET_CLEAR')?>
+            </button>
 		</div>
+        <?
+        if (
+            $arParams['BASKET_WITH_ORDER_INTEGRATION'] !== 'Y'
+            && in_array('top', $arParams['TOTAL_BLOCK_DISPLAY'])
+        )
+        {
+            ?>
+            <div class="details-block-cart" data-entity="basket-total-block"></div>
+            <?
+        }
+        ?>
 
-		<div class="container container_bordered1">
-			<?
-			if (
-				$arParams['BASKET_WITH_ORDER_INTEGRATION'] !== 'Y'
-				&& in_array('top', $arParams['TOTAL_BLOCK_DISPLAY'])
-			)
-			{
-				?>
-				<div class="details-block-cart" data-entity="basket-total-block"></div>
-				<?
-			}
-			?>
+        <div class="alert alert-warning alert-dismissable" id="basket-warning" style="display: none;">
+            <span class="close" data-entity="basket-items-warning-notification-close">&times;</span>
+            <div data-entity="basket-general-warnings"></div>
+            <div data-entity="basket-item-warnings">
+                <?=Loc::getMessage('SBB_BASKET_ITEM_WARNING')?>
+            </div>
+        </div>
 
-			<div class="alert alert-warning alert-dismissable" id="basket-warning" style="display: none;">
-				<span class="close" data-entity="basket-items-warning-notification-close">&times;</span>
-				<div data-entity="basket-general-warnings"></div>
-				<div data-entity="basket-item-warnings">
-					<?=Loc::getMessage('SBB_BASKET_ITEM_WARNING')?>
-				</div>
-			</div>
+        <div class="columns-grid2 block-order">
+            <div class="columns-grid2__content"
+                id="basket-items-list-wrapper"
+                data-entity="basket-items-list-wrapper">
 
-			<div class="block-cart__content">
-				<div class="block-cart__body"
-					id="basket-items-list-wrapper"
-					data-entity="basket-items-list-wrapper">
+                <div class="basket-items-list-header" data-entity="basket-items-list-header" style="display: none;">
+                    <div class="basket-items-search-field" data-entity="basket-filter">
+                        <div class="form has-feedback">
+                            <input type="text" class="form-control"
+                                placeholder="<?=Loc::getMessage('SBB_BASKET_FILTER')?>"
+                                data-entity="basket-filter-input">
+                            <span class="form-control-feedback basket-clear" data-entity="basket-filter-clear-btn"></span>
+                        </div>
+                    </div>
+                    <div class="basket-items-list-header-filter">
+                        <a href="javascript:void(0)" class="basket-items-list-header-filter-item active"
+                            data-entity="basket-items-count" data-filter="all" style="display: none;"></a>
+                        <a href="javascript:void(0)" class="basket-items-list-header-filter-item"
+                            data-entity="basket-items-count" data-filter="similar" style="display: none;"></a>
+                        <a href="javascript:void(0)" class="basket-items-list-header-filter-item"
+                            data-entity="basket-items-count" data-filter="warning" style="display: none;"></a>
+                        <a href="javascript:void(0)" class="basket-items-list-header-filter-item"
+                            data-entity="basket-items-count" data-filter="delayed" style="display: none;"></a>
+                        <a href="javascript:void(0)" class="basket-items-list-header-filter-item"
+                            data-entity="basket-items-count" data-filter="not-available" style="display: none;"></a>
+                    </div>
+                </div>
 
-					<div class="basket-items-list-header" data-entity="basket-items-list-header" style="display: none;">
-						<div class="basket-items-search-field" data-entity="basket-filter">
-							<div class="form has-feedback">
-								<input type="text" class="form-control"
-									placeholder="<?=Loc::getMessage('SBB_BASKET_FILTER')?>"
-									data-entity="basket-filter-input">
-								<span class="form-control-feedback basket-clear" data-entity="basket-filter-clear-btn"></span>
-							</div>
-						</div>
-						<div class="basket-items-list-header-filter">
-							<a href="javascript:void(0)" class="basket-items-list-header-filter-item active"
-								data-entity="basket-items-count" data-filter="all" style="display: none;"></a>
-							<a href="javascript:void(0)" class="basket-items-list-header-filter-item"
-								data-entity="basket-items-count" data-filter="similar" style="display: none;"></a>
-							<a href="javascript:void(0)" class="basket-items-list-header-filter-item"
-								data-entity="basket-items-count" data-filter="warning" style="display: none;"></a>
-							<a href="javascript:void(0)" class="basket-items-list-header-filter-item"
-								data-entity="basket-items-count" data-filter="delayed" style="display: none;"></a>
-							<a href="javascript:void(0)" class="basket-items-list-header-filter-item"
-								data-entity="basket-items-count" data-filter="not-available" style="display: none;"></a>
-						</div>
-					</div>
+                <div class="basket-items-list-container" id="basket-items-list-container">
+                    <div class="basket-items-list-overlay" id="basket-items-list-overlay" style="display: none;"></div>
+                    <div class="columns-grid2__content" id="basket-item-list">
+                        <div class="basket-search-not-found" id="basket-item-list-empty-result" style="display: none;">
+                            <div class="basket-search-not-found-icon"></div>
+                            <div class="basket-search-not-found-text">
+                                <?=Loc::getMessage('SBB_FILTER_EMPTY_RESULT')?>
+                            </div>
+                        </div>
+                        <table class="cart-table">
+                            <tbody id="basket-item-table" class="basket-item-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-					<div class="basket-items-list-container" id="basket-items-list-container">
-						<div class="basket-items-list-overlay" id="basket-items-list-overlay" style="display: none;"></div>
-						<div class="basket-items-list" id="basket-item-list">
-							<div class="basket-search-not-found" id="basket-item-list-empty-result" style="display: none;">
-								<div class="basket-search-not-found-icon"></div>
-								<div class="basket-search-not-found-text">
-									<?=Loc::getMessage('SBB_FILTER_EMPTY_RESULT')?>
-								</div>
-							</div>
-							<div id="basket-item-table"></div>
-						</div>
-					</div>
-				</div>
-
-				<?
-				if (
-					$arParams['BASKET_WITH_ORDER_INTEGRATION'] !== 'Y'
-					&& in_array('bottom', $arParams['TOTAL_BLOCK_DISPLAY'])
-				)
-				{
-					?>
-					<div class="details-block-cart" data-entity="basket-total-block"></div>
-					<?
-				}
-				?>
-			</div>
-		</div>
+            <?
+            if (
+                $arParams['BASKET_WITH_ORDER_INTEGRATION'] !== 'Y'
+                && in_array('bottom', $arParams['TOTAL_BLOCK_DISPLAY'])
+            )
+            {
+                ?>
+                <div class="columns-grid2__aside" data-entity="basket-total-block"></div>
+                <?
+            }
+            ?>
+        </div>
 	</div>
 	<?
 	if (!empty($arResult['CURRENCIES']) && Main\Loader::includeModule('currency'))
