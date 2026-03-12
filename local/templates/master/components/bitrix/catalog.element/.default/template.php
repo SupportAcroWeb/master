@@ -181,6 +181,39 @@ $sizeTable = [
 ];
 $hasSizeTable = false;
 
+$montazhProperty = $arResult['PROPERTIES']['MONTAZH'] ?? null;
+$certificatesProperty = $arResult['PROPERTIES']['CERTIFICATES'] ?? null;
+
+$montazhFiles = [];
+if (
+    is_array($montazhProperty)
+    && !empty($montazhProperty['VALUE'])
+) {
+    $values = is_array($montazhProperty['VALUE']) ? $montazhProperty['VALUE'] : [$montazhProperty['VALUE']];
+    foreach ($values as $value) {
+        $fileId = (int)$value;
+        if ($fileId > 0) {
+            $montazhFiles[] = $fileId;
+        }
+    }
+}
+$hasMontazh = !empty($montazhFiles);
+
+$certificateFiles = [];
+if (
+    is_array($certificatesProperty)
+    && !empty($certificatesProperty['VALUE'])
+) {
+    $values = is_array($certificatesProperty['VALUE']) ? $certificatesProperty['VALUE'] : [$certificatesProperty['VALUE']];
+    foreach ($values as $value) {
+        $fileId = (int)$value;
+        if ($fileId > 0) {
+            $certificateFiles[] = $fileId;
+        }
+    }
+}
+$hasCertificates = !empty($certificateFiles);
+
 if ($haveOffers && !empty($arResult['OFFERS_PROP']) && !empty($arResult['SKU_PROPS'])) {
     $widthSkuProperty = null;
     $heightSkuProperty = null;
@@ -327,6 +360,24 @@ if (!empty($arResult['DISPLAY_PROPERTIES']['DATA_POSTUPLENIYA']['DISPLAY_VALUE']
     $arrivalDate = is_array($arrivalDateRaw) ? implode(' / ', $arrivalDateRaw) : (string)$arrivalDateRaw;
 }
 $showArrivalDate = !$actualItem['CAN_BUY'] && $arrivalDate !== '';
+
+// Преимущества (свойство ADVANTAGES, html/text)
+$advantagesProperty = $arResult['PROPERTIES']['ADVANTAGES'] ?? null;
+$advantagesHtml = '';
+$hasAdvantages = false;
+
+if (is_array($advantagesProperty)) {
+    $value = $advantagesProperty['~VALUE'] ?? $advantagesProperty['VALUE'] ?? '';
+
+    if (is_array($value) && (isset($value['TEXT']) || isset($value['~TEXT']))) {
+        // Пользовательский тип HTML/текст
+        $advantagesHtml = trim((string)($value['~TEXT'] ?? $value['TEXT']));
+    } else {
+        $advantagesHtml = trim((string)$value);
+    }
+
+    $hasAdvantages = $advantagesHtml !== '';
+}
 ?>
 
     <?php
@@ -922,9 +973,13 @@ $showArrivalDate = !$actualItem['CAN_BUY'] && $arrivalDate !== '';
             <?php if ($hasSizeTable): ?>
                 <button data-action="tab1" data-alias="sizes" class="tabs2-nav__btn" type="button">Таблица размеров</button>
             <?php endif; ?>
-            <button data-action="tab1" data-alias="setup" class="tabs2-nav__btn" type="button">Монтаж</button>
+            <?php if ($hasMontazh): ?>
+                <button data-action="tab1" data-alias="setup" class="tabs2-nav__btn" type="button">Монтаж</button>
+            <?php endif; ?>
             <button data-action="tab1" data-alias="delivery" class="tabs2-nav__btn" type="button">Доставка и оплата</button>
-            <button data-action="tab1" data-alias="certificates" class="tabs2-nav__btn" type="button">Сертификаты</button>
+            <?php if ($hasCertificates): ?>
+                <button data-action="tab1" data-alias="certificates" class="tabs2-nav__btn" type="button">Сертификаты</button>
+            <?php endif; ?>
         </div>
 
         <div id="<?= $itemIds['TAB_CONTAINERS_ID'] ?>">
@@ -942,19 +997,16 @@ $showArrivalDate = !$actualItem['CAN_BUY'] && $arrivalDate !== '';
                             ?>
                         </div>
                     </div>
-                    <div>
-                        <div class="rblock1">
-                            <div class="textblock1">
-                                <h3>Преимущества</h3>
-                                <ul>
-                                    <li>РАЗМЕЩЕНИЕ - устанавливаем люк, привязываясь к инженерным коммуникациям, а не к раскладке облицовочного материала.</li>
-                                    <li>ПРАКТИЧНОСТЬ - установка стандартных размеров люка, которые всегда в наличии.</li>
-                                    <li>УНИВЕРСАЛЬНОСТЬ - в люк можно инсталлировать любое покрытие: керамическую плитку, панели, зеркала и т.д.</li>
-                                    <li>ИННОВАЦИИ - алюминиевый кант защищает отделочный материал от сколов в момент открывания люка, в отличие от других моделей.</li>
-                                </ul>
+                    <?php if ($hasAdvantages): ?>
+                        <div>
+                            <div class="rblock1">
+                                <div class="textblock1">
+                                    <h3>Преимущества</h3>
+                                    <?= $advantagesHtml ?>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -1045,75 +1097,87 @@ $showArrivalDate = !$actualItem['CAN_BUY'] && $arrivalDate !== '';
                 </div>
             <?php endif; ?>
 
-            <div class="tabs2__content tab-setup" data-tab="content" data-alias="setup">
-                <h2 class="title6">Монтаж</h2>
-                <div class="grid4">
-                    <div>
-                        <div class="mounting-title">Заголовок 1</div>
-                        <a data-fancybox href="<?= SITE_TEMPLATE_PATH ?>/img/about.webp">
-                            <img class="tab-setup__photo" src="<?= SITE_TEMPLATE_PATH ?>/img/about.webp" alt="">
-                        </a>
-                    </div>
-                    <div>
-                        <div class="mounting-title">Заголовок 2</div>
-                        <a data-fancybox href="<?= SITE_TEMPLATE_PATH ?>/img/category1.webp">
-                            <img class="tab-setup__photo" src="<?= SITE_TEMPLATE_PATH ?>/img/category1.webp" alt="">
-                        </a>
+            <?php if ($hasMontazh): ?>
+                <div class="tabs2__content tab-setup" data-tab="content" data-alias="setup">
+                    <h2 class="title6">Монтаж</h2>
+                    <div class="grid4">
+                        <?php foreach ($montazhFiles as $fileId): ?>
+                            <?php
+                            /** @var array<string, mixed>|false $file */
+                            $file = \CFile::GetFileArray($fileId);
+                            if (!$file) {
+                                continue;
+                            }
+                            $src = (string)$file['SRC'];
+                            $title = (string)($file['DESCRIPTION'] ?: $file['ORIGINAL_NAME']);
+                            $isImage = is_string($file['CONTENT_TYPE'] ?? null)
+                                && mb_strpos((string)$file['CONTENT_TYPE'], 'image/') === 0;
+                            ?>
+                            <div>
+                                <?php if ($isImage): ?>
+                                    <div class="mounting-title"><?= htmlspecialcharsbx($title) ?></div>
+                                    <a data-fancybox href="<?= htmlspecialcharsbx($src) ?>">
+                                        <img class="tab-setup__photo" src="<?= htmlspecialcharsbx($src) ?>" alt="<?= htmlspecialcharsbx($title) ?>">
+                                    </a>
+                                <?php else: ?>
+                                    <a class="card-file" href="<?= htmlspecialcharsbx($src) ?>" download>
+                                        <span><?= htmlspecialcharsbx($title) ?></span>
+                                        <svg width="21" height="21" aria-hidden="true">
+                                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#download1"></use>
+                                        </svg>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
-            </div>
+            <?php endif; ?>
 
             <div class="tabs2__content tab-delivery" data-tab="content" data-alias="delivery">
                 <h2 class="title6">Доставка и оплата</h2>
-                <div class="grid4">
-                    <div class="rblock2">
-                        <div class="textblock1">
-                            <h3 class="title2">
-                                <img src="<?= SITE_TEMPLATE_PATH ?>/img/pic-delivery1.svg" alt="">
-                                <span>Доставка</span>
-                            </h3>
-                            <p><strong>Экономьте время на получении заказа:</strong></p>
-                            <ul>
-                                <li>Курьерская доставка работает с 9:00 до 19:00. После поступления товара с вами свяжутся для согласования удобного времени и адреса.</li>
-                                <li>Самовывоз из магазина. Когда заказ поступит на склад, вы получите уведомление и сможете забрать его в выбранной точке.</li>
-                                <li>Постамат. После доставки на точку выдачи на телефон или e-mail придет код получения.</li>
-                            </ul>
+                <div class="features-block grid grid-2">
+                    <div class="grid__inner">
+                        <div class="features">
+                            <div class="features__item">
+                                <?php $APPLICATION->IncludeFile('/include/informatsiya/dostavka-i-oplata/delivery.php', [], ['MODE' => 'php']); ?>
+                            </div>
                         </div>
                     </div>
-                    <div class="rblock2">
-                        <div class="textblock1">
-                            <h3 class="title2">
-                                <img src="<?= SITE_TEMPLATE_PATH ?>/img/pic-payment1.svg" alt="">
-                                <span>Оплата</span>
-                            </h3>
-                            <p><strong>Оплачивайте покупки удобным способом:</strong></p>
-                            <ul>
-                                <li>Наличными при самовывозе или доставке курьером.</li>
-                                <li>Банковской картой при оформлении заказа на сайте или при получении.</li>
-                                <li>Безналичным расчетом по выставленному счету.</li>
-                            </ul>
+                    <div class="grid__inner">
+                        <div class="features">
+                            <div class="features__item">
+                                <?php $APPLICATION->IncludeFile('/include/informatsiya/dostavka-i-oplata/payment.php', [], ['MODE' => 'php']); ?>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            
 
-            <div class="tabs2__content tab-certificates" data-tab="content" data-alias="certificates">
-                <h2 class="title6">Сертификаты</h2>
-                <div class="grid4">
-                    <a class="card-file" href="javascript:void(0);">
-                        <span>Сертификат соответствия товара</span>
-                        <svg width="21" height="21" aria-hidden="true">
-                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#download1"></use>
-                        </svg>
-                    </a>
-                    <a class="card-file" href="javascript:void(0);">
-                        <span>Паспорт изделия</span>
-                        <svg width="21" height="21" aria-hidden="true">
-                            <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#download1"></use>
-                        </svg>
-                    </a>
+            <?php if ($hasCertificates): ?>
+                <div class="tabs2__content tab-certificates" data-tab="content" data-alias="certificates">
+                    <h2 class="title6">Сертификаты</h2>
+                    <div class="grid4">
+                        <?php foreach ($certificateFiles as $fileId): ?>
+                            <?php
+                            /** @var array<string, mixed>|false $file */
+                            $file = \CFile::GetFileArray($fileId);
+                            if (!$file) {
+                                continue;
+                            }
+                            $src = (string)$file['SRC'];
+                            $title = (string)($file['DESCRIPTION'] ?: $file['ORIGINAL_NAME']);
+                            ?>
+                            <a class="card-file" href="<?= htmlspecialcharsbx($src) ?>" download>
+                                <span><?= htmlspecialcharsbx($title) ?></span>
+                                <svg width="21" height="21" aria-hidden="true">
+                                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#download1"></use>
+                                </svg>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
     </div>
 
