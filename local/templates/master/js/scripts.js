@@ -130,6 +130,23 @@ AW.validateForm = function ($el) {
   return validator;
 };
 
+/**
+ * Показ модального окна с текстовым уведомлением
+ * @param {string} title Заголовок окна
+ * @param {string} text Текст в окне
+ * @param {string} btnText Текст в кнопке
+ */
+AW.showModalNotification = function(title, text, btnText = 'Закрыть') {
+  $('#modalNotification [data-title]').html(title);
+  $('#modalNotification [data-text]').html(text);
+  $('#modalNotification [data-btn]').html(btnText);
+  if (AW.modal && typeof AW.modal.open === 'function') {
+    AW.modal.open("#modalNotification");
+  } else {
+    console.error('AW.modal is not defined or does not have an open method');
+  }
+}
+
 AW.initSwiperProducts = function ($el) {
   const $navNext = $el
     .closest('[data-swiper="container"]')

@@ -29,90 +29,99 @@ $this->setFrameMode(true);
     <?= bitrix_sessid_post() ?>
     <input type="hidden" name="WEB_FORM_ID" value="<?= $arResult['FORM']['ID'] ?>">
 
-    <?php foreach ($arResult['QUESTIONS'] as $question): ?>
-        <div class="form-grid1__row form-grid1__row_2">
-            <div class="form-group">
-                <?php if ($question['SID'] === 'TASK'): ?>
-                    <label class="form-group__label"><?= $question['TITLE'] ?></label>
-                    <textarea id="<?= $question['INPUT_ID'] ?>"
-                              class="field-input1 form-group__field <?= $question['EXTRA_CLASS'] ?>"
-                              name="<?= $question['INPUT_NAME'] ?>"
-                              <?= $question['EXTRA_ATTRS'] ?>
-                              <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>></textarea>
-                <?php elseif ($question['SID'] === 'PHONE'): ?>
-                    <label class="form-group__label"><?= $question['TITLE'] ?></label>
-                    <input id="<?= $question['INPUT_ID'] ?>"
-                           class="field-input1 form-group__field <?= $question['EXTRA_CLASS'] ?>"
-                           type="text"
-                           name="<?= $question['INPUT_NAME'] ?>"
-                           placeholder="+7 (000) 000-00-00"
-                           <?= $question['EXTRA_ATTRS'] ?>
-                           <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>>
-                <?php else: ?>
-                    <label class="form-group__label"><?= $question['TITLE'] ?></label>
-                    <input id="<?= $question['INPUT_ID'] ?>"
-                           class="field-input1 form-group__field <?= $question['EXTRA_CLASS'] ?>"
-                           type="text"
-                           name="<?= $question['INPUT_NAME'] ?>"
-                           <?= $question['EXTRA_ATTRS'] ?>
-                           <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>>
-                <?php endif; ?>
-            </div>
-        </div>
-    <?php endforeach; ?>
-
-    <?php if ($arResult['FORM']['USE_CAPTCHA'] === 'Y'): ?>
-        <div class="form-grid1__row form-grid1__row_2">
-            <div class="form-group">
-                <input type="hidden" name="captcha_sid" value="<?= $arResult['CAPTCHA_CODE'] ?>"
-                       id="<?= $arResult['FORM_UNIQUE_ID'] ?>_captcha_sid">
-                <label class="form-group__label"><?= Loc::getMessage('FORM_CAPTCHA') ?></label>
-                <div class="captcha-wrapper">
-                    <img src="/bitrix/tools/captcha.php?captcha_sid=<?= $arResult['CAPTCHA_CODE'] ?>"
-                         alt="CAPTCHA" class="captcha-image"
-                         id="<?= $arResult['FORM_UNIQUE_ID'] ?>_captcha_image">
-                    <button type="button" class="btn btn-refresh-captcha">↻</button>
+    <div class="form-grid1">
+        <?php foreach ($arResult['QUESTIONS'] as $question): ?>
+            <div class="form-grid1__row">
+                <p class="form-group1__title"><?= htmlspecialcharsbx($question['TITLE']) ?><?= $question['REQUIRED'] === 'Y' ? ' <span class="req">*</span>' : '' ?></p>
+                <div class="form-group1">
+                    <?php if ($question['SID'] === 'TASK'): ?>
+                        <textarea id="<?= $question['INPUT_ID'] ?>"
+                                  class="field-input1 form-group1__field <?= $question['EXTRA_CLASS'] ?>"
+                                  name="<?= $question['INPUT_NAME'] ?>"
+                                  <?= $question['EXTRA_ATTRS'] ?>
+                                  <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>></textarea>
+                        <label class="form-group1__label" for="<?= $question['INPUT_ID'] ?>"><?= htmlspecialcharsbx($question['TITLE']) ?></label>
+                    <?php elseif ($question['SID'] === 'PHONE'): ?>
+                        <input id="<?= $question['INPUT_ID'] ?>"
+                               class="field-input3 form-group1__field <?= $question['EXTRA_CLASS'] ?>"
+                               type="tel"
+                               name="<?= $question['INPUT_NAME'] ?>"
+                               placeholder=" "
+                               <?= $question['EXTRA_ATTRS'] ?>
+                               <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>>
+                        <label class="form-group1__label" for="<?= $question['INPUT_ID'] ?>"><b>+7 </b>(999)-99-99</label>
+                    <?php else: ?>
+                        <input id="<?= $question['INPUT_ID'] ?>"
+                               class="field-input1 form-group1__field <?= $question['EXTRA_CLASS'] ?>"
+                               type="text"
+                               name="<?= $question['INPUT_NAME'] ?>"
+                               placeholder=""
+                               <?= $question['EXTRA_ATTRS'] ?>
+                               <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>>
+                        <label class="form-group1__label" for="<?= $question['INPUT_ID'] ?>"><?= $question['SID'] === 'NAME' ? 'Введите ФИО' : htmlspecialcharsbx($question['TITLE']) ?></label>
+                    <?php endif; ?>
                 </div>
-                <input type="text"
-                       name="captcha_word"
-                       id="<?= $arResult['FORM_UNIQUE_ID'] ?>_captcha_word"
-                       class="field-input1 form-group__field"
-                       required>
+            </div>
+        <?php endforeach; ?>
+
+        <?php if ($arResult['FORM']['USE_CAPTCHA'] === 'Y'): ?>
+            <div class="form-grid1__row">
+                <p class="form-group1__title"><?= Loc::getMessage('FORM_CAPTCHA') ?> <span class="req">*</span></p>
+                <div class="form-group1">
+                    <input type="hidden" name="captcha_sid" value="<?= $arResult['CAPTCHA_CODE'] ?>"
+                           id="<?= $arResult['FORM_UNIQUE_ID'] ?>_captcha_sid">
+                    <div class="captcha-wrapper">
+                        <img src="/bitrix/tools/captcha.php?captcha_sid=<?= $arResult['CAPTCHA_CODE'] ?>"
+                             alt="CAPTCHA" class="captcha-image"
+                             id="<?= $arResult['FORM_UNIQUE_ID'] ?>_captcha_image">
+                        <button type="button" class="btn btn-refresh-captcha">↻</button>
+                    </div>
+                    <input type="text"
+                           name="captcha_word"
+                           id="<?= $arResult['FORM_UNIQUE_ID'] ?>_captcha_word"
+                           class="field-input1 form-group1__field"
+                           required>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php /* Блок согласия на обработку персональных данных — не менять */ ?>
+        <div class="form-grid1__row form-grid1__row_sparse">
+            <div class="form-group">
+                <?php
+                /** @global CMain $APPLICATION */
+                $APPLICATION->IncludeComponent(
+                    'bitrix:main.userconsent.request',
+                    '',
+                    [
+                        'ID' => 2,
+                        'IS_INSERTED' => 'Y',
+                        'AUTO_SAVE' => 'Y',
+                        'IS_CHECKED' => 'N',
+                        'IS_LOADED' => 'Y',
+                        'INPUT_NAME' => 'agreement',
+                        'SUBMIT_EVENT_NAME' => 'contactUsFormSubmit' . $arResult['PREFIX_UNIQUE'],
+                        'REPLACE' => [
+                            'button_caption' => $arResult['FORM']['BUTTON'] ?: Loc::getMessage('FORM_SUBMIT_BUTTON'),
+                        ],
+                    ],
+                    $component,
+                    ['HIDE_ICONS' => 'Y']
+                );
+                ?>
             </div>
         </div>
-    <?php endif; ?>
-    <div class="form-grid1__row form-grid1__row_sparse">
-        <div class="form-group">
-            <?php
-            /** @global CMain $APPLICATION */
-            $APPLICATION->IncludeComponent(
-                'bitrix:main.userconsent.request',
-                '',
-                [
-                    'ID' => 2,
-                    'IS_INSERTED' => 'Y',
-                    'AUTO_SAVE' => 'Y',
-                    'IS_CHECKED' => 'N',
-                    'IS_LOADED' => 'Y',
-                    'INPUT_NAME' => 'agreement',
-                    'SUBMIT_EVENT_NAME' => 'contactUsFormSubmit' . $arResult['PREFIX_UNIQUE'],
-                    'REPLACE' => [
-                        'button_caption' => $arResult['FORM']['BUTTON'] ?: Loc::getMessage('FORM_SUBMIT_BUTTON'),
-                    ],
-                ],
-                $component,
-                ['HIDE_ICONS' => 'Y']
-            );
-            ?>
+
+        <div class="btn-form">
+            <button type="submit" class="btn btn_arr btn_primary btn_big">
+                <span><?= $arResult['FORM']['BUTTON'] ?: Loc::getMessage('FORM_SUBMIT_BUTTON') ?></span>
+                <svg width="14" height="14" aria-hidden="true">
+                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
+                </svg>
+            </button>
         </div>
     </div>
 </form>
-<button class="btn btn_primary" type="submit" form="<?= $arResult['FORM_UNIQUE_ID'] ?>">
-    <span><?= $arResult['FORM']['BUTTON'] ?: Loc::getMessage('FORM_SUBMIT_BUTTON') ?></span>
-    <svg width="12" height="12" aria-hidden="true">
-        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
-    </svg>
-</button>
 
 <script>
     BX.ready(function() {

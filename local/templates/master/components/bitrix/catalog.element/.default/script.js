@@ -3247,7 +3247,7 @@
 				if (price && this.obQuantity)
 				{
 					BX.adjust(this.obPrice.total, {
-						html: BX.message('PRICE_TOTAL_PREFIX') + ' <strong>'
+						html:  ' <strong>'
 						+ BX.Currency.currencyFormat(price.PRICE * this.obQuantity.value, price.CURRENCY, true)
 						+ '</strong>',
 						style: {display: ''}

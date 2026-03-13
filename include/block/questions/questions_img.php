@@ -1,0 +1,1 @@
+<div class="block-form__r" style="background-image: url('/local/templates/master/img/contacts.jpg');"></div>

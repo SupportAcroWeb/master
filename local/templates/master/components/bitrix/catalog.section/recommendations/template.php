@@ -120,6 +120,110 @@ if ($showTopPager) {
 }
 ?>
 
+<?
+$itemTabs = $arParams['ITEM_TABS'] ?? [];
+$recommendationTabs = $arParams['RECOMMENDATION_ACTIVE_TABS'] ?? [];
+$firstRecommendationTab = $arParams['RECOMMENDATION_FIRST_TAB'] ?? '';
+$isGroupedByTabs = !empty($itemTabs) && !empty($recommendationTabs);
+
+// Группировка товаров по вкладкам для виджета рекомендаций (один запрос вместо трёх)
+$itemsByTab = [];
+if ($isGroupedByTabs && !empty($arResult['ITEMS'])) {
+    foreach ($arResult['ITEMS'] as $item) {
+        $id = (int)($item['ID'] ?? 0);
+        $tabs = $itemTabs[$id] ?? [];
+        foreach ($tabs as $tabKey) {
+            if (isset($recommendationTabs[$tabKey])) {
+                $itemsByTab[$tabKey][] = $item;
+            }
+        }
+    }
+}
+?>
+<?php if ($isGroupedByTabs && !empty($itemsByTab)): ?>
+    <?php foreach ($recommendationTabs as $tabKey => $tabConfig): ?>
+        <?php $tabItems = $itemsByTab[$tabKey] ?? []; if (empty($tabItems)) continue; ?>
+        <div class="tabs1__content<?= $tabKey === $firstRecommendationTab ? ' active' : '' ?>"
+             data-tab="content" data-alias="<?= htmlspecialcharsbx($tabKey) ?>">
+            <div class="grid1 bx-<?= $arParams['TEMPLATE_THEME'] ?>" data-entity="items-row">
+                <?php
+                $generalParams = [
+                    'SHOW_DISCOUNT_PERCENT' => $arParams['SHOW_DISCOUNT_PERCENT'],
+                    'PRODUCT_DISPLAY_MODE' => $arParams['PRODUCT_DISPLAY_MODE'],
+                    'SHOW_MAX_QUANTITY' => $arParams['SHOW_MAX_QUANTITY'],
+                    'RELATIVE_QUANTITY_FACTOR' => $arParams['RELATIVE_QUANTITY_FACTOR'],
+                    'MESS_SHOW_MAX_QUANTITY' => $arParams['~MESS_SHOW_MAX_QUANTITY'] ?? '',
+                    'MESS_RELATIVE_QUANTITY_MANY' => $arParams['~MESS_RELATIVE_QUANTITY_MANY'] ?? '',
+                    'MESS_RELATIVE_QUANTITY_FEW' => $arParams['~MESS_RELATIVE_QUANTITY_FEW'] ?? '',
+                    'SHOW_OLD_PRICE' => $arParams['SHOW_OLD_PRICE'],
+                    'USE_PRODUCT_QUANTITY' => $arParams['USE_PRODUCT_QUANTITY'],
+                    'PRODUCT_QUANTITY_VARIABLE' => $arParams['PRODUCT_QUANTITY_VARIABLE'],
+                    'ADD_TO_BASKET_ACTION' => $arParams['ADD_TO_BASKET_ACTION'],
+                    'ADD_PROPERTIES_TO_BASKET' => $arParams['ADD_PROPERTIES_TO_BASKET'],
+                    'PRODUCT_PROPS_VARIABLE' => $arParams['PRODUCT_PROPS_VARIABLE'],
+                    'SHOW_CLOSE_POPUP' => $arParams['SHOW_CLOSE_POPUP'],
+                    'DISPLAY_COMPARE' => $arParams['DISPLAY_COMPARE'],
+                    'COMPARE_PATH' => $arParams['COMPARE_PATH'],
+                    'COMPARE_NAME' => $arParams['COMPARE_NAME'],
+                    'PRODUCT_SUBSCRIPTION' => $arParams['PRODUCT_SUBSCRIPTION'],
+                    'PRODUCT_BLOCKS_ORDER' => $arParams['PRODUCT_BLOCKS_ORDER'],
+                    'LABEL_POSITION_CLASS' => $labelPositionClass,
+                    'DISCOUNT_POSITION_CLASS' => $discountPositionClass,
+                    'SLIDER_INTERVAL' => $arParams['SLIDER_INTERVAL'],
+                    'SLIDER_PROGRESS' => $arParams['SLIDER_PROGRESS'],
+                    '~BASKET_URL' => $arParams['~BASKET_URL'] ?? '',
+                    '~ADD_URL_TEMPLATE' => $arResult['~ADD_URL_TEMPLATE'] ?? '',
+                    '~BUY_URL_TEMPLATE' => $arResult['~BUY_URL_TEMPLATE'] ?? '',
+                    '~COMPARE_URL_TEMPLATE' => $arResult['~COMPARE_URL_TEMPLATE'] ?? '',
+                    '~COMPARE_DELETE_URL_TEMPLATE' => $arResult['~COMPARE_DELETE_URL_TEMPLATE'] ?? '',
+                    'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
+                    'USE_ENHANCED_ECOMMERCE' => $arParams['USE_ENHANCED_ECOMMERCE'] ?? 'N',
+                    'DATA_LAYER_NAME' => $arParams['DATA_LAYER_NAME'] ?? '',
+                    'BRAND_PROPERTY' => $arParams['BRAND_PROPERTY'] ?? '',
+                    'MESS_BTN_BUY' => $arParams['~MESS_BTN_BUY'] ?? '',
+                    'MESS_BTN_DETAIL' => $arParams['~MESS_BTN_DETAIL'] ?? '',
+                    'MESS_BTN_COMPARE' => $arParams['~MESS_BTN_COMPARE'] ?? '',
+                    'MESS_BTN_SUBSCRIBE' => $arParams['~MESS_BTN_SUBSCRIBE'] ?? '',
+                    'MESS_BTN_ADD_TO_BASKET' => $arParams['~MESS_BTN_ADD_TO_BASKET'] ?? '',
+                ];
+                foreach ($tabItems as $item) {
+                    $uniqueId = $item['ID'] . '_' . md5($this->randString() . $component->getAction());
+                    $areaId = $this->GetEditAreaId($uniqueId);
+                    $this->AddEditAction($uniqueId, $item['EDIT_LINK'], $elementEdit);
+                    $this->AddDeleteAction($uniqueId, $item['DELETE_LINK'], $elementDelete, $elementDeleteParams);
+                    $itemParameters = [
+                        'SKU_PROPS' => $arResult['SKU_PROPS'][$item['IBLOCK_ID']] ?? [],
+                        'MESS_NOT_AVAILABLE' => (
+                            $arResult['MODULES']['catalog'] && ($item['PRODUCT']['TYPE'] ?? null) === ProductTable::TYPE_SERVICE
+                                ? ($arParams['~MESS_NOT_AVAILABLE_SERVICE'] ?? '')
+                                : ($arParams['~MESS_NOT_AVAILABLE'] ?? '')
+                        ),
+                    ];
+                    $APPLICATION->IncludeComponent(
+                        'bitrix:catalog.item',
+                        'catalog',
+                        [
+                            'RESULT' => [
+                                'ITEM' => $item,
+                                'AREA_ID' => $areaId,
+                                'TYPE' => 'CARD',
+                                'BIG_LABEL' => 'N',
+                                'BIG_DISCOUNT_PERCENT' => 'N',
+                                'BIG_BUTTONS' => 'N',
+                                'SCALABLE' => 'N'
+                            ],
+                            'INFO_SECTIONS' => $arResult['INFO_SECTIONS'] ?? [],
+                            'PARAMS' => $generalParams + $itemParameters,
+                        ],
+                        $component,
+                        ['HIDE_ICONS' => 'Y']
+                    );
+                }
+                ?>
+            </div>
+        </div>
+    <?php endforeach; ?>
+<?php else: ?>
 <div class="grid1 bx-<?= $arParams['TEMPLATE_THEME'] ?>"  data-entity="items-row">
     <?
     if (!empty($arResult['ITEMS']) && !empty($arResult['ITEM_ROWS'])) {
@@ -259,6 +363,7 @@ if (!isset($arParams['HIDE_SECTION_DESCRIPTION']) || $arParams['HIDE_SECTION_DES
 <?
 }
 ?>
+<?php endif; ?>
 <?php
 $signer = new \Bitrix\Main\Security\Sign\Signer;
 $signedTemplate = $signer->sign($templateName, 'catalog.section');

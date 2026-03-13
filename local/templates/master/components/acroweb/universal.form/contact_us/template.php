@@ -53,9 +53,7 @@ $this->setFrameMode(true);
                            <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>>
                     <label class="form-group1__label form-group1__label_hidden"
                            for="<?= $question['INPUT_ID'] ?>"><?= $question['TITLE'] ?></label>
-                    <span class="form-group1__placeholder1 <?= $question['REQUIRED'] === 'Y' ? 'form-group1__placeholder1_req' : '' ?>">
-                        <span>+7</span> (999) 999-99-99
-                    </span>
+
                 <?php else: ?>
                     <input id="<?= $question['INPUT_ID'] ?>"
                            class="field-input1 form-group1__field <?= $question['EXTRA_CLASS'] ?>"

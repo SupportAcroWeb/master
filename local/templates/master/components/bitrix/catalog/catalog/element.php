@@ -201,13 +201,26 @@ $GLOBALS['CATALOG_CURRENT_ELEMENT_ID'] = $elementId;
 if ($elementId > 0) {
     global $filter4NewTabs;
     if (!empty($filter4NewTabs['RECOMMENDATIONS'])) { ?>
-        <section class="block-products">
-            <div class="container">
-                <div class="heading-cols1">
-                    <h2 class="title2"><?= GetMessage('CATALOG_RECOMMENDED_BY_LINK') ?></h2>
+        <section class="block-products-related" data-swiper="container">
+                <div class="grid2">
+                    <div>
+                        <h2 class="title4"><?= GetMessage('CATALOG_RECOMMENDED_BY_LINK') ?></h2>
+                    </div>
+                    <div>
+                        <div class="swiper-navs">
+                            <button class="swiper-nav swiper-nav_prev" type="button">
+                                <svg width="16" height="16" aria-hidden="true">
+                                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow2"></use>
+                                </svg>
+                            </button>
+                            <button class="swiper-nav swiper-nav_next" type="button">
+                                <svg width="16" height="16" aria-hidden="true">
+                                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow2"></use>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="container container_bordered1">
                 <?php
                 global $recommendationsFilter;
                 $recommendationsFilter['ID'] = $filter4NewTabs['RECOMMENDATIONS'];
@@ -320,7 +333,6 @@ if ($elementId > 0) {
                     $component
                 );
                 ?>
-            </div>
         </section>
         <?php
     }

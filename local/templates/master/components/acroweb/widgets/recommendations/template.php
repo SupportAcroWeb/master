@@ -34,7 +34,7 @@ $baseCatalogParams = [
     "BACKGROUND_IMAGE" => "-",
     "BASKET_URL" => "/personal/basket/",
     "BROWSER_TITLE" => "-",
-    "CACHE_FILTER" => "N",
+    "CACHE_FILTER" => "Y",
     "CACHE_GROUPS" => "Y",
     "CACHE_TIME" => "36000000",
     "CACHE_TYPE" => "A",
@@ -144,21 +144,18 @@ $baseCatalogParams = [
                     </svg>
                 </a>
             </div>
-            <?php foreach ($activeTabs as $tabKey => $tabConfig): ?>
-                <div class="tabs1__content<?= $tabKey === $firstActiveTab ? ' active' : '' ?>"
-                     data-tab="content" data-alias="<?= $tabKey ?>">
-                    <?php
-                    $tabCatalogParams = $baseCatalogParams;
-                    $tabCatalogParams['FILTER_NAME'] = $tabConfig['filter_name'];
-
-                    $APPLICATION->IncludeComponent(
-                        "bitrix:catalog.section",
-                        "recommendations",
-                        $tabCatalogParams
-                    );
-                    ?>
-                </div>
-            <?php endforeach; ?>
+            <?php
+            // Один вызов catalog.section вместо трёх — меньше запросов и быстрее загрузка главной
+            $baseCatalogParams['FILTER_NAME'] = 'arrFilterRecommendationsMain';
+            $baseCatalogParams['ITEM_TABS'] = $arResult['ITEM_TABS'] ?? [];
+            $baseCatalogParams['RECOMMENDATION_ACTIVE_TABS'] = $activeTabs;
+            $baseCatalogParams['RECOMMENDATION_FIRST_TAB'] = $firstActiveTab;
+            $APPLICATION->IncludeComponent(
+                "bitrix:catalog.section",
+                "recommendations",
+                $baseCatalogParams
+            );
+            ?>
         </div>
     </div>
 </section>

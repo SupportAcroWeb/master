@@ -6,62 +6,59 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 global $APPLICATION;
 ?>
 
-<section class="block-feedback">
+<div class="contact-form">
     <div class="container">
-        <div class="block-feedback__grid">
-            <div class="block-feedback__left">
-                <h2 class="title2">
+        <div class="block-form">
+            <div class="container-grid1__inner">
+                <h2 class="title2 title">
                     <?
                     $APPLICATION->IncludeComponent(
-                        "bitrix:main.include", "",
-                        array(
-                            "AREA_FILE_SHOW" => "file",
-                            "PATH" => "/include/block/questions/questions_title.php",
-                        ),
-                        false,
-                        array('HIDE_ICONS' => 'N')
-                    );
-                    ?>
-                </h2>
-                <div class="block-feedback__form">
-                    <div class="block-feedback__text">
-                        <?
-                        $APPLICATION->IncludeComponent(
                             "bitrix:main.include", "",
                             array(
-                                "AREA_FILE_SHOW" => "file",
-                                "PATH" => "/include/block/questions/questions_text.php",
+                                    "AREA_FILE_SHOW" => "file",
+                                    "PATH" => SITE_DIR . "include/block/questions/questions_title.php",
                             ),
                             false,
                             array('HIDE_ICONS' => 'N')
-                        );
-                        ?>
-                    </div>
+                    );
+                    ?>
+                </h2>
+                <p class="desk">
                     <?
                     $APPLICATION->IncludeComponent(
+                            "bitrix:main.include", "",
+                            array(
+                                    "AREA_FILE_SHOW" => "file",
+                                    "PATH" => SITE_DIR . "include/block/questions/questions_text.php",
+                            ),
+                            false,
+                            array('HIDE_ICONS' => 'N')
+                    );
+                    ?>
+                </p>
+                <?
+                $APPLICATION->IncludeComponent(
                         "acroweb:universal.form",
                         "questions",
                         [
-                            "FORM_SID" => "acroweb_questions_s1",
-                            "AJAX" => "Y",
+                                "FORM_SID" => "acroweb_questions_s1",
+                                "AJAX" => "Y",
                         ]
-                    );
-                    ?>
-                </div>
+                );
+                ?>
+
             </div>
-            <div class="block-feedback__right">
-                <?
-                $APPLICATION->IncludeComponent(
+            <?
+            $APPLICATION->IncludeComponent(
                     "bitrix:main.include", "",
                     array(
-                        "AREA_FILE_SHOW" => "file",
-                        "PATH" => "/include/block/questions/questions.php",
+                            "AREA_FILE_SHOW" => "file",
+                            "PATH" => SITE_DIR . "include/block/questions/questions_img.php",
                     ),
                     false,
                     array('HIDE_ICONS' => 'N')
-                );
-                ?>
-            </div>
+            );
+            ?>
         </div>
     </div>
-</section>
+</div>

@@ -685,7 +685,7 @@ if (is_array($advantagesProperty)) {
                                             </tr>
                                         <?php endif; ?>
                                         <tr class="order-info__line2">
-                                            <td>Новая цена (1 <?= htmlspecialcharsbx($actualItem['ITEM_MEASURE']['TITLE']) ?>)</td>
+                                            <td><?= $showDiscount ? 'Новая цена' : 'Цена' ?> (1 <?= htmlspecialcharsbx($actualItem['ITEM_MEASURE']['TITLE']) ?>)</td>
                                             <td>
                                                 <span class="order-info__value2">
                                                     <span id="<?= $itemIds['PRICE_ID'] ?>"><?= $price['PRINT_PRICE'] ?></span>
@@ -696,7 +696,7 @@ if (is_array($advantagesProperty)) {
                                             <td>Общая стоимость:</td>
                                             <td>
                                                 <span class="order-info__value3" id="<?= $itemIds['PRICE_TOTAL'] ?>">
-                                                    на сумму <strong><?= $price['PRINT_RATIO_PRICE'] ?></strong>
+                                                    <strong><?= $price['PRINT_RATIO_PRICE'] ?></strong>
                                                 </span>
                                             </td>
                                         </tr>

@@ -26,15 +26,15 @@ $this->setFrameMode(true);
 
 if (!empty($arResult['NAV_RESULT'])) {
     $navParams = array(
-        'NavPageCount' => $arResult['NAV_RESULT']->NavPageCount,
-        'NavPageNomer' => $arResult['NAV_RESULT']->NavPageNomer,
-        'NavNum' => $arResult['NAV_RESULT']->NavNum
+            'NavPageCount' => $arResult['NAV_RESULT']->NavPageCount,
+            'NavPageNomer' => $arResult['NAV_RESULT']->NavPageNomer,
+            'NavNum' => $arResult['NAV_RESULT']->NavNum
     );
 } else {
     $navParams = array(
-        'NavPageCount' => 1,
-        'NavPageNomer' => 1,
-        'NavNum' => $this->randString()
+            'NavPageCount' => 1,
+            'NavPageNomer' => 1,
+            'NavNum' => $this->randString()
     );
 }
 
@@ -57,10 +57,10 @@ if (!empty($arResult['CURRENCIES'])) {
 }
 
 $templateData = array(
-    'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
-    'TEMPLATE_LIBRARY' => $templateLibrary,
-    'CURRENCIES' => $currencyList,
-    'USE_PAGINATION_CONTAINER' => $showTopPager || $showBottomPager,
+        'TEMPLATE_THEME' => $arParams['TEMPLATE_THEME'],
+        'TEMPLATE_LIBRARY' => $templateLibrary,
+        'CURRENCIES' => $currencyList,
+        'USE_PAGINATION_CONTAINER' => $showTopPager || $showBottomPager,
 );
 unset($currencyList, $templateLibrary);
 
@@ -69,12 +69,12 @@ $elementDelete = CIBlock::GetArrayByID($arParams['IBLOCK_ID'], 'ELEMENT_DELETE')
 $elementDeleteParams = array('CONFIRM' => GetMessage('CT_BCS_TPL_ELEMENT_DELETE_CONFIRM'));
 
 $positionClassMap = array(
-    'left' => 'product-item-label-left',
-    'center' => 'product-item-label-center',
-    'right' => 'product-item-label-right',
-    'bottom' => 'product-item-label-bottom',
-    'middle' => 'product-item-label-middle',
-    'top' => 'product-item-label-top'
+        'left' => 'product-item-label-left',
+        'center' => 'product-item-label-center',
+        'right' => 'product-item-label-right',
+        'bottom' => 'product-item-label-bottom',
+        'middle' => 'product-item-label-middle',
+        'top' => 'product-item-label-top'
 );
 
 $discountPositionClass = '';
@@ -112,11 +112,11 @@ $containerName = 'container-' . $navParams['NavNum'];
 
 ?>
 
-<div data-swiper="products" class="swiper swiper-products catalog-section bx-<?= $arParams['TEMPLATE_THEME'] ?>"
+<div  data-swiper="products" class="swiper swiper-products catalog-section bx-<?= $arParams['TEMPLATE_THEME'] ?>"
      data-entity="<?= $containerName ?>">
     <?
     if (!empty($arResult['ITEMS']) && !empty($arResult['ITEM_ROWS'])) {
-        $generalParams = [
+    $generalParams = [
             'SHOW_DISCOUNT_PERCENT' => $arParams['SHOW_DISCOUNT_PERCENT'],
             'PRODUCT_DISPLAY_MODE' => $arParams['PRODUCT_DISPLAY_MODE'],
             'SHOW_MAX_QUANTITY' => $arParams['SHOW_MAX_QUANTITY'],
@@ -154,79 +154,81 @@ $containerName = 'container-' . $navParams['NavNum'];
             'MESS_BTN_COMPARE' => $arParams['~MESS_BTN_COMPARE'],
             'MESS_BTN_SUBSCRIBE' => $arParams['~MESS_BTN_SUBSCRIBE'],
             'MESS_BTN_ADD_TO_BASKET' => $arParams['~MESS_BTN_ADD_TO_BASKET'],
-        ];
+    ];
 
-        $areaIds = [];
-        $itemParameters = [];
+    $areaIds = [];
+    $itemParameters = [];
 
-        foreach ($arResult['ITEMS'] as $item) {
-            $uniqueId = $item['ID'] . '_' . md5($this->randString() . $component->getAction());
-            $areaIds[$item['ID']] = $this->GetEditAreaId($uniqueId);
-            $this->AddEditAction($uniqueId, $item['EDIT_LINK'], $elementEdit);
-            $this->AddDeleteAction($uniqueId, $item['DELETE_LINK'], $elementDelete, $elementDeleteParams);
+    foreach ($arResult['ITEMS'] as $item) {
+        $uniqueId = $item['ID'] . '_' . md5($this->randString() . $component->getAction());
+        $areaIds[$item['ID']] = $this->GetEditAreaId($uniqueId);
+        $this->AddEditAction($uniqueId, $item['EDIT_LINK'], $elementEdit);
+        $this->AddDeleteAction($uniqueId, $item['DELETE_LINK'], $elementDelete, $elementDeleteParams);
 
-            $itemParameters[$item['ID']] = [
+        $itemParameters[$item['ID']] = [
                 'SKU_PROPS' => $arResult['SKU_PROPS'][$item['IBLOCK_ID']],
                 'MESS_NOT_AVAILABLE' => ($arResult['MODULES']['catalog'] && $item['PRODUCT']['TYPE'] === ProductTable::TYPE_SERVICE
-                    ? $arParams['~MESS_NOT_AVAILABLE_SERVICE']
-                    : $arParams['~MESS_NOT_AVAILABLE']
-                ),
-            ];
-        } ?>
-        <div class="swiper-wrapper" data-entity="items-row">
-            <!-- items-container -->
-            <?
-            foreach ($arResult['ITEMS'] as $item) {
-                $uniqueId = $item['ID'] . '_' . md5($this->randString() . $component->getAction());
-                $areaIds[$item['ID']] = $this->GetEditAreaId($uniqueId);
-                $this->AddEditAction($uniqueId, $item['EDIT_LINK'], $elementEdit);
-                $this->AddDeleteAction($uniqueId, $item['DELETE_LINK'], $elementDelete, $elementDeleteParams);
-
-                $itemParameters[$item['ID']] = [
-                    'SKU_PROPS' => $arResult['SKU_PROPS'][$item['IBLOCK_ID']],
-                    'MESS_NOT_AVAILABLE' => ($arResult['MODULES']['catalog'] && $item['PRODUCT']['TYPE'] === ProductTable::TYPE_SERVICE
                         ? $arParams['~MESS_NOT_AVAILABLE_SERVICE']
                         : $arParams['~MESS_NOT_AVAILABLE']
-                    ),
-                ];
-                $APPLICATION->IncludeComponent(
-                    'bitrix:catalog.item',
-                    'slide',
-                    [
-                        'RESULT' => [
-                            'ITEM' => $item,
-                            'AREA_ID' => $areaIds[$item['ID']],
-                            'TYPE' => 'CARD',
-                            'BIG_LABEL' => 'N',
-                            'BIG_DISCOUNT_PERCENT' => 'N',
-                            'BIG_BUTTONS' => 'N',
-                            'SCALABLE' => 'N'
-                        ],
-                        'INFO_SECTIONS' => $arResult["INFO_SECTIONS"],
-                        'PARAMS' => $generalParams + $itemParameters[$item['ID']],
-                    ],
-                    $component,
-                    ['HIDE_ICONS' => 'Y']
-                );
-            }
+                ),
+        ];
+    } ?>
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
+                    <!-- items-container -->
+                    <?
+                    foreach ($arResult['ITEMS'] as $item) {
+                        $uniqueId = $item['ID'] . '_' . md5($this->randString() . $component->getAction());
+                        $areaIds[$item['ID']] = $this->GetEditAreaId($uniqueId);
+                        $this->AddEditAction($uniqueId, $item['EDIT_LINK'], $elementEdit);
+                        $this->AddDeleteAction($uniqueId, $item['DELETE_LINK'], $elementDelete, $elementDeleteParams);
 
-            unset($itemParameters);
-            unset($areaIds);
-            unset($generalParams); ?>
-            <!-- items-container -->
+                        $itemParameters[$item['ID']] = [
+                                'SKU_PROPS' => $arResult['SKU_PROPS'][$item['IBLOCK_ID']],
+                                'MESS_NOT_AVAILABLE' => ($arResult['MODULES']['catalog'] && $item['PRODUCT']['TYPE'] === ProductTable::TYPE_SERVICE
+                                        ? $arParams['~MESS_NOT_AVAILABLE_SERVICE']
+                                        : $arParams['~MESS_NOT_AVAILABLE']
+                                ),
+                        ];
+                        $APPLICATION->IncludeComponent(
+                                'bitrix:catalog.item',
+                                'catalog',
+                                [
+                                        'RESULT' => [
+                                                'ITEM' => $item,
+                                                'AREA_ID' => $areaIds[$item['ID']],
+                                                'TYPE' => 'CARD',
+                                                'BIG_LABEL' => 'N',
+                                                'BIG_DISCOUNT_PERCENT' => 'N',
+                                                'BIG_BUTTONS' => 'N',
+                                                'SCALABLE' => 'N'
+                                        ],
+                                        'INFO_SECTIONS' => $arResult["INFO_SECTIONS"],
+                                        'PARAMS' => $generalParams + $itemParameters[$item['ID']],
+                                ],
+                                $component,
+                                ['HIDE_ICONS' => 'Y']
+                        );
+                    }
+
+                    unset($itemParameters);
+                    unset($areaIds);
+                    unset($generalParams); ?>
+                    <!-- items-container -->
+                <?
+                } else {
+                    // load css for bigData/deferred load
+                    $APPLICATION->IncludeComponent(
+                            'bitrix:catalog.item',
+                            'catalog',
+                            array(),
+                            $component,
+                            array('HIDE_ICONS' => 'Y')
+                    );
+                }
+                ?>
         </div>
-        <?
-    } else {
-        // load css for bigData/deferred load
-        $APPLICATION->IncludeComponent(
-            'bitrix:catalog.item',
-            '',
-            array(),
-            $component,
-            array('HIDE_ICONS' => 'Y')
-        );
-    }
-    ?>
+    </div>
 </div>
 <?
 if ($showLazyLoad) {

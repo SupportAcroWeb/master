@@ -93,23 +93,38 @@ if ($cache->initCache($cacheTime, $cacheId, $cacheDir)) {
 
 $activeTabs = [];
 $firstActiveTab = '';
+/** @var array<int, array<string>> Карта: ID элемента => массив ключей вкладок (new, hit, special) */
+$itemTabs = [];
+$combinedIds = [];
 
 foreach ($tabsConfig as $tabKey => $tabConfig) {
     $property = $tabConfig['property'];
-    
+
     if (!empty($elementIds[$property])) {
         $activeTabs[$tabKey] = $tabConfig;
-        
-        $GLOBALS[$tabConfig['filter_name']] = [
-            'IBLOCK_ID' => $arParams['IBLOCK_ID'],
-            'ACTIVE' => 'Y',
-            'ID' => $elementIds[$property]
-        ];
-        
+
+        foreach ($elementIds[$property] as $id) {
+            $itemTabs[$id] = ($itemTabs[$id] ?? []);
+            $itemTabs[$id][] = $tabKey;
+        }
+        $combinedIds = array_merge($combinedIds, $elementIds[$property]);
+
         if (empty($firstActiveTab)) {
             $firstActiveTab = $tabKey;
         }
     }
+}
+
+$combinedIds = array_values(array_unique($combinedIds));
+sort($combinedIds, SORT_NUMERIC); // стабильный порядок для ключа кеша catalog.section
+
+// Один общий фильтр для одного вызова catalog.section вместо трёх
+if (!empty($combinedIds)) {
+    $GLOBALS['arrFilterRecommendationsMain'] = [
+        'IBLOCK_ID' => $arParams['IBLOCK_ID'],
+        'ACTIVE' => 'Y',
+        'ID' => $combinedIds
+    ];
 }
 
 $hasElements = !empty($activeTabs);
@@ -117,4 +132,6 @@ $arResult['HAS_ELEMENTS'] = $hasElements;
 $arResult['ELEMENTS_ID'] = $elementIds;
 $arResult['ACTIVE_TABS'] = $activeTabs;
 $arResult['FIRST_ACTIVE_TAB'] = $firstActiveTab;
+$arResult['ITEM_TABS'] = $itemTabs;
+$arResult['COMBINED_IDS'] = $combinedIds;
 
