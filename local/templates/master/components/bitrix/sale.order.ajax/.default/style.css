@@ -222,9 +222,6 @@
     height: auto;
     width: auto;
 }
-#bx-soa-basket.block-order__column {
-    border-bottom: none;
-}
 
 .bx-soa-pp-desc-container {
     /*display: none;*/
@@ -237,8 +234,10 @@
 /* Стили для ошибок локализации (поле "Местоположение") */
 .bx-soa-location-input-container.has-error {
     border: 1px solid red !important;
-    height: 62px;
-    margin: 0 0 20px 0;
+}
+
+.region_block_flex .container-grid1__inner {
+    margin-bottom: 0;
 }
 
 .bx-soa-location-input-container .alert.alert-danger {
@@ -267,12 +266,6 @@
     line-height: 1.5;
 }
 
-.bx-soa-section-content {
-    font-size: 16px;
-    line-height: 1.5;
-    margin-top: 10px;
-}
-
 .bx-soa-pp-desc-container .bx-soa-pp-company-subTitle,
 .bx-soa-section .bx-soa-section-title  {
     font-family: var(--theme-font-secondary);
@@ -280,6 +273,13 @@
     font-size: 18px;
     line-height: 120%;
     margin: 0 0 5px 0;
+}
+
+.region_block_flex {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-bottom: 30px;
 }
 
 .bx-soa-pp-desc-container .bx-soa-pp-list {
@@ -314,10 +314,6 @@
 .bx-soa-section .btn {
     --height: 50px;
     cursor: pointer;
-}
-
-.bx-soa-section {
-    margin-top: 15px;
 }
 
 .bx-soa-pp-company.checklist__item .checkbox-text {
@@ -405,4 +401,172 @@
 
 #bx-soa-order-form .checkbox-text.main-user-consent-request {
     margin-top: 20px;
+}
+
+/**
+ * Стили для блока ввода адреса (location input) в оформлении заказа.
+ * Выделено из styles.css для верстки: form-group, bx-sls, header-search.
+ */
+
+.form-group {
+    position: relative;
+}
+.form-group__label {
+    display: block;
+    color: var(--theme-color-text-common);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 11px;
+}
+.form-group__label_req::after {
+    content: "*";
+    color: var(--theme-color-accent);
+    margin-left: 5px;
+}
+.form-group_error .field-input1 {
+    border-color: var(--theme-color-accent);
+}
+.form-group__error {
+    position: absolute;
+    right: 0;
+    bottom: -14px;
+    font-size: 12px;
+    color: var(--theme-color-accent);
+}
+
+.header-search {
+    width: 100%;
+    height: 100%;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    -webkit-box-align: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+    position: relative;
+    border: 1px solid #e6e6e6;
+    border-radius: 10px;
+}
+.header-search__clear {
+    width: 14px;
+    height: 14px;
+    position: absolute;
+    top: calc(50% - 7px);
+    right: 26px;
+    display: none;
+}
+.header-search__clear::after {
+    content: "";
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.header-search__clear svg {
+    display: block;
+    fill: var(--theme-color-text-common);
+}
+.active .header-search__clear {
+    display: block;
+}
+.header-search__icon {
+    position: absolute;
+    left: 25px;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+.header-search__inner {
+    height: 100%;
+    -webkit-box-flex: 1;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    position: relative;
+}
+.header-search__input {
+    height: 100%;
+    width: 100%;
+    padding: 10px 50px 10px 60px;
+    font-size: 16px;
+    color: var(--theme-color-text-common);
+}
+.header-search__input::-webkit-input-placeholder {
+    color: #848283;
+}
+.header-search__input::-moz-placeholder {
+    color: #848283;
+}
+.header-search__input:-ms-input-placeholder {
+    color: #848283;
+}
+.header-search__input::-ms-input-placeholder {
+    color: #848283;
+}
+.header-search__input::placeholder {
+    color: #848283;
+}
+.header-search__input:focus::-webkit-input-placeholder {
+    color: transparent;
+}
+.header-search__input:focus::-moz-placeholder {
+    color: transparent;
+}
+.header-search__input:focus:-ms-input-placeholder {
+    color: transparent;
+}
+.header-search__input:focus::-ms-input-placeholder {
+    color: transparent;
+}
+.header-search__input:focus::placeholder {
+    color: transparent;
+}
+.header-search__btn {
+    height: 100%;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+    width: 106px;
+}
+@media (max-width: 700px) {
+    .header-search__input {
+        background-color: #f7f7f7;
+    }
+    .header-search__btn {
+        width: calc(25% + 1px);
+    }
+}
+@media (max-width: 575px) {
+    .header-search__icon {
+        left: 15px;
+        height: 16px;
+        width: auto;
+    }
+    .header-search__input {
+        padding-left: 42px;
+    }
+}
+
+/* Переопределения для блока оформления заказа */
+.block-order__column .header-search {
+    height: 60px;
+    margin: 0;
+}
+.block-order__column .header-search__icon {
+    left: 20px;
+    z-index: 5;
+}
+.block-order__column .header-search__input {
+    padding: 10px 50px 10px 55px;
+    font-size: 16px;
+}
+
+.order-products__spec div {
+    display: inline;
 }

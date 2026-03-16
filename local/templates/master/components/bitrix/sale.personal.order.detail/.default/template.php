@@ -404,6 +404,25 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                                 $sum = $price * $quantity;
                                 $measureName = $basketItem['MEASURE_NAME'] ?: 'шт.';
                                 $isPriceZero = (float)$price <= 0;
+
+                                $isAvailable = ($basketItem['CAN_BUY'] ?? 'Y') === 'Y';
+                                $availabilityClass = $isAvailable ? 'instock' : 'outofstock';
+                                $availabilityText = $isAvailable ? 'В наличии' : 'Нет в наличии';
+
+                                $specs = [];
+                                if (!empty($basketItem['PROPS']) && is_array($basketItem['PROPS'])) {
+                                    foreach ($basketItem['PROPS'] as $prop) {
+                                        $name = (string)($prop['NAME'] ?? '');
+                                        $value = (string)($prop['VALUE'] ?? '');
+                                        if ($name === '' || $value === '') {
+                                            continue;
+                                        }
+                                        $specs[] = [
+                                            'label' => $name,
+                                            'value' => $value,
+                                        ];
+                                    }
+                                }
                                 ?>
                                 <tr class="order-products__item">
                                     <td class="order-products__cell order-products__cell--preview">
@@ -418,6 +437,20 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                                         <div class="order-products__name">
                                             <a href="<?= htmlspecialcharsbx($basketItem['DETAIL_PAGE_URL']) ?>"><?= htmlspecialcharsbx($basketItem['NAME']) ?></a>
                                         </div>
+
+                                        <?php if (!empty($specs)): ?>
+                                            <div class="order-products__parameters">
+                                                <div class="order-products__specs">
+                                                    <?php foreach ($specs as $spec): ?>
+                                                        <div class="order-products__spec">
+                                                            <?= htmlspecialcharsbx($spec['label']) ?><span><?= htmlspecialcharsbx($spec['value']) ?></span>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
+
+                                        <div class="order-products__status <?= $availabilityClass ?>"><?= $availabilityText ?></div>
                                     </td>
 
                                     <td class="order-products__cell order-products__cell--qty">
@@ -432,6 +465,12 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                                         <?php if ($isPriceZero): ?>
                                             <div class="order-products__price2 no_price">Цена по запросу</div>
                                         <?php else: ?>
+                                            <?php $baseSum = $basePrice * $quantity; ?>
+                                            <?php if ($baseSum > $sum): ?>
+                                                <div class="order-products__price1">
+                                                    <?= number_format($baseSum, 0, '', ' ') ?> ₽
+                                                </div>
+                                            <?php endif; ?>
                                             <div class="order-products__price2">
                                                 <?= number_format($sum, 0, '', ' ') ?> ₽
                                             </div>

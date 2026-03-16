@@ -7,17 +7,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 
 use Acroweb\Mage\Helpers\TemplateHelper;
 ?>
-<div class="block-breadcrumbs">
-    <div class="container"> <?
-        TemplateHelper::includePartial('breadcrumbs'); ?>
-    </div>
-</div>
-<div class="block-order block-order-info">
-    <div class="container">
-        <a href="/personal/moi-zakazy/" class="back">
-            <svg aria-hidden="true" width="14" height="14">
-                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow1"></use>
+<div class="container">
+    <?
+    TemplateHelper::includePartial('breadcrumbs'); ?>
+    <div class="order-header">
+        <a class="btn-text btn-text_primary direction-l" href="/personal/moi-zakazy/">
+            <svg class="btn-text__icon" width="14" height="14" aria-hidden="true">
+                <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#arrow3"></use>
             </svg>
-            <span>к моим заказам</span>
+            <span>К моим заказам</span>
+
         </a>
     </div>

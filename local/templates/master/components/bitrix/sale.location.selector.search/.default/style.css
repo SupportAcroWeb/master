@@ -76,8 +76,8 @@
 
 .bx-sls .bx-ui-sls-error div {
 	position: absolute;
-	top: 10px;
-	left: 5px;
+	top: 4px;
+	left: 0;
 	width: 25px;
 	height: 25px;
 	background: url(/bitrix/panel/main/images/bx-admin-sprite-small.png) 6px -2895px no-repeat scroll;

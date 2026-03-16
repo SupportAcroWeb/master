@@ -27,7 +27,8 @@ $APPLICATION->SetTitle("Мои заказы");
 		"PATH_TO_BASKET" => "/personal/basket/",
 		"PATH_TO_CATALOG" => "/produktsiya/",
 		"PATH_TO_PAYMENT" => "/personal/order/payment/",
-		"PROP_1" => "",
+		"PROP_1" => array(
+		),
 		"REFRESH_PRICES" => "N",
 		"RESTRICT_CHANGE_PAYSYSTEM" => array(
 			0 => "0",

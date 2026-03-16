@@ -173,31 +173,7 @@ if (!empty($arResult["ORDER"])):
                     </ul>
                 </div>
 
-                <!-- Данные организации -->
-                <?php if (!empty($properties['COMPANY']) || !empty($properties['CONTACT_PERSON']) || !empty($properties['PHONE_PERSON'])): ?>
-                <div class="block-order__column">
-                    <div class="block-order__title">
-                        данные организации
-                    </div>
-                    <ul class="block-order__details">
-                        <?php if (!empty($properties['COMPANY'])): ?>
-                        <li>
-                            <span>Название организации:</span> <?= htmlspecialcharsbx($properties['COMPANY']) ?>
-                        </li>
-                        <?php endif; ?>
-                        <?php if (!empty($properties['CONTACT_PERSON'])): ?>
-                        <li>
-                            <span>ФИО контактного лица:</span> <?= htmlspecialcharsbx($properties['CONTACT_PERSON']) ?>
-                        </li>
-                        <?php endif; ?>
-                        <?php if (!empty($properties['PHONE_PERSON'])): ?>
-                        <li>
-                            <span>Телефон контактного лица:</span> <?= htmlspecialcharsbx($properties['PHONE_PERSON']) ?>
-                        </li>
-                        <?php endif; ?>
-                    </ul>
-                </div>
-                <?php endif; ?>
+                <!-- Блок данных организации убран для сайта master.bitrix.space -->
 
                 <!-- Способы доставки и адрес -->
                 <div class="block-order__grid">
@@ -285,17 +261,12 @@ if (!empty($arResult["ORDER"])):
                 </div>
 
                 <!-- Дополнительная информация -->
-                <?php if (!empty($properties['FIO_MANAGER']) || !empty($properties['DESCRIPTION'])): ?>
+                <?php if (!empty($properties['DESCRIPTION'])): ?>
                 <div class="block-order__column">
                     <div class="block-order__title">
                         дополнительная информация
                     </div>
                     <ul class="block-order__details">
-                        <?php if (!empty($properties['FIO_MANAGER'])): ?>
-                        <li>
-                            <span>Личный менеджер:</span> <?= htmlspecialcharsbx($properties['FIO_MANAGER']) ?>
-                        </li>
-                        <?php endif; ?>
                         <?php if (!empty($properties['DESCRIPTION'])): ?>
                         <li>
                             <span>Комментарий к заказу:</span> <?= htmlspecialcharsbx($properties['DESCRIPTION']) ?>

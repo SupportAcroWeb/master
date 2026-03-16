@@ -3086,26 +3086,15 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
                 itemName = data.NAME || '',
                 detailPageUrl = data.DETAIL_PAGE_URL || '#',
                 imgSrc = '',
-                description = data.PREVIEW_TEXT || '',
-                pricePerItem = data.PRICE_FORMATED || '0 ₽',
-                basePrice = data.BASE_PRICE_FORMATED || '',
                 quantity = data.QUANTITY || 1,
-                sum = data.SUM || '0 ₽',
-                hasDiscount = false,
-                isPriceZero = false,
-                priceLabel = data.MEASURE_TEXT || 'шт.';
+                measureText = data.MEASURE_TEXT || 'шт.',
+                pricePerItem = data.PRICE_FORMATED || '',
+                basePrice = data.BASE_PRICE_FORMATED || '',
+                sum = data.SUM || '',
+                isAvailable = (data.CAN_BUY || 'Y') === 'Y',
+                props = data.PROPS || [],
+                specsNodes = [];
 
-            // Проверяем нулевую цену
-            if (data.PRICE && parseFloat(data.PRICE) <= 0) {
-                isPriceZero = true;
-            }
-
-            // Проверяем наличие скидки
-            if (basePrice && basePrice !== pricePerItem && data.DISCOUNT_PRICE_PERCENT > 0) {
-                hasDiscount = true;
-            }
-
-            // Получаем изображение товара
             if (data.PREVIEW_PICTURE_SRC && data.PREVIEW_PICTURE_SRC.length) {
                 imgSrc = data.PREVIEW_PICTURE_SRC;
             } else if (data.DETAIL_PICTURE_SRC && data.DETAIL_PICTURE_SRC.length) {
@@ -3114,144 +3103,154 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
                 imgSrc = this.defaultBasketItemLogo;
             }
 
-            // Создаем карточку товара по вашей верстке
-            var cardProduct = BX.create('DIV', {
-                props: {className: 'card-product3 card-product4'},
-                children: [
-                    // Колонка с фото
-				BX.create('DIV', {
-                        props: {className: 'card-product3__col-photo'},
-					children: [
-                            BX.create('A', {
-                                props: {href: detailPageUrl},
-                                children: [
-                                    BX.create('IMG', {
-                                        props: {src: imgSrc, alt: itemName}
-                                    })
-                                ]
-                            })
-                        ]
-                    }),
-                    // Колонка с данными
-						BX.create('DIV', {
-                        props: {className: 'card-product3__col-data'},
+            if (props.length) {
+                for (var i = 0; i < props.length; i++) {
+                    var name = props[i].NAME || '',
+                        value = props[i].VALUE || '';
+
+                    if (!name || !value) {
+                        continue;
+                    }
+
+                    specsNodes.push(
+                        BX.create('DIV', {
+                            props: {className: 'order-products__spec'},
+                            children: [
+                                BX.create('DIV', {
+                                    html: this.htmlspecialcharsEx(name)
+                                }),
+                                BX.create('SPAN', {
+                                    html: this.htmlspecialcharsEx(value)
+                                })
+                            ]
+                        })
+                    );
+                }
+            }
+
+            var infoChildren = [
+                BX.create('DIV', {
+                    props: {className: 'order-products__name'},
+                    children: [
+                        BX.create('A', {
+                            props: {href: detailPageUrl},
+                            html: this.htmlspecialcharsEx(itemName)
+                        })
+                    ]
+                })
+            ];
+
+            if (specsNodes.length) {
+                infoChildren.push(
+                    BX.create('DIV', {
+                        props: {className: 'order-products__parameters'},
                         children: [
                             BX.create('DIV', {
-                                props: {className: 'card-product3__name'},
+                                props: {className: 'order-products__specs'},
+                                children: specsNodes
+                            })
+                        ]
+                    })
+                );
+            }
+
+            infoChildren.push(
+                BX.create('DIV', {
+                    props: {
+                        className: 'order-products__status' + (isAvailable ? ' instock' : ' outofstock')
+                    },
+                    text: isAvailable ? 'В наличии' : 'Нет в наличии'
+                })
+            );
+
+            var priceChildren = [];
+
+            if (basePrice && basePrice !== pricePerItem) {
+                priceChildren.push(
+                    BX.create('DIV', {
+                        props: {className: 'order-products__price1'},
+                        html: basePrice
+                    })
+                );
+            }
+
+            priceChildren.push(
+                BX.create('DIV', {
+                    props: {className: 'order-products__price2'},
+                    html: sum || pricePerItem
+                })
+            );
+
+            var row = BX.create('TR', {
+                props: {className: 'order-products__item bx-soa-basket-info'},
+                children: [
+                    BX.create('TD', {
+                        props: {className: 'order-products__cell order-products__cell--preview'},
+                        children: [
+                            BX.create('DIV', {
+                                props: {className: 'order-products__preview'},
                                 children: [
                                     BX.create('A', {
                                         props: {href: detailPageUrl},
-                                        html: this.htmlspecialcharsEx(itemName)
-						})
-					]
-                            }),
-                            BX.create('DIV', {
-                                props: {className: 'card-product3__description'},
-                                html: this.htmlspecialcharsEx(description)
-                            })
-                        ]
-                    }),
-                    // Колонка с ценой за штуку
-				BX.create('DIV', {
-                        props: {
-                            className: 'card-product3__col1',
-                            style: isPriceZero ? 'display: none;' : ''
-                        },
-                        children: [
-                            BX.create('DIV', {
-                                children: (function() {
-                                    var priceElements = [
-                                        BX.create('DIV', {
-                                            props: {className: 'card-product3__label1'},
-                                            text: 'С НДС (1 ' + priceLabel + ')'
-                                        }),
-                                        BX.create('SPAN', {
-                                            props: {className: 'card-product3__price1'},
-                                            html: pricePerItem
-                                        })
-                                    ];
-                                    
-                                    // Добавляем старую цену только если есть скидка
-                                    if (hasDiscount) {
-                                        priceElements.push(
-                                            BX.create('SPAN', {
-                                                props: {className: 'card-product3__price2'},
-                                                html: basePrice
+                                        children: [
+                                            BX.create('IMG', {
+                                                props: {src: imgSrc, alt: itemName}
                                             })
-                                        );
-                                    }
-                                    
-                                    return priceElements;
-                                })()
+                                        ]
+                                    })
+                                ]
                             })
                         ]
                     }),
-                    // Колонка с ценой "Цена по запросу" (если цена = 0)
-                    isPriceZero ? BX.create('DIV', {
-                        props: {className: 'card-product3__col1'},
+                    BX.create('TD', {
+                        props: {className: 'order-products__cell order-products__cell--info'},
+                        children: infoChildren
+                    }),
+                    BX.create('TD', {
+                        props: {className: 'order-products__cell order-products__cell--qty'},
                         children: [
                             BX.create('DIV', {
+                                props: {className: 'order-products__quantity'},
                                 children: [
                                     BX.create('DIV', {
-                                        props: {className: 'card-product3__label1'},
-                                        text: 'С НДС (1 ' + priceLabel + ')'
-                                    }),
-                                    BX.create('SPAN', {
-                                        props: {className: 'card-product3__price1 no_price'},
-                                        text: 'Цена по запросу'
+                                        props: {className: 'order-products__price-per-unit'},
+                                        text: quantity + ' ' + measureText + '.'
                                     })
                                 ]
-                            })
-                        ]
-                    }) : null,
-                    // Колонка с количеством
-					BX.create('DIV', {
-                        props: {className: 'card-product3__col3'},
-						children: [
-                            BX.create('SPAN', {
-                                html: quantity + ' ' + priceLabel
                             })
                         ]
                     }),
-                    // Колонка с итоговой суммой
-							BX.create('DIV', {
-                        props: {
-                            className: 'card-product3__col2',
-                            style: isPriceZero ? 'display: none;' : ''
-                        },
-								children: [
-									BX.create('DIV', {
-										children: [
-                                    BX.create('SPAN', {
-                                        text: 'На сумму'
-                                    }),
-                                    BX.create('SPAN', {
-                                        props: {className: 'card-product3__price3'},
-                                        html: sum
-											})
-										]
-									})
-								]
-							}),
-                    // Колонка с суммой "Цена по запросу" (если цена = 0)
-                    isPriceZero ? BX.create('DIV', {
-                        props: {className: 'card-product3__col2'},
-                        children: [
-                            BX.create('DIV', {
-                                children: [
-                                    BX.create('SPAN', {
-                                        props: {className: 'card-product3__price3 no_price'},
-                                        text: 'Цена по запросу'
-                                    })
-                                ]
-                            })
-                        ]
-                    }) : null
-						]
+                    BX.create('TD', {
+                        props: {className: 'order-products__cell order-products__cell--price'},
+                        children: priceChildren
+                    })
+                ]
             });
 
-            basketItemsNode.appendChild(cardProduct);
-		},
+            var table = basketItemsNode.querySelector('.order-products__table');
+            var tbody;
+
+            if (!table) {
+                table = BX.create('TABLE', {
+                    props: {className: 'order-products__table'}
+                });
+                tbody = BX.create('TBODY', {
+                    props: {className: 'order-products__body'}
+                });
+                table.appendChild(tbody);
+                basketItemsNode.appendChild(table);
+            } else {
+                tbody = table.querySelector('.order-products__body');
+                if (!tbody) {
+                    tbody = BX.create('TBODY', {
+                        props: {className: 'order-products__body'}
+                    });
+                    table.appendChild(tbody);
+                }
+            }
+
+            tbody.appendChild(row);
+        },
 
         showAdditionalProperties: function (event) {
 			var target = event.target || event.srcElement,
@@ -3729,29 +3728,22 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		},
 
         editCoupons: function (basketItemsNode) {
-            var couponsList = this.getCouponsList(true);
+            var couponsList = this.getCouponsList(true),
+                isOrderSummary = BX.hasClass(basketItemsNode, 'order-summary__promo');
 
-            // Заголовок "Промокод"
-            basketItemsNode.appendChild(
-						BX.create('DIV', {
-                    props: {className: 'details-block-cart__title'},
-                    text: 'Промокод'
-                })
-            );
-
-            // Блок ввода промокода
-            basketItemsNode.appendChild(
-                BX.create('DIV', {
-                    props: {className: 'details-block-cart__inputs'},
-							children: [
-								BX.create('INPUT', {
-									props: {
-                                className: 'field-input1',
+            if (isOrderSummary) {
+                // Верстка по html_order.php: label + input + button
+                var wrapper = BX.create('LABEL', {
+                    props: {className: 'order-summary__promo-wrapper'},
+                    children: [
+                        BX.create('INPUT', {
+                            props: {
+                                className: 'order-summary__promo-input',
                                 type: 'text',
                                 name: 'coupon_input',
                                 placeholder: 'Введите промокод'
-									},
-									events: {
+                            },
+                            events: {
                                 keypress: BX.delegate(function (event) {
                                     if (event.keyCode === 13) {
                                         var input = event.target || event.srcElement;
@@ -3767,36 +3759,93 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
                         BX.create('BUTTON', {
                             props: {
                                 type: 'button',
-                                className: 'btn'
+                                className: 'order-summary__promo-btn'
                             },
-                            html: '<svg aria-hidden="true" width="11" height="18"><use xlink:href="/local/templates/naanit/img/sprite.svg#chevron3"></use></svg>',
+                            html: '<svg width="20" height="20"><use xlink:href="/local/templates/master/img/sprite.svg#arrow2"></use></svg>',
                             events: {
                                 click: BX.delegate(function (event) {
                                     var button = event.target || event.srcElement,
-                                        container = BX.findParent(button, {className: 'details-block-cart__inputs'}),
-                                        input = container.querySelector('input.field-input1');
-                                    
+                                        container = BX.findParent(button, {className: 'order-summary__promo-wrapper'});
+                                    if (!container) {
+                                        container = basketItemsNode;
+                                    }
+                                    var input = container.querySelector('input[name="coupon_input"]');
                                     if (input && input.value) {
                                         this.sendRequest('enterCoupon', input.value);
                                         input.value = '';
-											}
-										}, this)
-									}
-								})
-							]
-                })
-            );
+                                    }
+                                }, this)
+                            }
+                        })
+                    ]
+                });
+                basketItemsNode.appendChild(wrapper);
 
-            // Примененные купоны (сохраняем стандартную верстку)
-            if (couponsList.length) {
-			basketItemsNode.appendChild(
-                    BX.create('SPAN', {
-                        props: {className: 'bx-soa-coupon-item'},
-                        children: couponsList
-				})
-			);
+                var couponItem = BX.create('SPAN', {
+                    props: {className: 'bx-soa-coupon-item'},
+                    children: couponsList
+                });
+                basketItemsNode.appendChild(couponItem);
+            } else {
+                // Fallback: старая верстка details-block-cart
+                basketItemsNode.appendChild(
+                    BX.create('DIV', {
+                        props: {className: 'details-block-cart__title'},
+                        text: 'Промокод'
+                    })
+                );
+                basketItemsNode.appendChild(
+                    BX.create('DIV', {
+                        props: {className: 'details-block-cart__inputs'},
+                        children: [
+                            BX.create('INPUT', {
+                                props: {
+                                    className: 'field-input1',
+                                    type: 'text',
+                                    name: 'coupon_input',
+                                    placeholder: 'Введите промокод'
+                                },
+                                events: {
+                                    keypress: BX.delegate(function (event) {
+                                        if (event.keyCode === 13) {
+                                            var input = event.target || event.srcElement;
+                                            if (input && input.value) {
+                                                this.sendRequest('enterCoupon', input.value);
+                                                input.value = '';
+                                            }
+                                            return BX.PreventDefault(event);
+                                        }
+                                    }, this)
+                                }
+                            }),
+                            BX.create('BUTTON', {
+                                props: { type: 'button', className: 'btn' },
+                                html: '<svg aria-hidden="true" width="11" height="18"><use xlink:href="/local/templates/naanit/img/sprite.svg#chevron3"></use></svg>',
+                                events: {
+                                    click: BX.delegate(function (event) {
+                                        var button = event.target || event.srcElement,
+                                            container = BX.findParent(button, {className: 'details-block-cart__inputs'}),
+                                            input = container ? container.querySelector('input.field-input1') : null;
+                                        if (input && input.value) {
+                                            this.sendRequest('enterCoupon', input.value);
+                                            input.value = '';
+                                        }
+                                    }, this)
+                                }
+                            })
+                        ]
+                    })
+                );
+                if (couponsList.length) {
+                    basketItemsNode.appendChild(
+                        BX.create('SPAN', {
+                            props: {className: 'bx-soa-coupon-item'},
+                            children: couponsList
+                        })
+                    );
+                }
             }
-		},
+        },
 
         editCouponsFade: function (basketItemsNode) {
 			if (this.result.COUPON_LIST.length < 1)
@@ -3910,25 +3959,23 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		},
 
         addCoupon: function (coupon) {
-            // Ищем контейнер с купонами в новой верстке
             var couponContainer = this.totalInfoBlockNode.querySelector('.bx-soa-coupon-item');
-            
+
             if (!couponContainer) {
-                // Если контейнера еще нет, создаем его
-                var couponListBlock = this.totalInfoBlockNode.querySelector('.details-block-cart__list:last-of-type');
-                if (couponListBlock) {
+                var promoBlock = this.totalInfoBlockNode.querySelector('.order-summary__promo') ||
+                    this.totalInfoBlockNode.querySelector('.details-block-cart__list:last-of-type');
+                if (promoBlock) {
                     couponContainer = BX.create('SPAN', {
                         props: {className: 'bx-soa-coupon-item'}
                     });
-                    couponListBlock.appendChild(couponContainer);
+                    promoBlock.appendChild(couponContainer);
                 }
             }
-            
-            // Добавляем купон (с ошибкой)
+
             if (couponContainer && !couponContainer.querySelector('[data-coupon="' + BX.util.htmlspecialchars(coupon) + '"]')) {
                 couponContainer.appendChild(this.getCouponNode({text: coupon, status: 'BAD'}, true));
-			}
-		},
+            }
+        },
 
         removeCoupon: function (coupon) {
             var couponNodes = this.orderBlockNode.querySelectorAll('[data-coupon="' + BX.util.htmlspecialchars(coupon) + '"]'),
@@ -3969,7 +4016,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 				this.getErrorContainer(regionContent);
 
 				regionNode = BX.create('DIV', {props: {className: 'bx_soa_location row'}});
-				regionNodeCol = BX.create('DIV', {props: {className: 'col-xs-12'}});
+				regionNodeCol = BX.create('DIV', {props: {className: 'col-xs-12 region_block_flex'}});
 
 				this.getPersonTypeControl(regionNodeCol);
 
@@ -4135,9 +4182,21 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 				currentLocation = location[0].output;
 				insertedLoc = BX.create('DIV', {
 					attrs: {'data-property-id-row': locationId},
-					props: {className: 'form-group bx-soa-location-input-container'},
+					props: {className: 'form-group bx-soa-location-input-container container-grid1__row border-container'},
 					style: {visibility: 'hidden'},
-                    html: currentLocation.HTML
+					children: [
+						BX.create('H2', {
+							props: {className: 'title2 section-title'},
+							text: 'Местоположение'
+						}),
+						BX.create('P', {
+							props: {className: 'desk'},
+							text: 'В какой город нужно доставить?'
+						}),
+						BX.create('DIV', {
+							html: currentLocation.HTML
+						})
+					]
 				});
 				node.appendChild(insertedLoc);
 				node.appendChild(BX.create('INPUT', {
@@ -4319,21 +4378,113 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 
 			var personTypesCount = this.result.PERSON_TYPE.length,
 				currentType, oldPersonTypeId, i,
-				input, options = [], label, delimiter = false;
+				options = [], wrapper, formGrid, row, label;
 
-            if (personTypesCount > 1) {
-				input = BX.create('DIV', {
+            if (personTypesCount == 2) {
+				// Верстка по html_type_user.php: card-richbox
+				wrapper = BX.create('DIV', {
+					props: {className: 'container-grid1__row border-container'}
+				});
+				wrapper.appendChild(
+					BX.create('DIV', {
+						props: {className: 'container-grid1__inner'},
+						children: [
+							BX.create('H2', {
+								props: {className: 'title2 title'},
+								text: this.params.MESS_PERSON_TYPE || 'Тип покупателя'
+							}),
+							BX.create('DIV', {
+								props: {className: 'container-grid1__body'},
+								children: [
+									(formGrid = BX.create('DIV', {
+										props: {className: 'form-grid1'}
+									}))
+								]
+							})
+						]
+					})
+				);
+
+				for (i in this.result.PERSON_TYPE) {
+					if (this.result.PERSON_TYPE.hasOwnProperty(i)) {
+						currentType = this.result.PERSON_TYPE[i];
+						label = BX.create('LABEL', {
+							props: {className: 'card-richbox'},
+							children: [
+								BX.create('INPUT', {
+									attrs: {checked: currentType.CHECKED == 'Y'},
+									props: {
+										type: 'radio',
+										name: 'PERSON_TYPE',
+										value: currentType.ID,
+										className: 'card-richbox__input'
+									},
+									events: {change: BX.proxy(this.sendRequest, this)}
+								}),
+								BX.create('DIV', {
+									props: {className: 'card-richbox__inner'},
+									children: [
+										BX.create('DIV', {
+											props: {className: 'card-richbox__col1'},
+											children: [
+												BX.create('SPAN', {props: {className: 'card-richbox__circle'}}),
+												BX.create('SPAN', {props: {className: 'card-richbox__visual'}})
+											]
+										}),
+										BX.create('DIV', {
+											props: {className: 'card-richbox__col2'},
+											children: [
+												BX.create('SPAN', {
+													props: {className: 'card-richbox__label1'},
+													text: currentType.NAME
+												})
+											]
+										})
+									]
+								})
+							]
+						});
+						row = BX.create('DIV', {
+							props: {className: 'form-grid1__row form-grid1__row_3'},
+							children: [label]
+						});
+						formGrid.appendChild(row);
+						if (currentType.CHECKED == 'Y')
+							oldPersonTypeId = currentType.ID;
+					}
+				}
+
+				if (oldPersonTypeId) {
+					wrapper.appendChild(
+						BX.create('INPUT', {
+							props: {
+								type: 'hidden',
+								name: 'PERSON_TYPE_OLD',
+								value: oldPersonTypeId
+							}
+						})
+					);
+				}
+
+				node.appendChild(wrapper);
+				this.regionBlockNotEmpty = true;
+				return;
+			}
+
+			// Случай одного типа или более двух — прежняя логика
+			if (personTypesCount > 1) {
+				wrapper = BX.create('DIV', {
 					props: {className: 'form-group'},
 					children: [
-                        BX.create('LABEL', {
-                            props: {className: 'bx-soa-custom-label'},
-                            html: this.params.MESS_PERSON_TYPE
-                        }),
+						BX.create('LABEL', {
+							props: {className: 'bx-soa-custom-label'},
+							html: this.params.MESS_PERSON_TYPE
+						}),
 						BX.create('BR')
 					]
 				});
-				node.appendChild(input);
-				node = input;
+				node.appendChild(wrapper);
+				node = wrapper;
 			}
 
             if (personTypesCount > 2) {
@@ -4347,47 +4498,17 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 							},
 							text: currentType.NAME
 						}));
-
 						if (currentType.CHECKED == 'Y')
 							oldPersonTypeId = currentType.ID;
 					}
-
 				}
 				node.appendChild(BX.create('SELECT', {
 					props: {name: 'PERSON_TYPE', className: 'form-control'},
 					children: options,
 					events: {change: BX.proxy(this.sendRequest, this)}
 				}));
-
 				this.regionBlockNotEmpty = true;
-            } else if (personTypesCount == 2) {
-                for (i in this.result.PERSON_TYPE) {
-                    if (this.result.PERSON_TYPE.hasOwnProperty(i)) {
-						currentType = this.result.PERSON_TYPE[i];
-						label = BX.create('LABEL', {
-							children: [
-								BX.create('INPUT', {
-									attrs: {checked: currentType.CHECKED == 'Y'},
-									props: {type: 'radio', name: 'PERSON_TYPE', value: currentType.ID}
-								}),
-								BX.util.htmlspecialchars(currentType.NAME)
-							],
-							events: {change: BX.proxy(this.sendRequest, this)}
-						});
-
-						if (delimiter)
-							node.appendChild(BX.create('BR'));
-
-						node.appendChild(BX.create('DIV', {props: {className: 'radio-inline'}, children: [label]}));
-						delimiter = true;
-
-						if (currentType.CHECKED == 'Y')
-							oldPersonTypeId = currentType.ID;
-					}
-				}
-
-				this.regionBlockNotEmpty = true;
-            } else {
+            } else if (personTypesCount == 1) {
 				for (i in this.result.PERSON_TYPE)
 					if (this.result.PERSON_TYPE.hasOwnProperty(i))
                         node.appendChild(BX.create('INPUT', {
@@ -4406,7 +4527,6 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 							type: 'hidden',
 							name: 'PERSON_TYPE_OLD',
 							value: oldPersonTypeId
-
 						}
 					})
 				);
@@ -6289,19 +6409,6 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 		},
 
         getPropertyRowNode: function (property, propsItemsContainer, disabled) {
-		// Кастомная обработка для свойства ORGANIZATION_ID
-		var propertySettings = property.getSettings();
-		if (propertySettings && propertySettings.CODE === 'ORGANIZATION_ID' && !disabled) {
-			this.insertOrganizationSelect(property, propsItemsContainer);
-			return;
-		}
-		
-		// Кастомная обработка для свойства MANAGER_ID
-		if (propertySettings && propertySettings.CODE === 'MANAGER_ID' && !disabled) {
-			this.insertManagerSelect(property, propsItemsContainer);
-			return;
-		}
-		
 		var propertyType = property.getType() || '';
 		
 		// Для STRING свойств используем кастомную верстку без создания propsItemNode
@@ -6927,7 +7034,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 			}
 			
 			// Проверка email
-			if ((propertyCode === 'EMAIL' || propertyCode === 'EMAIL_MANAGER' || propertyCode === 'EMAIL_PERSON') && value !== '') {
+			if ((propertyCode === 'EMAIL' || propertyCode === 'EMAIL_PERSON') && value !== '') {
 				if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
 					showError('Неверный формат');
 					return false;
@@ -8252,186 +8359,189 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 
 			var total = this.result.TOTAL,
 				curDelivery, deliveryError, deliveryValue,
-                showOrderButton = this.params.SHOW_TOTAL_ORDER_BUTTON === 'Y',
-                basketItemsCount = 0,
-                i;
+				basketItemsCount = 0,
+				i;
 
 			BX.cleanNode(this.totalInfoBlockNode);
 
-            // Подсчитываем количество товаров
-            if (this.result.GRID && this.result.GRID.ROWS) {
-                basketItemsCount = Object.keys(this.result.GRID.ROWS).length;
+			if (this.result.GRID && this.result.GRID.ROWS) {
+				basketItemsCount = Object.keys(this.result.GRID.ROWS).length;
 			}
 
-            // Создаем обертку sticky
-            var stickyContainer = BX.create('DIV', {
-                props: {className: 'details-block-cart__sticky'}
-            });
-
-            // Первый блок списка с товарами и доставкой
-            var firstListItems = [];
-
-            // Заголовок "Ваш заказ"
-            firstListItems.push(
-                BX.create('DIV', {
-                    props: {className: 'details-block-cart__title'},
-                    text: 'Ваш заказ'
-                })
-            );
-
-            // Товары
-            firstListItems.push(
-                BX.create('DIV', {
-                    props: {className: 'details-block-cart__item'},
-                    children: [
-                        BX.create('DIV', {
-                            props: {className: 'details-block-cart__product'},
-                            html: 'Товары, ' + basketItemsCount + ' шт.'
-                        }),
-                        BX.create('DIV', {
-                            props: {className: 'details-block-cart__cost'},
-                            html: total.ORDER_PRICE_FORMATED
-                        })
-                    ]
-                })
-            );
-
-            // Скидка (если есть)
-            if (this.options.showDiscountPrice && parseFloat(total.DISCOUNT_PRICE) > 0) {
-                firstListItems.push(
-                    BX.create('DIV', {
-                        props: {className: 'details-block-cart__item sale'},
-                        children: [
-                            BX.create('DIV', {
-                                props: {className: 'details-block-cart__product'},
-                                text: 'Скидка'
-                            }),
-                            BX.create('DIV', {
-                                props: {className: 'details-block-cart__cost'},
-                                html: '-' + total.DISCOUNT_PRICE_FORMATED
-                            })
-                        ]
-                    })
-					);
-				}
-
-            // Доставка
 			curDelivery = this.getSelectedDelivery();
 			deliveryError = curDelivery && curDelivery.CALCULATE_ERRORS && curDelivery.CALCULATE_ERRORS.length;
-
-            if (this.result.DELIVERY.length) {
-                if (deliveryError) {
-				deliveryValue = BX.message('SOA_NOT_CALCULATED');
-                } else if (parseFloat(total.DELIVERY_PRICE) === 0) {
+			if (this.result.DELIVERY.length) {
+				if (deliveryError) {
+					deliveryValue = BX.message('SOA_NOT_CALCULATED');
+				} else if (parseFloat(total.DELIVERY_PRICE) === 0) {
 					deliveryValue = this.params.MESS_PRICE_FREE;
-                } else {
+				} else {
 					deliveryValue = total.DELIVERY_PRICE_FORMATED;
 				}
-
-                firstListItems.push(
-                    BX.create('DIV', {
-                        props: {className: 'details-block-cart__item delivery'},
-                        children: [
-                            BX.create('DIV', {
-                                props: {className: 'details-block-cart__product'},
-                                text: 'Доставка'
-                            }),
-                            BX.create('DIV', {
-                                props: {className: 'details-block-cart__cost'},
-                                html: deliveryValue
-                            })
-                        ]
-                    })
-                );
 			}
 
-            var firstList = BX.create('DIV', {
-                props: {className: 'details-block-cart__list'},
-                children: firstListItems
-            });
+			// Верстка order-summary по html_order.php
+			var orderSummary = BX.create('DIV', {
+				props: {className: 'order-summary'}
+			});
 
-            stickyContainer.appendChild(firstList);
+			orderSummary.appendChild(
+				BX.create('H2', {
+					props: {className: 'order-summary__title'},
+					text: 'Детали заказа'
+				})
+			);
 
-            // Блок для купона
-            if (this.params.SHOW_COUPONS === 'Y') {
-                var couponListBlock = BX.create('DIV', {
-                    props: {className: 'details-block-cart__list'}
-                });
-                this.editCoupons(couponListBlock);
-                stickyContainer.appendChild(couponListBlock);
-            }
+			var inner = BX.create('DIV', {
+				props: {className: 'order-summary__inner'}
+			});
 
-            // Итого к оплате
-            var totalsBlock = BX.create('DIV', {
-                props: {className: 'details-block-cart__totals'},
-                children: [
-                    BX.create('DIV', {
-                        props: {className: 'details-block-cart__title'},
-                        text: 'Итого к оплате:'
-                    }),
-                    BX.create('DIV', {
-                        props: {className: 'details-block-cart__summ'},
-                        html: total.ORDER_TOTAL_PRICE_FORMATED
-                    })
-                ]
-            });
+			// Товары
+			inner.appendChild(
+				BX.create('DIV', {
+					props: {className: 'order-summary__row'},
+					children: [
+						BX.create('DIV', {
+							props: {className: 'order-summary__info order-summary__row_prise'},
+							children: [
+								BX.create('SPAN', {
+									props: {className: 'order-summary__label'},
+									text: 'Товары, ' + basketItemsCount + ' шт'
+								}),
+								BX.create('SPAN', {
+									props: {className: 'order-summary__value'},
+									html: total.ORDER_PRICE_FORMATED
+								})
+							]
+						})
+					]
+				})
+			);
 
-            stickyContainer.appendChild(totalsBlock);
-
-            // Кнопка оформления заказа и блок согласия
-            if (!this.result.SHOW_AUTH) {
-                stickyContainer.appendChild(
-                    BX.create('BUTTON', {
-								props: {
-                            type: 'submit',
-                            className: 'btn btn_primary'
-								},
-                        text: this.params.MESS_ORDER,
-								events: {
-									click: BX.proxy(this.clickOrderSaveAction, this)
-								}
+			// Скидка
+			if (this.options.showDiscountPrice && parseFloat(total.DISCOUNT_PRICE) > 0) {
+				inner.appendChild(
+					BX.create('DIV', {
+						props: {className: 'order-summary__row'},
+						children: [
+							BX.create('DIV', {
+								props: {className: 'order-summary__info order-summary__row_old-prise'},
+								children: [
+									BX.create('SPAN', {
+										props: {className: 'order-summary__label'},
+										text: 'Скидка'
+									}),
+									BX.create('SPAN', {
+										props: {className: 'order-summary__value order-summary__value_discount'},
+										html: '-' + total.DISCOUNT_PRICE_FORMATED
+									})
+								]
 							})
-                );
-
-                // Клонируем чекбокс согласия для визуального отображения в сайдбаре
-                // Оригинал остаётся в #bx-soa-orderSave для правильной работы JS
-                var orderSaveNode = BX('bx-soa-orderSave');
-                if (orderSaveNode) {
-                    var originalConsentNode = BX.findChild(
-                        orderSaveNode,
-                        { className: 'main-user-consent-request' },
-                        true,
-                        false
-                    );
-
-                    if (originalConsentNode) {
-                        // Создаём клон для визуального отображения в сайдбаре
-                        var consentClone = originalConsentNode.cloneNode(true);
-                        // Убираем data-bx-user-consent у клона, чтобы не было конфликтов
-                        consentClone.removeAttribute('data-bx-user-consent');
-                        // Синхронизируем состояние чекбокса между оригиналом и клоном
-                        var originalCheckbox = originalConsentNode.querySelector('input[type="checkbox"]');
-                        var cloneCheckbox = consentClone.querySelector('input[type="checkbox"]');
-                        if (originalCheckbox && cloneCheckbox) {
-                            // Синхронизация при изменении оригинала
-                            BX.bind(originalCheckbox, 'change', function() {
-                                cloneCheckbox.checked = originalCheckbox.checked;
-                            });
-                            // Синхронизация при изменении клона (клик в сайдбаре)
-                            BX.bind(cloneCheckbox, 'change', function() {
-                                originalCheckbox.checked = cloneCheckbox.checked;
-                                // Триггерим событие на оригинале для правильной работы userconsent
-                                BX.fireEvent(originalCheckbox, 'change');
-                            });
-                            // Инициализируем состояние
-                            cloneCheckbox.checked = originalCheckbox.checked;
-                        }
-                        stickyContainer.appendChild(consentClone);
-                    }
-                }
+						]
+					})
+				);
 			}
 
-            this.totalInfoBlockNode.appendChild(stickyContainer);
+			// Доставка
+			if (this.result.DELIVERY.length && deliveryValue !== undefined) {
+				inner.appendChild(
+					BX.create('DIV', {
+						props: {className: 'order-summary__row'},
+						children: [
+							BX.create('DIV', {
+								props: {className: 'order-summary__info order-summary__row_delivery'},
+								children: [
+									BX.create('SPAN', {
+										props: {className: 'order-summary__label'},
+										text: 'Доставка'
+									}),
+									BX.create('SPAN', {
+										props: {className: 'order-summary__value'},
+										html: deliveryValue
+									})
+								]
+							})
+						]
+					})
+				);
+			}
+
+			// Итого
+			inner.appendChild(
+				BX.create('DIV', {
+					props: {className: 'order-summary__total'},
+					children: [
+						BX.create('SPAN', {
+							props: {className: 'order-summary__total-label'},
+							text: 'Итого:'
+						}),
+						BX.create('SPAN', {
+							props: {className: 'order-summary__total-value'},
+							html: total.ORDER_TOTAL_PRICE_FORMATED
+						})
+					]
+				})
+			);
+
+			// Промокод
+			if (this.params.SHOW_COUPONS === 'Y') {
+				var promoBlock = BX.create('DIV', {
+					props: {className: 'order-summary__promo'}
+				});
+				this.editCoupons(promoBlock);
+				inner.appendChild(promoBlock);
+			}
+
+			orderSummary.appendChild(inner);
+
+			// Кнопка и согласие
+			if (!this.result.SHOW_AUTH) {
+				var btnsBlock = BX.create('DIV', {
+					props: {className: 'order-summary__btns'}
+				});
+				btnsBlock.appendChild(
+					BX.create('BUTTON', {
+						props: {
+							type: 'submit',
+							className: 'btn btn_small btn_black btn_wide'
+						},
+						text: this.params.MESS_ORDER,
+						events: {
+							click: BX.proxy(this.clickOrderSaveAction, this)
+						}
+					})
+				);
+
+				var orderSaveNode = BX('bx-soa-orderSave');
+				if (orderSaveNode) {
+					var originalConsentNode = BX.findChild(
+						orderSaveNode,
+						{ className: 'main-user-consent-request' },
+						true,
+						false
+					);
+					if (originalConsentNode) {
+						var consentClone = originalConsentNode.cloneNode(true);
+						consentClone.removeAttribute('data-bx-user-consent');
+						var originalCheckbox = originalConsentNode.querySelector('input[type="checkbox"]');
+						var cloneCheckbox = consentClone.querySelector('input[type="checkbox"]');
+						if (originalCheckbox && cloneCheckbox) {
+							BX.bind(originalCheckbox, 'change', function () {
+								cloneCheckbox.checked = originalCheckbox.checked;
+							});
+							BX.bind(cloneCheckbox, 'change', function () {
+								originalCheckbox.checked = cloneCheckbox.checked;
+								BX.fireEvent(originalCheckbox, 'change');
+							});
+							cloneCheckbox.checked = originalCheckbox.checked;
+						}
+						btnsBlock.appendChild(consentClone);
+					}
+				}
+				orderSummary.appendChild(btnsBlock);
+			}
+
+			this.totalInfoBlockNode.appendChild(orderSummary);
 		},
 
         // editMobileTotalBlock: function()
