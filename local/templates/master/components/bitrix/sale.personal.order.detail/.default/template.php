@@ -94,12 +94,14 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
     $statusText = htmlspecialcharsbx($orderStatus['NAME']);
     $orderStatusClassVisual = 'order-status order-status--pending';
     $orderStatusIconSprite = 'status-pending';
+    $statusId = $arResult['STATUS_ID'] ?? '';
+    $isCompletedStatus = ($statusId === 'F') || (!empty($orderStatus['SEMANTICS']) && $orderStatus['SEMANTICS'] === 'F');
 
     if ($isCanceled) {
         $orderStatusClassVisual = 'order-status order-status--cancel';
         $orderStatusIconSprite = 'status-cancel';
         $statusText = Loc::getMessage('SPOD_ORDER_CANCELED') ?: 'Отменен';
-    } elseif (!empty($orderStatus['SEMANTICS']) && $orderStatus['SEMANTICS'] === 'F') {
+    } elseif ($isCompletedStatus) {
         $orderStatusClassVisual = 'order-status order-status--success';
         $orderStatusIconSprite = 'status-success';
         $statusText = Loc::getMessage('SPOD_ORDER_COMPLETED') ?: 'Успешно завершен';

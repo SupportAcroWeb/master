@@ -96,8 +96,8 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
 
 <?php if (!empty($arResult['ORDERS'])): ?>
 <div class="order-tabs__content is-active" data-tab="<?= htmlspecialcharsbx($currentTab) ?>">
-    <div class="orders-table-wrapper" data-entity="items-row">
-        <table class="orders-table">
+    <div class="orders-table-wrapper">
+        <table class="orders-table" data-entity="items-row">
             <thead class="orders-table__header">
                 <tr>
                     <th>№</th>
@@ -162,11 +162,13 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
             $orderStatusClass = 'status_delivery';
             $orderStatusIcon = 'time';
             $orderStatus = $arResult['INFO']['STATUS'][$order['ORDER']['STATUS_ID']];
-            
+            $statusId = $order['ORDER']['STATUS_ID'] ?? '';
+            $isCompletedStatus = ($statusId === 'F') || (!empty($orderStatus['SEMANTICS']) && $orderStatus['SEMANTICS'] === 'F');
+
             if ($order['ORDER']['CANCELED'] === 'Y') {
                 $orderStatusClass = 'status_cancel';
                 $orderStatusIcon = 'cross';
-            } elseif (!empty($orderStatus['SEMANTICS']) && $orderStatus['SEMANTICS'] === 'F') {
+            } elseif ($isCompletedStatus) {
                 $orderStatusClass = 'status_paid';
                 $orderStatusIcon = 'check1';
             }

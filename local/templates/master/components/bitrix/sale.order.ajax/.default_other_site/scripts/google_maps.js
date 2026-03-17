@@ -130,6 +130,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent.Maps');
 			var target = e.target || e.srcElement;
 
 			this.context.selectStore(target.getAttribute('data-store'));
+			this.context.clickNextAction(e);
 			this.closeAllBalloons();
 		},
 

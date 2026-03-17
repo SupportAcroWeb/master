@@ -16,7 +16,7 @@ $APPLICATION->SetTitle("Оформление заказа");
 		"COMPATIBLE_MODE" => "Y",
 		"DELIVERIES_PER_PAGE" => "9",
 		"DELIVERY_FADE_EXTRA_SERVICES" => "N",
-		"DELIVERY_NO_AJAX" => "N",
+		"DELIVERY_NO_AJAX" => "Y",
 		"DELIVERY_NO_SESSION" => "Y",
 		"DELIVERY_TO_PAYSYSTEM" => "d2p",
 		"DISABLE_BASKET_REDIRECT" => "N",
@@ -62,7 +62,7 @@ $APPLICATION->SetTitle("Оформление заказа");
 		"SHOW_ORDER_BUTTON" => "final_step",
 		"SHOW_PAY_SYSTEM_INFO_NAME" => "Y",
 		"SHOW_PAY_SYSTEM_LIST_NAMES" => "Y",
-		"SHOW_PICKUP_MAP" => "N",
+		"SHOW_PICKUP_MAP" => "Y",
 		"SHOW_STORES_IMAGES" => "Y",
 		"SHOW_TOTAL_ORDER_BUTTON" => "N",
 		"SHOW_VAT_PRICE" => "Y",
@@ -83,17 +83,25 @@ $APPLICATION->SetTitle("Оформление заказа");
 		"USE_PREPAYMENT" => "N",
 		"USE_YM_GOALS" => "N",
 		"COMPONENT_TEMPLATE" => ".default",
-		"BUYER_PROPS_GROUP_ID" => "1",
-		"ORGANIZATION_PROPS_GROUP_ID" => "1",
-		"ADDRESS_PROPS_GROUP_ID" => "1",
-		"ADDITIONAL_PROPS_GROUP_ID" => "1",
-		"RESTRICTED_PAY_SYSTEMS" => array(
+		"BUYER_PROPS_GROUP_ID" => array(
+			0 => "1",
+			1 => "7",
+		),
+		"ORGANIZATION_PROPS_GROUP_ID" => array(
+		),
+		"ADDRESS_PROPS_GROUP_ID" => array(
 			0 => "2",
+			1 => "8",
+		),
+		"ADDITIONAL_PROPS_GROUP_ID" => array(
+		),
+		"RESTRICTED_PAY_SYSTEMS" => array(
 		),
 		"USER_CONSENT_IDS" => array(
 			0 => "2",
 		),
-		"EXTERNAL_DELIVERY_PROPS_GROUP_ID" => "1",
+		"EXTERNAL_DELIVERY_PROPS_GROUP_ID" => array(
+		),
 		"USER_CONSENT_IS_CHECKED_2" => "N",
 		"USER_CONSENT_REQUIRED_2" => "Y",
 		"ADDITIONAL_PICT_PROP_5" => "-"

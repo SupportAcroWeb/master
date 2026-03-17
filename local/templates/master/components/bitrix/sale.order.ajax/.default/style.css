@@ -119,108 +119,135 @@
     top:-1px;
 }
 
-/* pickup */
+/* Пункты самовывоза */
 #pickUpMap img {
     max-height: initial;
 }
+
+.self-delivery-block .bottom-block-order__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.bottom-block-order__body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+.bottom-block-order__map {
+    order: 2;
+    flex: 1 1 400px;
+    min-height: 400px;
+    height: 100%;
+}
+
+#pickUpMap {
+    height: 100%;
+    min-height: 400px;
+}
+
 .bx-soa-pickup-preview-img {
     height: 76px;
     border: 1px solid #ddd;
     border-radius: 1px;
     padding: 1px;
-    margin-left:10px;
+    margin-left: 10px;
     float: right;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
 }
-.bx-soa-pickup-subTitle {
-    font-size: 15px;
-    font-weight: var(--ui-font-weight-bold);
-    padding-bottom: 10px;
-}
+
 .bx-soa-pickup-list {
+    order: 1;
+    flex: 1 1 300px;
     margin-bottom: 20px;
 }
+
 .bx-soa-pickup-list .bx-soa-pickup-list-item {
-    border-top: 1px solid var(--theme-border-color);
-    padding: 10px 20px;
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    background-color: #fff;
+    padding: 20px 24px;
+    min-height: 80px;
+    display: inline-flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    cursor: pointer;
+    margin-bottom: 12px;
+    gap: 16px;
 }
+
 .bx-soa-pickup-list .bx-soa-pickup-list-item:hover {
-    /*background-color: #f8fafc;*/
+    border-color: var(--theme-border-color, #ccc);
 }
+
 .bx-soa-pickup-list-item.bx-selected {
-    background-color: #f7f7f7;
+    border-color: var(--theme-color-accent, #0066cc);
+    background-color: #f8fafc;
 }
-.bx-soa-pickup-list .bx-soa-pickup-list-item:last-child {border-bottom: 1px solid #dcdfe2;}
+
+.bx-soa-pickup-list-item .radio__visual {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    margin-top: 2px;
+}
+
+.bx-soa-pickup-list-item.bx-selected .radio__visual {
+    border-color: var(--theme-color-accent, #0066cc);
+    background: radial-gradient(circle, var(--theme-color-accent, #0066cc) 0%, var(--theme-color-accent, #0066cc) 40%, transparent 45%);
+}
+
+.bx-soa-pickup-l-item-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--theme-color-text-common, #333);
+    flex: 1;
+}
+
+.bx-soa-pickup-l-item-detail.no-image {
+    padding-left: 0;
+}
+
+.title-address {
+    font-weight: 600;
+    white-space: unset;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
 
 .bx-soa-pickup-l-item-desc {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-weight: 400;
     font-size: 14px;
-    line-height: 1.5;
+    white-space: unset;
 }
 
-.bx-soa-pickup-l-item-adress {
-    font-size: 18px;
-    font-weight: 700;
-    /*padding-left: 15px;*/
+.bx-soa-pickup-l-item-desc .contact__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
 }
 
-.bx-soa-pickup-l-item-adress:before {
-    /*
-    height: 17px;
-    width: 18px;
-    content: "";
-    top: 50%;
-    left: -5px;
-    margin-top: -8px;
-    position: absolute;
-    background: url(images/sprite.png) no-repeat center -54px;
-    */
+.bx-soa-pickup-l-item-desc .contact__item svg {
+    flex-shrink: 0;
+    margin-top: 2px;
 }
-.bx-soa-pickup-list-item .bx-soa-pickup-l-item-detail {
-    /*padding-top: 20px;*/
-    display: none;
-    padding-top: 10px;
-}
-.bx-soa-pickup-list-item.bx-selected .bx-soa-pickup-l-item-detail {display: block;}
-.bx-soa-pickup-l-item-detail {
-    /*padding-left: 100px;*/
-    position: relative;
-    /*min-height: 80px;*/
-}
-.bx-soa-pickup-l-item-detail.no-image {padding-left: 20px;}
-.bx-soa-pickup-l-item-btn {
-    /*
-    position: absolute;
-    right: 0;
-    top: 50%;
-    margin-top: -17px;
-    */
-    display: none;
-}
-.bx-soa-pickup-list-item.bx-selected .bx-soa-pickup-l-item-btn {
-    display: block;
-    /*padding-left: 100px;*/
-    padding-top: 10px;
-    float: none;
-    position: relative;
-    top: auto;
-    right: auto;
-    margin-top: 0;
-}
-.bx-soa-pickup-list-item.bx-selected .bx-soa-pickup-l-item-btn.no-image {padding-left: 20px;}
-.bx-soa-pickup-l-item-name {
-    font-weight: var(--ui-font-weight-bold);
-    display: none;
-}
-.bx-soa-pickup-l-item-img {
-    position: absolute;
-    top: 23px;
-    left: 0;
-    max-width: 90px;
-    max-height: 90px;
-    height: auto;
-    width: auto;
+
+.bx-soa-pickup-l-item-desc .contact__item span {
+    word-break: break-word;
 }
 
 .bx-soa-pp-desc-container {
@@ -569,4 +596,8 @@
 
 .order-products__spec div {
     display: inline;
+}
+
+.form-group1__margin_title {
+    margin-top: 40px;
 }

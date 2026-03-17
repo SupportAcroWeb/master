@@ -55,6 +55,38 @@ class AdminMenuHelper
                     );
                 }
 
+                $moduleID4Url = 'acroweb_helper';
+                $arMenuStore = array(
+                    'menu_id' => 'global_menu_acroweb_helper',
+                    'text' => 'Склады',
+                    'title' => 'Настройка помощника',
+                    'sort' => 1,
+                    'items_id' => 'global_menu_acroweb_helper_items',
+                    'icon' => 'sale_menu_icon_store',
+                    'page_icon' => 'acroweb_helper_page_icon',
+                    'items' => array(
+                        array(
+                            'text' => 'Список складов',
+                            'title' => 'Список складов',
+                            'sort' => 20,
+                            'url' => '/bitrix/admin/' . $moduleID4Url . '_edit_stores.php?lang=' . LANGUAGE_ID,
+                            'icon' => 'iblock_menu_icon_types',
+                            'page_icon' => 'iblock_page_icon_types',
+                            'items_id' => 'store_list',
+                        ),
+                        array(
+                            'text' => 'Управление списком складов',
+                            'title' => 'Управление списком складов',
+                            'sort' => 20,
+                            'url' => '/bitrix/admin/' . $moduleID4Url . '_edit_store.php?lang=' . LANGUAGE_ID,
+                            'icon' => 'adm-menu-setting',
+                            'page_icon' => 'adm-menu-setting',
+                            'items_id' => 'settings',
+                        ),
+                    ),
+                );
+
+                $arGlobalMenu['global_menu_store']['items'][$moduleID] = $arMenuStore;
                 $arGlobalMenu['global_menu_acroweb']['items'][$moduleID] = $arMenu;
             }
         }

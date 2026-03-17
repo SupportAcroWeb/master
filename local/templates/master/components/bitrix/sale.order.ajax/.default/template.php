@@ -309,22 +309,12 @@ if ((string)$request->get('ORDER_ID') !== '') {
 
                 <div class="columns-grid2__content-inner">
                     <div class="container-grid1">
-                        <!--	BUYER BLOCK	-->
-                        <div class="block-order__column container-grid1__row border-container" data-props-group="buyer">
-                            <div class="block-order__title">
-                                данные покупателя
-                            </div>
-                            <div class="form">
-                                <div class="form-grid1">
-                                </div>
-                            </div>
-                        </div>
 
                         <div class="block-order__column container-grid1__row border-container">
                             <h2 class="title2 title">Способ доставки</h2>
                             <!--	DELIVERY BLOCK	-->
                             <div id="bx-soa-delivery" data-visited="false"
-                                 class="container-grid1__body bx-soa-section bx-active bx-selected" <?= ($hideDelivery ? 'style="display:none"' : '') ?>>
+                                 class="container-grid1__inner container-grid1__body bx-soa-section bx-active bx-selected" <?= ($hideDelivery ? 'style="display:none"' : '') ?>>
                                 <div class="bx-soa-section-title-container">
                                     <div class="col-xs-12 col-sm-3 text-right"><a href=""
                                                                                   class="bx-soa-editstep"><?= $arParams['MESS_EDIT'] ?></a>
@@ -333,24 +323,17 @@ if ((string)$request->get('ORDER_ID') !== '') {
                                 <div class="bx-soa-section-content container-fluid"></div>
                             </div>
                             <!--	PICKUP BLOCK	-->
-                            <div id="bx-soa-pickup" data-visited="false" class="bx-soa-section" style="display:none">
-                                <div class="bx-soa-section-title-container">
+                            <div id="bx-soa-pickup" data-visited="false" class="bx-soa-section self-delivery-block" style="display:none">
+                                <p class="desk">Выберите пункт самовывоза:</p>
+                                <div class="bx-soa-section-title-container" style="display:none">
+                                    <h2 class="bx-soa-section-title col-sm-9">
+                                        <span class="bx-soa-section-title-count"></span>
+                                    </h2>
                                     <div class="col-xs-12 col-sm-3 text-right"><a href=""
                                                                                   class="bx-soa-editstep"><?= $arParams['MESS_EDIT'] ?></a>
                                     </div>
                                 </div>
                                 <div class="bx-soa-section-content container-fluid"></div>
-                            </div>
-
-                            <!--	ADDRESS BLOCK	-->
-                            <div class="addres-block-order courier-delivery _active" data-props-group="address">
-                                <div class="addres-block-order__title">
-                                    Адрес доставки
-                                </div>
-                                <div class="form">
-                                    <div class="form-grid1">
-                                    </div>
-                                </div>
                             </div>
 
                             <!--	EXTERNAL DELIVERY BLOCK	-->
@@ -365,9 +348,7 @@ if ((string)$request->get('ORDER_ID') !== '') {
                         </div>
 
                         <div class="block-order__column container-grid1__row border-container">
-                            <div class="block-order__title">
-                                способы оплаты
-                            </div>
+                            <h2 class="title2 title">Способ оплаты</h2>
                             <!--	PAY SYSTEMS BLOCK	-->
                             <div id="bx-soa-paysystem" data-visited="false" class="bx-soa-section bx-active">
                                 <div class="bx-soa-section-title-container">
@@ -379,25 +360,36 @@ if ((string)$request->get('ORDER_ID') !== '') {
                             </div>
                         </div>
 
-                        <!--	BUYER PROPS BLOCK	-->
-                        <div id="bx-soa-properties" data-visited="false"
-                             class="bx-soa-section bx-active container-grid1__row border-container">
-                            <div class="bx-soa-section-title-container">
-                                <div class="col-xs-12 col-sm-3 text-right"><a href=""
-                                                                              class="bx-soa-editstep"><?= $arParams['MESS_EDIT'] ?></a>
+                        <!--	BUYER BLOCK	-->
+                        <div class="block-order__column container-grid1__row border-container" data-props-group="buyer">
+                            <div class="container-grid1__inner">
+                                <h2 class="title2 title">Покупатель</h2>
+                                <div class="form">
+                                    <div class="form-grid1">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="bx-soa-section-content container-fluid"></div>
-                        </div>
 
-                        <!--	ADDITIONAL BLOCK	-->
-                        <div class="block-order__column container-grid1__row border-container"
-                             data-props-group="additional">
-                            <div class="block-order__title">
-                                дополнительная информация
-                            </div>
-                            <div class="form">
-                                <div class="form-grid1">
+                                <!--	ADDRESS BLOCK	-->
+                                <div class="addres-block-order courier-delivery _active" data-props-group="address">
+                                    <p class="form-group1__title form-group1__margin_title title3">
+                                        <b>Адрес доставки:</b>
+                                    </p>
+                                    <div class="form">
+                                        <div class="form-grid1">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--	ADDITIONAL BLOCK	-->
+                                <div class="block-order__column"
+                                     data-props-group="additional">
+                                    <p class="form-group1__desk form-group1__margin_title title3">
+                                        <b>Комментарий к заказу:</b>
+                                    </p>
+                                    <div class="form">
+                                        <div class="form-grid1">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -409,6 +401,17 @@ if ((string)$request->get('ORDER_ID') !== '') {
                                 товары в заказе
                             </div>
                             <div class="block-order__cards bx-soa-section-content container-fluid"></div>
+                        </div>
+
+                        <!--	BUYER PROPS BLOCK	-->
+                        <div id="bx-soa-properties" data-visited="false"
+                             class="bx-soa-section bx-active">
+                            <div class="bx-soa-section-title-container">
+                                <div class="col-xs-12 col-sm-3 text-right"><a href=""
+                                                                              class="bx-soa-editstep"><?= $arParams['MESS_EDIT'] ?></a>
+                                </div>
+                            </div>
+                            <div class="bx-soa-section-content container-fluid"></div>
                         </div>
 
                         <!--	ORDER SAVE BLOCK	-->
@@ -531,7 +534,7 @@ if ((string)$request->get('ORDER_ID') !== '') {
                 defaultMapPosition: {
                     lat: 55.76,
                     lon: 37.64,
-                    zoom: 7
+                    zoom: 13
                 },
                 secureGeoLocation: false,
                 geoLocationMaxTime: 5000,
@@ -542,7 +545,7 @@ if ((string)$request->get('ORDER_ID') !== '') {
                 defaultMapPosition: {
                     lat: 55.76,
                     lon: 37.64,
-                    zoom: 7
+                    zoom: 13
                 }
             },
             orderBlockId: 'bx-soa-order',
@@ -553,7 +556,8 @@ if ((string)$request->get('ORDER_ID') !== '') {
             deliveryBlockId: 'bx-soa-delivery',
             pickUpBlockId: 'bx-soa-pickup',
             propsBlockId: 'bx-soa-properties',
-            totalBlockId: 'bx-soa-total'
+            totalBlockId: 'bx-soa-total',
+            siteTemplatePath: '<?= CUtil::JSEscape(SITE_TEMPLATE_PATH) ?>'
         });
     </script>
     <script>

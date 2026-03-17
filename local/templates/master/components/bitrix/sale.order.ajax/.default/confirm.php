@@ -133,155 +133,190 @@ if (!empty($arResult["ORDER"])):
         $basketDiscountSum = $basketBasePrice - $basketPrice;
         $deliveryPrice = $order->getDeliveryPrice();
         $totalPrice = $order->getPrice();
+        $personalOrdersUrl = $arParams['PATH_TO_PERSONAL'] ?? '/personal/';
+        $personalOrdersUrl = rtrim($personalOrdersUrl, '/') . '/moi-zakazy/detail/' . $arResult["ORDER"]["ACCOUNT_NUMBER"] . '/';
         ?>
 
-<div class="block-order block-order-info">
-    <div class="container">
-        <div class="heading-cols1">
-            <h1 class="title2">заказ успешно оформлен</h1>
-            <p>
-                Номер Вашего заказа <span><?= htmlspecialcharsbx($arResult["ORDER"]["ACCOUNT_NUMBER"]) ?></span>. За ходом выполнения заказа можно следить в
-                разделе личного кабинета <a href="/personal/moi-zakazy/">«Мои заказы»</a>
-            </p>
-        </div>
-    </div>
-    <div class="container container_bordered1">
-        <div class="block-order__content">
-            <div class="block-order__body block1">
-                
-                <!-- Данные покупателя -->
-                <div class="block-order__column">
-                    <div class="block-order__title">
-                        данные покупателя
+<div class="order-header">
+    <h1 class="title3">Заказ успешно оформлен</h1>
+</div>
+<div class="textblock textblock_1">
+    <p>Номер Вашего заказа <a class="primary" href="<?= htmlspecialcharsbx($personalOrdersUrl) ?>"><?= htmlspecialcharsbx($arResult["ORDER"]["ACCOUNT_NUMBER"]) ?></a>. За ходом выполнения заказа можно следить в разделе личного кабинета <a class="primary" href="<?= htmlspecialcharsbx($personalOrdersUrl) ?>">«Мои заказы»</a></p>
+</div>
+<div class="columns-grid2 block-order3">
+    <div class="columns-grid2__content">
+        <div class="columns-grid2__content-inner">
+            <div class="container-grid1">
+                <!-- Способ доставки -->
+                <div class="container-grid1__row_2 border-container">
+                    <h2 class="title2 title">Способ доставки</h2>
+                    <div class="container-grid1__body">
+                        <div class="form-grid1">
+                            <div class="form-grid1__row">
+                                <div class="card-richbox">
+                                    <div class="card-richbox__inner">
+                                        <div class="card-richbox__col1">
+                                            <span class="card-richbox__img">
+                                                <?php
+                                                $deliveryName = $shipment ? $shipment->getDeliveryName() : '';
+                                                $deliveryIcon = (stripos((string)$deliveryName, 'самовывоз') !== false)
+                                                    ? SITE_TEMPLATE_PATH . '/img/pickup.svg'
+                                                    : SITE_TEMPLATE_PATH . '/img/delivery.svg';
+                                                ?>
+                                                <img src="<?= htmlspecialcharsbx($deliveryIcon) ?>" alt="">
+                                            </span>
+                                            <span class="card-richbox__visual card-richbox__checkout"></span>
+                                        </div>
+                                        <div class="card-richbox__col2">
+                                            <div class="card-richbox__l">
+                                                <span class="card-richbox__label1"><?= $shipment ? htmlspecialcharsbx($shipment->getDeliveryName()) : '' ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <ul class="block-order__details">
-                        <?php if (!empty($properties['FIO'])): ?>
-                        <li>
-                            <span>ФИО:</span> <?= htmlspecialcharsbx($properties['FIO']) ?>
-                        </li>
-                        <?php endif; ?>
-                        <?php if (!empty($properties['PHONE'])): ?>
-                        <li>
-                            <span>Телефон:</span> <?= htmlspecialcharsbx($properties['PHONE']) ?>
-                        </li>
-                        <?php endif; ?>
-                        <?php if (!empty($properties['EMAIL'])): ?>
-                        <li>
-                            <span>E-mail:</span> <?= htmlspecialcharsbx($properties['EMAIL']) ?>
-                        </li>
-                        <?php endif; ?>
-                    </ul>
                 </div>
 
-                <!-- Блок данных организации убран для сайта master.bitrix.space -->
-
-                <!-- Способы доставки и адрес -->
-                <div class="block-order__grid">
-                    <div class="block-order__row">
-                        <div class="block-order__title">
-                            способы доставки
-                        </div>
-                        <div class="checkbox-text">
-                            <div class="checkbox-text__label">
-                                <div class="checkbox-text__titles">
-                                    <div class="checkbox-text__title"><?= $shipment ? htmlspecialcharsbx($shipment->getDeliveryName()) : '' ?></div>
-                                </div>
-                            </div>
-                        </div>
-                        <?php if (!empty($properties['ADDRESS']) || !empty($properties['ENTRANCE']) || !empty($properties['FLOOR']) || !empty($properties['APARTMENT'])): ?>
-                        <div class="addres-block-order _active">
-                            <div class="addres-block-order__title">Адрес доставки</div>
-                            <ul class="block-order__details">
-                                <?php if (!empty($properties['ADDRESS'])): ?>
-                                <li>
-                                    <span>Адрес доставки:</span> <?= htmlspecialcharsbx($properties['ADDRESS']) ?>
-                                </li>
-                                <?php endif; ?>
-                                <?php if (!empty($properties['ENTRANCE'])): ?>
-                                <li>
-                                    <span>Подъезд:</span> <?= htmlspecialcharsbx($properties['ENTRANCE']) ?>
-                                </li>
-                                <?php endif; ?>
-                                <?php if (!empty($properties['FLOOR'])): ?>
-                                <li>
-                                    <span>Этаж:</span> <?= htmlspecialcharsbx($properties['FLOOR']) ?>
-                                </li>
-                                <?php endif; ?>
-                                <?php if (!empty($properties['APARTMENT'])): ?>
-                                <li>
-                                    <span>Квартира:</span> <?= htmlspecialcharsbx($properties['APARTMENT']) ?>
-                                </li>
-                                <?php endif; ?>
-                            </ul>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Способы оплаты -->
-                    <div class="block-order__row">
-                        <div class="block-order__title">
-                            способы оплаты
-                        </div>
-                        <div class="checkbox-text payment">
-                            <div class="checkbox-text__label">
-                                <div class="checkbox-text__titles">
-                                    <div class="checkbox-text__title"><?= htmlspecialcharsbx($paySystemName) ?></div>
-                                </div>
-                            </div>
-                            <?php
-                            // Кнопка оплаты (только для безналичных платежей)
-                            if ($arResult["ORDER"]["IS_ALLOW_PAY"] === 'Y' && $payment && $payment->getField('PAID') != 'Y') {
-                                if (!empty($arResult['PAY_SYSTEM_LIST']) && array_key_exists($payment->getPaymentSystemId(), $arResult['PAY_SYSTEM_LIST'])) {
-                                    $arPaySystem = $arResult['PAY_SYSTEM_LIST_BY_PAYMENT_ID'][$payment->getId()];
-                                    
-                                    if (empty($arPaySystem["ERROR"])) {
-                                        // Проверяем, является ли платеж наличным
-                                        $isCashPayment = (
-                                            (!empty($arPaySystem["IS_CASH"]) && $arPaySystem["IS_CASH"] === 'Y') ||
-                                            (isset($arPaySystem["ACTION_FILE"]) && strpos($arPaySystem["ACTION_FILE"], '/cash') !== false)
-                                        );
-                                        
-                                        if (!$isCashPayment) {
-                                            $orderAccountNumber = urlencode(urlencode($arResult["ORDER"]["ACCOUNT_NUMBER"]));
-                                            $paymentAccountNumber = $payment->getField("ACCOUNT_NUMBER");
-                                            ?>
-                                            <a target="_blank" href="<?= $arParams["PATH_TO_PAYMENT"] ?>?ORDER_ID=<?= $orderAccountNumber ?>&PAYMENT_ID=<?= $paymentAccountNumber ?>" class="btn btn_primary">Выставить счёт</a>
+                <!-- Способ оплаты -->
+                <div class="container-grid1__row_2 border-container">
+                    <h2 class="title2 title">Способ оплаты</h2>
+                    <div class="container-grid1__body">
+                        <div class="form-grid1">
+                            <div class="form-grid1__row">
+                                <div class="card-richbox">
+                                    <div class="card-richbox__inner">
+                                        <div class="card-richbox__col1">
+                                            <span class="card-richbox__img">
+                                                <?php
+                                                $paySystemIcon = SITE_TEMPLATE_PATH . '/img/cards.svg';
+                                                if ($payment && !empty($arResult['PAY_SYSTEM_LIST_BY_PAYMENT_ID'][$payment->getId()])) {
+                                                    $arPaySystemLogo = $arResult['PAY_SYSTEM_LIST_BY_PAYMENT_ID'][$payment->getId()];
+                                                    if (!empty($arPaySystemLogo['LOGOTIP']['SRC'])) {
+                                                        $paySystemIcon = $arPaySystemLogo['LOGOTIP']['SRC'];
+                                                    } elseif (!empty($arPaySystemLogo['PSA_LOGOTIP_SRC'])) {
+                                                        $paySystemIcon = $arPaySystemLogo['PSA_LOGOTIP_SRC'];
+                                                    } elseif (!empty($arPaySystemLogo['LOGOTIP_SRC'])) {
+                                                        $paySystemIcon = $arPaySystemLogo['LOGOTIP_SRC'];
+                                                    } elseif (
+                                                        (!empty($arPaySystemLogo['IS_CASH']) && $arPaySystemLogo['IS_CASH'] === 'Y') ||
+                                                        (isset($arPaySystemLogo['ACTION_FILE']) && strpos($arPaySystemLogo['ACTION_FILE'], '/cash') !== false)
+                                                    ) {
+                                                        $paySystemIcon = SITE_TEMPLATE_PATH . '/img/cash.svg';
+                                                    }
+                                                }
+                                                ?>
+                                                <img src="<?= htmlspecialcharsbx($paySystemIcon) ?>" alt="<?= htmlspecialcharsbx($paySystemName) ?>">
+                                            </span>
+                                            <span class="card-richbox__visual card-richbox__checkout"></span>
+                                        </div>
+                                        <div class="card-richbox__col2">
+                                            <div class="card-richbox__l">
+                                                <span class="card-richbox__label1"><?= htmlspecialcharsbx($paySystemName) ?></span>
+                                            </div>
                                             <?php
-                                        }
-                                    }
-                                }
-                            }
-                            if ($payment->getField('PAID') == 'Y') { ?>
-                                Оплачен
-                            <?
-                            }
-                            ?>
+                                            if ($arResult["ORDER"]["IS_ALLOW_PAY"] === 'Y' && $payment && $payment->getField('PAID') != 'Y') {
+                                                if (!empty($arResult['PAY_SYSTEM_LIST']) && array_key_exists($payment->getPaymentSystemId(), $arResult['PAY_SYSTEM_LIST'])) {
+                                                    $arPaySystem = $arResult['PAY_SYSTEM_LIST_BY_PAYMENT_ID'][$payment->getId()];
+                                                    if (empty($arPaySystem["ERROR"])) {
+                                                        $isCashPayment = (
+                                                            (!empty($arPaySystem["IS_CASH"]) && $arPaySystem["IS_CASH"] === 'Y') ||
+                                                            (isset($arPaySystem["ACTION_FILE"]) && strpos($arPaySystem["ACTION_FILE"], '/cash') !== false)
+                                                        );
+                                                        if (!$isCashPayment) {
+                                                            $orderAccountNumber = urlencode(urlencode($arResult["ORDER"]["ACCOUNT_NUMBER"]));
+                                                            $paymentAccountNumber = $payment->getField("ACCOUNT_NUMBER");
+                                                            ?>
+                                                            <a target="_blank" href="<?= $arParams["PATH_TO_PAYMENT"] ?>?ORDER_ID=<?= $orderAccountNumber ?>&PAYMENT_ID=<?= $paymentAccountNumber ?>" class="btn btn_primary">Выставить счёт</a>
+                                                            <?php
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if ($payment && $payment->getField('PAID') == 'Y') {
+                                                ?><span class="order-paid">Оплачен</span><?php
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Дополнительная информация -->
-                <?php if (!empty($properties['DESCRIPTION'])): ?>
-                <div class="block-order__column">
-                    <div class="block-order__title">
-                        дополнительная информация
+                <!-- Покупатель и адрес -->
+                <div class="container-grid1__row border-container">
+                    <div class="order-list">
+                        <h2 class="title3">Покупатель</h2>
+                        <table class="info-table">
+                            <tbody>
+                            <?php if (!empty($properties['FIO'])): ?>
+                            <tr>
+                                <td class="label">Ф.И.О.</td>
+                                <td class="value"><?= htmlspecialcharsbx($properties['FIO']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($properties['EMAIL'])): ?>
+                            <tr>
+                                <td class="label">E-mail</td>
+                                <td class="value"><?= htmlspecialcharsbx($properties['EMAIL']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($properties['PHONE'])): ?>
+                            <tr>
+                                <td class="label">Телефон</td>
+                                <td class="value"><?= htmlspecialcharsbx($properties['PHONE']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($properties['ADDRESS']) || !empty($properties['ENTRANCE']) || !empty($properties['FLOOR']) || !empty($properties['APARTMENT'])): ?>
+                            <tr class="section-header">
+                                <td colspan="2"><strong>Адрес доставки:</strong></td>
+                            </tr>
+                            <?php if (!empty($properties['ADDRESS'])): ?>
+                            <tr>
+                                <td class="label">Адрес</td>
+                                <td class="value"><?= htmlspecialcharsbx($properties['ADDRESS']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($properties['ENTRANCE'])): ?>
+                            <tr>
+                                <td class="label">Подъезд</td>
+                                <td class="value"><?= htmlspecialcharsbx($properties['ENTRANCE']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($properties['FLOOR'])): ?>
+                            <tr>
+                                <td class="label">Этаж</td>
+                                <td class="value"><?= htmlspecialcharsbx($properties['FLOOR']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($properties['APARTMENT'])): ?>
+                            <tr>
+                                <td class="label">Квартира</td>
+                                <td class="value"><?= htmlspecialcharsbx($properties['APARTMENT']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php endif; ?>
+                            <?php if (!empty($properties['DESCRIPTION'])): ?>
+                            <tr class="section-header">
+                                <td colspan="2"><strong>Комментарий к заказу:</strong></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><?= htmlspecialcharsbx($properties['DESCRIPTION']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
-                    <ul class="block-order__details">
-                        <?php if (!empty($properties['DESCRIPTION'])): ?>
-                        <li>
-                            <span>Комментарий к заказу:</span> <?= htmlspecialcharsbx($properties['DESCRIPTION']) ?>
-                        </li>
-                        <?php endif; ?>
-                    </ul>
                 </div>
-                <?php endif; ?>
 
                 <!-- Товары в заказе -->
-                <div class="block-order__column">
-                    <div class="block-order__title">
-                        товары в заказе
-                    </div>
-                    <div class="block-order__cards">
+                <div class="container-grid1__row border-container order-products">
+                    <h2 class="title2 title">Товары в заказе</h2>
+                    <table class="order-products__table">
+                        <tbody class="order-products__body">
                         <?php foreach ($basketItems as $item):
                             $productId = $item->getProductId();
                             $linkedProductId = $productLinks[$productId] ?? $productId;
@@ -292,86 +327,94 @@ if (!empty($arResult["ORDER"])):
                             $sum = $price * $quantity;
                             $measureName = $item->getField('MEASURE_NAME') ?: 'шт.';
                             $isPriceZero = (float)$price <= 0;
+                            $canBuy = $item->getField('CAN_BUY') === 'Y' || $item->getField('CAN_BUY') === true;
+                            $itemProps = [];
+                            $allowedPropCodes = ['WIDTH', 'HEIGHT'];
+                            foreach ($item->getPropertyCollection() as $prop) {
+                                $propCode = $prop->getField('CODE');
+                                if (!in_array((string)$propCode, $allowedPropCodes, true)) {
+                                    continue;
+                                }
+                                $propName = $prop->getField('NAME');
+                                $propValue = $prop->getField('VALUE');
+                                if ($propName !== null && $propName !== '' && $propValue !== null && $propValue !== '') {
+                                    $itemProps[] = ['NAME' => $propName, 'VALUE' => $propValue];
+                                }
+                            }
                             ?>
-                        <div class="card-product3 card-product4">
-                            <div class="card-product3__col-photo">
-                                <a href="<?= htmlspecialcharsbx($item->getField('DETAIL_PAGE_URL')) ?>">
-                                    <img src="<?= htmlspecialcharsbx($imagePath) ?>" alt="<?= htmlspecialcharsbx($item->getField('NAME')) ?>">
-                                </a>
-                            </div>
-                            <div class="card-product3__col-data">
-                                <div class="card-product3__name">
+                        <tr class="order-products__item">
+                            <td class="order-products__cell order-products__cell--preview">
+                                <div class="order-products__preview">
+                                    <a href="<?= htmlspecialcharsbx($item->getField('DETAIL_PAGE_URL')) ?>">
+                                        <img alt="<?= htmlspecialcharsbx($item->getField('NAME')) ?>" src="<?= htmlspecialcharsbx($imagePath) ?>">
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="order-products__cell order-products__cell--info">
+                                <div class="order-products__name">
                                     <a href="<?= htmlspecialcharsbx($item->getField('DETAIL_PAGE_URL')) ?>"><?= htmlspecialcharsbx($item->getField('NAME')) ?></a>
                                 </div>
-                            </div>
-                            <div class="card-product3__col1"<?= $isPriceZero ? ' style="display: none;"' : '' ?>>
-                                <div>
-                                    <div class="card-product3__label1">С НДС (1 <?= htmlspecialcharsbx($measureName) ?>)</div>
-                                    <span class="card-product3__price1"><?= number_format($price, 0, '', ' ') ?> ₽</span>
-                                    <?php if ($basePrice > $price): ?>
-                                    <span class="card-product3__price2"><?= number_format($basePrice, 0, '', ' ') ?> ₽</span>
-                                    <?php endif; ?>
+                                <?php if (!empty($itemProps)): ?>
+                                <div class="order-products__parameters">
+                                    <div class="order-products__specs">
+                                        <?php foreach ($itemProps as $prop): ?>
+                                        <div class="order-products__spec"><?= htmlspecialcharsbx($prop['NAME']) ?><span><?= htmlspecialcharsbx($prop['VALUE']) ?></span></div>
+                                        <?php endforeach; ?>
+                                    </div>
                                 </div>
-                            </div>
-                            <?php if ($isPriceZero): ?>
-                            <div class="card-product3__col1">
-                                <div>
-                                    <div class="card-product3__label1">С НДС (1 <?= htmlspecialcharsbx($measureName) ?>)</div>
-                                    <span class="card-product3__price1 no_price">Цена по запросу</span>
+                                <?php endif; ?>
+                                <div class="order-products__status <?= $canBuy ? 'instock' : 'outofstock' ?>"><?= $canBuy ? 'В наличии' : 'Нет в наличии' ?></div>
+                            </td>
+                            <td class="order-products__cell order-products__cell--qty">
+                                <div class="order-products__quantity">
+                                    <div class="order-products__price-per-unit"><?= $quantity ?> <?= htmlspecialcharsbx($measureName) ?></div>
                                 </div>
-                            </div>
-                            <?php endif; ?>
-                            <div class="card-product3__col3">
-                                <span><?= $quantity ?> <?= htmlspecialcharsbx($measureName) ?></span>
-                            </div>
-                            <div class="card-product3__col2"<?= $isPriceZero ? ' style="display: none;"' : '' ?>>
-                                <div>
-                                    <span>На сумму</span>
-                                    <span class="card-product3__price3"><?= number_format($sum, 0, '', ' ') ?> ₽</span>
-                                </div>
-                            </div>
-                            <?php if ($isPriceZero): ?>
-                            <div class="card-product3__col2">
-                                <div>
-                                    <span class="card-product3__price3 no_price">Цена по запросу</span>
-                                </div>
-                            </div>
-                            <?php endif; ?>
-                        </div>
+                            </td>
+                            <td class="order-products__cell order-products__cell--price">
+                                <?php if ($isPriceZero): ?>
+                                <div class="order-products__price2">Цена по запросу</div>
+                                <?php else: ?>
+                                <?php if ($basePrice > $price): ?>
+                                <div class="order-products__price1"><?= number_format($basePrice, 0, '', ' ') ?>&nbsp;₽</div>
+                                <?php endif; ?>
+                                <div class="order-products__price2"><?= number_format($sum, 0, '', ' ') ?>&nbsp;₽</div>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
                         <?php endforeach; ?>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Детали заказа -->
-            <div class="details-block-cart">
-                <div class="details-block-cart__sticky">
-                    <div class="details-block-cart__list">
-                        <div class="details-block-cart__title">
-                            Ваш заказ
-                        </div>
-                        <div class="details-block-cart__item">
-                            <div class="details-block-cart__product">Товары, <?= count($basketItems) ?> шт.</div>
-                            <div class="details-block-cart__cost"><?= number_format($basketBasePrice, 0, '', ' ') ?> ₽</div>
-                        </div>
-                        <?php if ($basketDiscountSum > 0): ?>
-                        <div class="details-block-cart__item sale">
-                            <div class="details-block-cart__product">Скидка</div>
-                            <div class="details-block-cart__cost">-<?= number_format($basketDiscountSum, 0, '', ' ') ?> ₽</div>
-                        </div>
-                        <?php endif; ?>
-                        <?php if ($deliveryPrice > 0): ?>
-                        <div class="details-block-cart__item delivery">
-                            <div class="details-block-cart__product">Доставка</div>
-                            <div class="details-block-cart__cost"><?= number_format($deliveryPrice, 0, '', ' ') ?> ₽</div>
-                        </div>
-                        <?php endif; ?>
+    <div class="columns-grid2__aside">
+        <div class="order-summary">
+            <h2 class="order-summary__title">Детали заказа</h2>
+            <div class="order-summary__inner">
+                <div class="order-summary__row">
+                    <div class="order-summary__info order-summary__row_prise">
+                        <span class="order-summary__label">Товары, <?= count($basketItems) ?> шт.</span>
+                        <span class="order-summary__value"><?= number_format($basketBasePrice, 0, '', ' ') ?> <span class="rub">₽</span></span>
                     </div>
-                    <div class="details-block-cart__totals">
-                        <div class="details-block-cart__title">Сумма заказа:</div>
-                        <div class="details-block-cart__summ"><?= number_format($totalPrice, 0, '', ' ') ?> ₽</div>
+                    <?php if ($basketDiscountSum > 0): ?>
+                    <div class="order-summary__info order-summary__row_old-prise">
+                        <span class="order-summary__label">Скидка</span>
+                        <span class="order-summary__value order-summary__value_discount">-<?= number_format($basketDiscountSum, 0, '', ' ') ?> ₽</span>
                     </div>
+                    <?php endif; ?>
+                    <?php if ($deliveryPrice > 0): ?>
+                    <div class="order-summary__info order-summary__row_delivery">
+                        <span class="order-summary__label">Доставка</span>
+                        <span class="order-summary__value"><?= number_format($deliveryPrice, 0, '', ' ') ?> <span class="rub">₽</span></span>
+                    </div>
+                    <?php endif; ?>
                 </div>
+            </div>
+            <div class="order-summary__total">
+                <span class="order-summary__total-label">Итого:</span>
+                <span class="order-summary__total-value"><?= number_format($totalPrice, 0, '', ' ') ?> <span class="rub">₽</span></span>
             </div>
         </div>
     </div>

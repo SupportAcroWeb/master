@@ -10,7 +10,6 @@ BX.namespace('BX.Sale.OrderAjaxComponent.Maps');
 			this.pickUpOptions = this.context.options.pickUpMap;
 			this.propsOptions = this.context.options.propertyMap;
 			this.maxWaitTimeExpired = false;
-
 			return this;
 		},
 
@@ -18,7 +17,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent.Maps');
 		{
 			if (!ymaps)
 				return;
-
+			console.log(this.pickUpOptions);
 			this.pickUpMap = new ymaps.Map('pickUpMap', {
 				center: !!selected
 					? [selected.GPS_N, selected.GPS_S]
@@ -50,7 +49,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent.Maps');
 
 		setPickUpMapFocus: function()
 		{
-			var bounds, diff0, diff1, minZoom = 13;
+			var bounds, diff0, diff1;
 
 			bounds = this.pickUpMap.geoObjects.getBounds();
 			if (bounds && bounds.length)
@@ -64,8 +63,6 @@ BX.namespace('BX.Sale.OrderAjaxComponent.Maps');
 				bounds[1][1] += diff1/10;
 
 				this.pickUpMap.setBounds(bounds, {checkZoomRange: true});
-				if (this.pickUpMap.getZoom() < minZoom)
-					this.pickUpMap.setZoom(minZoom);
 			}
 		},
 
@@ -74,9 +71,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent.Maps');
 			if (!ymaps)
 				return;
 
-			var provider = this.pickUpOptions.secureGeoLocation && BX.browser.IsChrome() && !this.context.isHttps
-				? 'yandex'
-				: 'auto';
+			var provider ='yandex';
 			var maxTime = this.pickUpOptions.geoLocationMaxTime || 5000;
 
 			ymaps.geolocation.get({
@@ -134,7 +129,8 @@ BX.namespace('BX.Sale.OrderAjaxComponent.Maps');
 					balloonContentLayout: ymaps.templateLayoutFactory.createClass(
 						'<h3>{{ properties.storeTitle }}</h3>' +
 						'{{ properties.storeBody|raw }}' +
-						'<br /><a class="btn btn-sm btn-default" data-store="{{ properties.id }}">{{ properties.text }}</a>',
+						//'<br /><a class="btn btn-sm btn-default" data-store="{{ properties.id }}">{{ properties.text }}</a>',
+						'',
 						{
 							build: function() {
 								this.constructor.superclass.build.call(this);
@@ -159,6 +155,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent.Maps');
 								}
 
 								that.context.selectStore(target.getAttribute('data-store'));
+								that.context.clickNextAction(e);
 								that.pickUpMap.balloon.close();
 							}
 						}

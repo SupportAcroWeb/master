@@ -1,5 +1,5 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 /** @var array $arCurrentValues */
 
@@ -11,7 +11,8 @@ if (!Loader::includeModule('sale'))
 	return;
 
 $arThemes = array();
-if ($eshop = \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix.eshop')) {
+if ($eshop = \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix.eshop'))
+{
 	$arThemes['site'] = GetMessage('THEME_SITE');
 }
 $arThemesList = array(
@@ -20,111 +21,18 @@ $arThemesList = array(
 	'red' => GetMessage('THEME_RED'),
 	'yellow' => GetMessage('THEME_YELLOW')
 );
-$dir = $_SERVER["DOCUMENT_ROOT"] . "/bitrix/css/main/themes/";
-if (is_dir($dir)) {
-    foreach ($arThemesList as $themeID => $themeName) {
-        if (!is_file($dir . $themeID . '/style.css'))
+$dir = $_SERVER["DOCUMENT_ROOT"]."/bitrix/css/main/themes/";
+if (is_dir($dir))
+{
+	foreach ($arThemesList as $themeID => $themeName)
+	{
+		if (!is_file($dir.$themeID.'/style.css'))
 			continue;
 		$arThemes[$themeID] = $themeName;
 	}
 }
 
-
-// Список групп свойств заказа по всем типам плательщиков
-$arPropertyGroups = array();
-$arPaySystems = array();
-
-if (Loader::includeModule('sale')) {
-    // Платёжные системы
-    $paySystemRes = \Bitrix\Sale\PaySystem\Manager::getList([
-        'select' => ['ID', 'NAME'],
-        'filter' => ['ACTIVE' => 'Y'],
-        'order' => ['SORT' => 'ASC', 'NAME' => 'ASC']
-    ]);
-    while ($paySystem = $paySystemRes->fetch()) {
-        $arPaySystems[$paySystem['ID']] = '[' . $paySystem['ID'] . '] ' . $paySystem['NAME'];
-    }
-
-    // Названия типов плательщиков
-    $personTypeNames = array();
-    $personTypeRes = \Bitrix\Sale\PersonType::getList([
-        'select' => ['ID', 'NAME'],
-        'filter' => ['ACTIVE' => 'Y'],
-        'order' => ['SORT' => 'ASC', 'NAME' => 'ASC']
-    ]);
-    while ($pt = $personTypeRes->fetch()) {
-        $personTypeNames[(int)$pt['ID']] = $pt['NAME'];
-    }
-
-    // Все группы свойств заказа по всем типам плательщиков
-    $groupRes = \Bitrix\Sale\Internals\OrderPropsGroupTable::getList([
-        'select' => ['ID', 'NAME', 'PERSON_TYPE_ID'],
-        'filter' => [],
-        'order' => ['PERSON_TYPE_ID' => 'ASC', 'SORT' => 'ASC', 'ID' => 'ASC']
-    ]);
-    while ($group = $groupRes->fetch()) {
-        $ptName = isset($personTypeNames[(int)$group['PERSON_TYPE_ID']])
-            ? $personTypeNames[(int)$group['PERSON_TYPE_ID']]
-            : 'ID ' . $group['PERSON_TYPE_ID'];
-        $arPropertyGroups[$group['ID']] = '[' . $group['ID'] . '] ' . $group['NAME'] . ' (' . $ptName . ')';
-    }
-}
-
 $arTemplateParameters = array(
-    "BUYER_PROPS_GROUP_ID" => array(
-        "NAME" => "Группа свойств для блока 'Данные покупателя'",
-        "TYPE" => "LIST",
-        "VALUES" => $arPropertyGroups,
-        "MULTIPLE" => "Y",
-        "SIZE" => 5,
-        "DEFAULT" => array(),
-        "PARENT" => "BASE"
-    ),
-    "ORGANIZATION_PROPS_GROUP_ID" => array(
-        "NAME" => "Группа свойств для блока 'Данные организации'",
-        "TYPE" => "LIST",
-        "VALUES" => $arPropertyGroups,
-        "MULTIPLE" => "Y",
-        "SIZE" => 5,
-        "DEFAULT" => array(),
-        "PARENT" => "BASE"
-    ),
-    "ADDRESS_PROPS_GROUP_ID" => array(
-        "NAME" => "Группа свойств для блока 'Адрес доставки'",
-        "TYPE" => "LIST",
-        "VALUES" => $arPropertyGroups,
-        "MULTIPLE" => "Y",
-        "SIZE" => 5,
-        "DEFAULT" => array(),
-        "PARENT" => "BASE"
-    ),
-    "ADDITIONAL_PROPS_GROUP_ID" => array(
-        "NAME" => "Группа свойств для блока 'Дополнительная информация'",
-        "TYPE" => "LIST",
-        "VALUES" => $arPropertyGroups,
-        "MULTIPLE" => "Y",
-        "SIZE" => 5,
-        "DEFAULT" => array(),
-        "PARENT" => "BASE"
-    ),
-    "EXTERNAL_DELIVERY_PROPS_GROUP_ID" => array(
-        "NAME" => "Группа свойств для блока 'Данные сторонних доставок'",
-        "TYPE" => "LIST",
-        "VALUES" => $arPropertyGroups,
-        "MULTIPLE" => "Y",
-        "SIZE" => 5,
-        "DEFAULT" => array(),
-        "PARENT" => "BASE"
-    ),
-    "RESTRICTED_PAY_SYSTEMS" => array(
-        "NAME" => "Платёжные системы, скрываемые для неодобренных организаций",
-        "TYPE" => "LIST",
-        "VALUES" => $arPaySystems,
-        "MULTIPLE" => "Y",
-        "SIZE" => 5,
-        "DEFAULT" => array(),
-        "PARENT" => "BASE"
-    ),
 	"TEMPLATE_THEME" => array(
 		"NAME" => GetMessage("TEMPLATE_THEME"),
 		"TYPE" => "LIST",
@@ -267,7 +175,7 @@ $arTemplateParameters = array(
 		"DEFAULT" => "yandex",
 		"PARENT" => "VISUAL"
 	),
-    "SERVICES_IMAGES_SCALING" => array(
+	"SERVICES_IMAGES_SCALING" =>  array(
 		"NAME" => GetMessage("SERVICES_IMAGES_SCALING"),
 		"TYPE" => "LIST",
 		"VALUES" => array(
@@ -330,7 +238,8 @@ $arTemplateParameters = array(
 	)
 );
 
-if (!isset($arCurrentValues['SHOW_COUPONS']) || $arCurrentValues['SHOW_COUPONS'] === 'Y') {
+if (!isset($arCurrentValues['SHOW_COUPONS']) || $arCurrentValues['SHOW_COUPONS'] === 'Y')
+{
 	$arTemplateParameters["SHOW_COUPONS_BASKET"] = [
 		"NAME" => GetMessage("SHOW_COUPONS_BASKET"),
 		"TYPE" => "CHECKBOX",
@@ -354,7 +263,8 @@ if (!isset($arCurrentValues['SHOW_COUPONS']) || $arCurrentValues['SHOW_COUPONS']
 	];
 }
 
-if (isset($arCurrentValues['USE_YM_GOALS']) && $arCurrentValues['USE_YM_GOALS'] === 'Y') {
+if (isset($arCurrentValues['USE_YM_GOALS']) && $arCurrentValues['USE_YM_GOALS'] === 'Y')
+{
 	$arTemplateParameters["YM_GOALS_COUNTER"] = array(
 		"NAME" => GetMessage("YM_GOALS_COUNTER"),
 		"TYPE" => "STRING",
@@ -455,51 +365,61 @@ $arTemplateParameters['USE_ENHANCED_ECOMMERCE'] = array(
 	'DEFAULT' => 'N'
 );
 
-if (isset($arCurrentValues['USE_ENHANCED_ECOMMERCE']) && $arCurrentValues['USE_ENHANCED_ECOMMERCE'] === 'Y') {
-    if (Loader::includeModule('catalog')) {
+if (isset($arCurrentValues['USE_ENHANCED_ECOMMERCE']) && $arCurrentValues['USE_ENHANCED_ECOMMERCE'] === 'Y')
+{
+	if (Loader::includeModule('catalog'))
+	{
 		$arIblockIDs = array();
 		$arIblockNames = array();
 		$catalogIterator = Catalog\CatalogIblockTable::getList(array(
 			'select' => array('IBLOCK_ID', 'NAME' => 'IBLOCK.NAME'),
 			'order' => array('IBLOCK_ID' => 'ASC')
 		));
-        while ($catalog = $catalogIterator->fetch()) {
+		while ($catalog = $catalogIterator->fetch())
+		{
 			$catalog['IBLOCK_ID'] = (int)$catalog['IBLOCK_ID'];
 			$arIblockIDs[] = $catalog['IBLOCK_ID'];
 			$arIblockNames[$catalog['IBLOCK_ID']] = $catalog['NAME'];
 		}
 		unset($catalog, $catalogIterator);
 
-        if (!empty($arIblockIDs)) {
+		if (!empty($arIblockIDs))
+		{
 			$arProps = array();
 			$propertyIterator = Iblock\PropertyTable::getList(array(
 				'select' => array('ID', 'CODE', 'NAME', 'IBLOCK_ID'),
 				'filter' => array('@IBLOCK_ID' => $arIblockIDs, '=ACTIVE' => 'Y', '!=XML_ID' => CIBlockPropertyTools::XML_SKU_LINK),
 				'order' => array('IBLOCK_ID' => 'ASC', 'SORT' => 'ASC', 'ID' => 'ASC')
 			));
-            while ($property = $propertyIterator->fetch()) {
+			while ($property = $propertyIterator->fetch())
+			{
 				$property['ID'] = (int)$property['ID'];
 				$property['IBLOCK_ID'] = (int)$property['IBLOCK_ID'];
 				$property['CODE'] = (string)$property['CODE'];
 
-                if ($property['CODE'] == '') {
+				if ($property['CODE'] == '')
+				{
 					$property['CODE'] = $property['ID'];
 				}
 
-                if (!isset($arProps[$property['CODE']])) {
+				if (!isset($arProps[$property['CODE']]))
+				{
 					$arProps[$property['CODE']] = array(
 						'CODE' => $property['CODE'],
-                        'TITLE' => $property['NAME'] . ' [' . $property['CODE'] . ']',
+						'TITLE' => $property['NAME'].' ['.$property['CODE'].']',
 						'ID' => array($property['ID']),
 						'IBLOCK_ID' => array($property['IBLOCK_ID'] => $property['IBLOCK_ID']),
 						'IBLOCK_TITLE' => array($property['IBLOCK_ID'] => $arIblockNames[$property['IBLOCK_ID']]),
 						'COUNT' => 1
 					);
-                } else {
+				}
+				else
+				{
 					$arProps[$property['CODE']]['ID'][] = $property['ID'];
 					$arProps[$property['CODE']]['IBLOCK_ID'][$property['IBLOCK_ID']] = $property['IBLOCK_ID'];
 
-                    if ($arProps[$property['CODE']]['COUNT'] < 2) {
+					if ($arProps[$property['CODE']]['COUNT'] < 2)
+					{
 						$arProps[$property['CODE']]['IBLOCK_TITLE'][$property['IBLOCK_ID']] = $arIblockNames[$property['IBLOCK_ID']];
 					}
 
@@ -509,14 +429,16 @@ if (isset($arCurrentValues['USE_ENHANCED_ECOMMERCE']) && $arCurrentValues['USE_E
 			unset($property, $propertyIterator, $arIblockNames, $arIblockIDs);
 
 			$propList = array();
-            foreach ($arProps as $property) {
+			foreach ($arProps as $property)
+			{
 				$iblockList = '';
 
-                if ($property['COUNT'] > 1) {
-                    $iblockList = ($property['COUNT'] > 2 ? ' ( ... )' : ' (' . implode(', ', $property['IBLOCK_TITLE']) . ')');
+				if ($property['COUNT'] > 1)
+				{
+					$iblockList = ($property['COUNT'] > 2 ? ' ( ... )' : ' ('.implode(', ', $property['IBLOCK_TITLE']).')');
 				}
 
-                $propList['PROPERTY_' . $property['CODE']] = $property['TITLE'] . $iblockList;
+				$propList['PROPERTY_'.$property['CODE']] = $property['TITLE'].$iblockList;
 			}
 			unset($property, $arProps);
 		}
@@ -529,7 +451,8 @@ if (isset($arCurrentValues['USE_ENHANCED_ECOMMERCE']) && $arCurrentValues['USE_E
 		'DEFAULT' => 'dataLayer'
 	);
 
-    if (!empty($propList)) {
+	if (!empty($propList))
+	{
 		$arTemplateParameters['BRAND_PROPERTY'] = array(
 			'PARENT' => 'ANALYTICS_SETTINGS',
 			'NAME' => GetMessage('BRAND_PROPERTY'),
@@ -541,14 +464,16 @@ if (isset($arCurrentValues['USE_ENHANCED_ECOMMERCE']) && $arCurrentValues['USE_E
 	}
 }
 
-if (isset($arCurrentValues['SHOW_MAP_IN_PROPS']) && $arCurrentValues['SHOW_MAP_IN_PROPS'] === 'Y') {
+if (isset($arCurrentValues['SHOW_MAP_IN_PROPS']) && $arCurrentValues['SHOW_MAP_IN_PROPS'] === 'Y')
+{
 	$arDelivery = array();
 	$services = Bitrix\Sale\Delivery\Services\Manager::getActiveList();
-    foreach ($services as $service) {
+	foreach ($services as $service)
+	{
 		$arDelivery[$service['ID']] = $service['NAME'];
 	}
 
-    $arTemplateParameters["SHOW_MAP_FOR_DELIVERIES"] = array(
+	$arTemplateParameters["SHOW_MAP_FOR_DELIVERIES"] =  array(
 		"NAME" => GetMessage("SHOW_MAP_FOR_DELIVERIES"),
 		"TYPE" => "LIST",
 		"MULTIPLE" => "Y",
@@ -561,15 +486,18 @@ if (isset($arCurrentValues['SHOW_MAP_IN_PROPS']) && $arCurrentValues['SHOW_MAP_I
 }
 
 $dbPerson = CSalePersonType::GetList(array("SORT" => "ASC", "NAME" => "ASC"), array('ACTIVE' => 'Y'));
-while ($arPerson = $dbPerson->GetNext()) {
+while ($arPerson = $dbPerson->GetNext())
+{
 	$arPers2Prop = array();
 
 	$dbProp = CSaleOrderProps::GetList(
 		array("SORT" => "ASC", "NAME" => "ASC"),
 		array("PERSON_TYPE_ID" => $arPerson["ID"], 'UTIL' => 'N')
 	);
-    while ($arProp = $dbProp->Fetch()) {
-        if ($arProp["IS_LOCATION"] == 'Y') {
+	while ($arProp = $dbProp->Fetch())
+	{
+		if ($arProp["IS_LOCATION"] == 'Y')
+		{
 			if (intval($arProp["INPUT_FIELD_LOCATION"]) > 0)
 				$altPropId = $arProp["INPUT_FIELD_LOCATION"];
 
@@ -582,9 +510,10 @@ while ($arPerson = $dbPerson->GetNext()) {
 	if (isset($altPropId))
 		unset($arPers2Prop[$altPropId]);
 
-    if (!empty($arPers2Prop)) {
-        $arTemplateParameters["PROPS_FADE_LIST_" . $arPerson["ID"]] = array(
-            "NAME" => GetMessage("PROPS_FADE_LIST") . ' (' . $arPerson["NAME"] . ')' . '[' . $arPerson["LID"] . ']',
+	if (!empty($arPers2Prop))
+	{
+		$arTemplateParameters["PROPS_FADE_LIST_".$arPerson["ID"]] =  array(
+			"NAME" => GetMessage("PROPS_FADE_LIST").' ('.$arPerson["NAME"].')'.'['.$arPerson["LID"].']',
 			"TYPE" => "LIST",
 			"MULTIPLE" => "Y",
 			"VALUES" => $arPers2Prop,
@@ -597,7 +526,7 @@ while ($arPerson = $dbPerson->GetNext()) {
 }
 unset($arPerson, $dbPerson);
 
-$arTemplateParameters["USE_CUSTOM_MAIN_MESSAGES"] = array(
+$arTemplateParameters["USE_CUSTOM_MAIN_MESSAGES"] =  array(
 	"NAME" => GetMessage("USE_CUSTOM_MESSAGES"),
 	"TYPE" => "CHECKBOX",
 	"REFRESH" => 'Y',
@@ -605,92 +534,93 @@ $arTemplateParameters["USE_CUSTOM_MAIN_MESSAGES"] = array(
 	"PARENT" => "MAIN_MESSAGE_SETTINGS"
 );
 
-if (isset($arCurrentValues['USE_CUSTOM_MAIN_MESSAGES']) && $arCurrentValues['USE_CUSTOM_MAIN_MESSAGES'] === 'Y') {
-    $arTemplateParameters["MESS_AUTH_BLOCK_NAME"] = array(
+if (isset($arCurrentValues['USE_CUSTOM_MAIN_MESSAGES']) && $arCurrentValues['USE_CUSTOM_MAIN_MESSAGES'] === 'Y')
+{
+	$arTemplateParameters["MESS_AUTH_BLOCK_NAME"] =  array(
 		"NAME" => GetMessage("AUTH_BLOCK_NAME"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("AUTH_BLOCK_NAME_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_REG_BLOCK_NAME"] = array(
+	$arTemplateParameters["MESS_REG_BLOCK_NAME"] =  array(
 		"NAME" => GetMessage("REG_BLOCK_NAME"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("REG_BLOCK_NAME_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_BASKET_BLOCK_NAME"] = array(
+	$arTemplateParameters["MESS_BASKET_BLOCK_NAME"] =  array(
 		"NAME" => GetMessage("BASKET_BLOCK_NAME"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("BASKET_BLOCK_NAME_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_REGION_BLOCK_NAME"] = array(
+	$arTemplateParameters["MESS_REGION_BLOCK_NAME"] =  array(
 		"NAME" => GetMessage("REGION_BLOCK_NAME"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("REGION_BLOCK_NAME_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_PAYMENT_BLOCK_NAME"] = array(
+	$arTemplateParameters["MESS_PAYMENT_BLOCK_NAME"] =  array(
 		"NAME" => GetMessage("PAYMENT_BLOCK_NAME"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("PAYMENT_BLOCK_NAME_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_DELIVERY_BLOCK_NAME"] = array(
+	$arTemplateParameters["MESS_DELIVERY_BLOCK_NAME"] =  array(
 		"NAME" => GetMessage("DELIVERY_BLOCK_NAME"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("DELIVERY_BLOCK_NAME_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_BUYER_BLOCK_NAME"] = array(
+	$arTemplateParameters["MESS_BUYER_BLOCK_NAME"] =  array(
 		"NAME" => GetMessage("BUYER_BLOCK_NAME"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("BUYER_BLOCK_NAME_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_BACK"] = array(
+	$arTemplateParameters["MESS_BACK"] =  array(
 		"NAME" => GetMessage("BACK"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("BACK_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_FURTHER"] = array(
+	$arTemplateParameters["MESS_FURTHER"] =  array(
 		"NAME" => GetMessage("FURTHER"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("FURTHER_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_EDIT"] = array(
+	$arTemplateParameters["MESS_EDIT"] =  array(
 		"NAME" => GetMessage("EDIT"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("EDIT_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_ORDER"] = array(
+	$arTemplateParameters["MESS_ORDER"] =  array(
 		"NAME" => GetMessage("ORDER"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("ORDER_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_PRICE"] = array(
+	$arTemplateParameters["MESS_PRICE"] =  array(
 		"NAME" => GetMessage("PRICE"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("PRICE_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_PERIOD"] = array(
+	$arTemplateParameters["MESS_PERIOD"] =  array(
 		"NAME" => GetMessage("PERIOD"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("PERIOD_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_NAV_BACK"] = array(
+	$arTemplateParameters["MESS_NAV_BACK"] =  array(
 		"NAME" => GetMessage("NAV_BACK"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("NAV_BACK_DEFAULT"),
 		"PARENT" => "MAIN_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_NAV_FORWARD"] = array(
+	$arTemplateParameters["MESS_NAV_FORWARD"] =  array(
 		"NAME" => GetMessage("NAV_FORWARD"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("NAV_FORWARD_DEFAULT"),
@@ -698,7 +628,7 @@ if (isset($arCurrentValues['USE_CUSTOM_MAIN_MESSAGES']) && $arCurrentValues['USE
 	);
 }
 
-$arTemplateParameters["USE_CUSTOM_ADDITIONAL_MESSAGES"] = array(
+$arTemplateParameters["USE_CUSTOM_ADDITIONAL_MESSAGES"] =  array(
 	"NAME" => GetMessage("USE_CUSTOM_MESSAGES"),
 	"TYPE" => "CHECKBOX",
 	"REFRESH" => 'Y',
@@ -706,110 +636,111 @@ $arTemplateParameters["USE_CUSTOM_ADDITIONAL_MESSAGES"] = array(
 	"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 );
 
-if (isset($arCurrentValues['USE_CUSTOM_ADDITIONAL_MESSAGES']) && $arCurrentValues['USE_CUSTOM_ADDITIONAL_MESSAGES'] === 'Y') {
-    $arTemplateParameters["MESS_PRICE_FREE"] = array(
+if (isset($arCurrentValues['USE_CUSTOM_ADDITIONAL_MESSAGES']) && $arCurrentValues['USE_CUSTOM_ADDITIONAL_MESSAGES'] === 'Y')
+{
+	$arTemplateParameters["MESS_PRICE_FREE"] =  array(
 		"NAME" => GetMessage("PRICE_FREE"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("PRICE_FREE_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_ECONOMY"] = array(
+	$arTemplateParameters["MESS_ECONOMY"] =  array(
 		"NAME" => GetMessage("ECONOMY"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("ECONOMY_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_REGISTRATION_REFERENCE"] = array(
+	$arTemplateParameters["MESS_REGISTRATION_REFERENCE"] =  array(
 		"NAME" => GetMessage("REGISTRATION_REFERENCE"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("REGISTRATION_REFERENCE_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_AUTH_REFERENCE_1"] = array(
+	$arTemplateParameters["MESS_AUTH_REFERENCE_1"] =  array(
 		"NAME" => GetMessage("AUTH_REFERENCE_1"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("AUTH_REFERENCE_1_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_AUTH_REFERENCE_2"] = array(
+	$arTemplateParameters["MESS_AUTH_REFERENCE_2"] =  array(
 		"NAME" => GetMessage("AUTH_REFERENCE_2"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("AUTH_REFERENCE_2_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_AUTH_REFERENCE_3"] = array(
+	$arTemplateParameters["MESS_AUTH_REFERENCE_3"] =  array(
 		"NAME" => GetMessage("AUTH_REFERENCE_3"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("AUTH_REFERENCE_3_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_ADDITIONAL_PROPS"] = array(
+	$arTemplateParameters["MESS_ADDITIONAL_PROPS"] =  array(
 		"NAME" => GetMessage("ADDITIONAL_PROPS"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("ADDITIONAL_PROPS_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_USE_COUPON"] = array(
+	$arTemplateParameters["MESS_USE_COUPON"] =  array(
 		"NAME" => GetMessage("USE_COUPON"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("USE_COUPON_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_COUPON"] = array(
+	$arTemplateParameters["MESS_COUPON"] =  array(
 		"NAME" => GetMessage("COUPON"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("COUPON_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_PERSON_TYPE"] = array(
+	$arTemplateParameters["MESS_PERSON_TYPE"] =  array(
 		"NAME" => GetMessage("PERSON_TYPE"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("PERSON_TYPE_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_SELECT_PROFILE"] = array(
+	$arTemplateParameters["MESS_SELECT_PROFILE"] =  array(
 		"NAME" => GetMessage("SELECT_PROFILE"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("SELECT_PROFILE_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_REGION_REFERENCE"] = array(
+	$arTemplateParameters["MESS_REGION_REFERENCE"] =  array(
 		"NAME" => GetMessage("REGION_REFERENCE"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("REGION_REFERENCE_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_PICKUP_LIST"] = array(
+	$arTemplateParameters["MESS_PICKUP_LIST"] =  array(
 		"NAME" => GetMessage("PICKUP_LIST"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("PICKUP_LIST_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_NEAREST_PICKUP_LIST"] = array(
+	$arTemplateParameters["MESS_NEAREST_PICKUP_LIST"] =  array(
 		"NAME" => GetMessage("NEAREST_PICKUP_LIST"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("NEAREST_PICKUP_LIST_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_SELECT_PICKUP"] = array(
+	$arTemplateParameters["MESS_SELECT_PICKUP"] =  array(
 		"NAME" => GetMessage("SELECT_PICKUP"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("SELECT_PICKUP_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_INNER_PS_BALANCE"] = array(
+	$arTemplateParameters["MESS_INNER_PS_BALANCE"] =  array(
 		"NAME" => GetMessage("INNER_PS_BALANCE"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("INNER_PS_BALANCE_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_INNER_PS_BALANCE"] = array(
+	$arTemplateParameters["MESS_INNER_PS_BALANCE"] =  array(
 		"NAME" => GetMessage("INNER_PS_BALANCE"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("INNER_PS_BALANCE_DEFAULT"),
 		"PARENT" => "ADDITIONAL_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_ORDER_DESC"] = array(
+	$arTemplateParameters["MESS_ORDER_DESC"] =  array(
 		"NAME" => GetMessage("ORDER_DESC"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("ORDER_DESC_DEFAULT"),
@@ -817,7 +748,7 @@ if (isset($arCurrentValues['USE_CUSTOM_ADDITIONAL_MESSAGES']) && $arCurrentValue
 	);
 }
 
-$arTemplateParameters["USE_CUSTOM_ERROR_MESSAGES"] = array(
+$arTemplateParameters["USE_CUSTOM_ERROR_MESSAGES"] =  array(
 	"NAME" => GetMessage("USE_CUSTOM_MESSAGES"),
 	"TYPE" => "CHECKBOX",
 	"REFRESH" => 'Y',
@@ -825,32 +756,33 @@ $arTemplateParameters["USE_CUSTOM_ERROR_MESSAGES"] = array(
 	"PARENT" => "ERROR_MESSAGE_SETTINGS"
 );
 
-if (isset($arCurrentValues['USE_CUSTOM_ERROR_MESSAGES']) && $arCurrentValues['USE_CUSTOM_ERROR_MESSAGES'] === 'Y') {
-    $arTemplateParameters["MESS_SUCCESS_PRELOAD_TEXT"] = array(
+if (isset($arCurrentValues['USE_CUSTOM_ERROR_MESSAGES']) && $arCurrentValues['USE_CUSTOM_ERROR_MESSAGES'] === 'Y')
+{
+	$arTemplateParameters["MESS_SUCCESS_PRELOAD_TEXT"] =  array(
 		"NAME" => GetMessage("SUCCESS_PRELOAD_TEXT"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("SUCCESS_PRELOAD_TEXT_DEFAULT"),
 		"PARENT" => "ERROR_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_FAIL_PRELOAD_TEXT"] = array(
+	$arTemplateParameters["MESS_FAIL_PRELOAD_TEXT"] =  array(
 		"NAME" => GetMessage("FAIL_PRELOAD_TEXT"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("FAIL_PRELOAD_TEXT_DEFAULT"),
 		"PARENT" => "ERROR_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_DELIVERY_CALC_ERROR_TITLE"] = array(
+	$arTemplateParameters["MESS_DELIVERY_CALC_ERROR_TITLE"] =  array(
 		"NAME" => GetMessage("DELIVERY_CALC_ERROR_TITLE"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("DELIVERY_CALC_ERROR_TITLE_DEFAULT"),
 		"PARENT" => "ERROR_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_DELIVERY_CALC_ERROR_TEXT"] = array(
+	$arTemplateParameters["MESS_DELIVERY_CALC_ERROR_TEXT"] =  array(
 		"NAME" => GetMessage("DELIVERY_CALC_ERROR_TEXT"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("DELIVERY_CALC_ERROR_TEXT_DEFAULT"),
 		"PARENT" => "ERROR_MESSAGE_SETTINGS"
 	);
-    $arTemplateParameters["MESS_PAY_SYSTEM_PAYABLE_ERROR"] = array(
+	$arTemplateParameters["MESS_PAY_SYSTEM_PAYABLE_ERROR"] =  array(
 		"NAME" => GetMessage("PAY_SYSTEM_PAYABLE_ERROR_TEXT"),
 		"TYPE" => "STRING",
 		"DEFAULT" => GetMessage("PAY_SYSTEM_PAYABLE_ERROR_DEFAULT"),

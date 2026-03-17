@@ -167,9 +167,6 @@ a {
   -ms-flex-negative: 1;
       flex-shrink: 1;
 }
-body:not(.mp) .main {
-  padding-bottom: clamp(50px, 8vw, 125px);
-}
 
 .container {
   padding-left: max(var(--calculated-padding), var(--container-padding));
