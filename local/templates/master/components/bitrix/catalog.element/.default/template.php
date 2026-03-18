@@ -3,6 +3,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog\ProductTable;
+use Acroweb\Mage\Helpers\HLBHelper;
 
 /**
  * @global CMain $APPLICATION
@@ -427,7 +428,133 @@ if (is_array($advantagesProperty)) {
                             ?>
                         </div>
                     <?php endif; ?>
+                    <?php
+                    $lockTypeIds = $arResult['PROPERTIES']['LOCK_TYPE']['VALUE']
+                        ?? ($arResult['DISPLAY_PROPERTIES']['LOCK_TYPE']['VALUE'] ?? []);
+                    $colorIds = $arResult['PROPERTIES']['COLOR']['VALUE']
+                        ?? ($arResult['DISPLAY_PROPERTIES']['COLOR']['VALUE'] ?? []);
+                    $lockTypeIds = is_array($lockTypeIds) ? array_values(array_filter($lockTypeIds)) : array_values(array_filter([$lockTypeIds]));
+                    $colorIds = is_array($colorIds) ? array_values(array_filter($colorIds)) : array_values(array_filter([$colorIds]));
 
+                    // VALUE в свойствах типа directory — это XML_ID записей HL, не числовой ID
+                    $fetchHlItemsByXmlId = static function (string $tableName, array $xmlIds, array $select): array {
+                        if (empty($xmlIds)) {
+                            return [];
+                        }
+                        $dataClass = HLBHelper::getHLBDataClass($tableName);
+                        if (!$dataClass) {
+                            return [];
+                        }
+                        $items = [];
+                        $res = $dataClass::getList([
+                            'filter' => ['@UF_XML_ID' => $xmlIds],
+                            'select' => array_merge($select, ['UF_XML_ID']),
+                            'order' => ['ID' => 'ASC'],
+                        ]);
+                        while ($row = $res->fetch()) {
+                            $xmlId = (string)($row['UF_XML_ID'] ?? '');
+                            if ($xmlId !== '') {
+                                $items[$xmlId] = $row;
+                            }
+                        }
+                        return $items;
+                    };
+
+                    $locksMap = $fetchHlItemsByXmlId('b_hlbd_zapiranie', $lockTypeIds, ['ID', 'UF_NAME']);
+                    $colorsMap = $fetchHlItemsByXmlId('b_hlbd_colors', $colorIds, ['ID', 'UF_NAME', 'UF_FILE']);
+
+                    $locks = [];
+                    foreach ($lockTypeIds as $xmlId) {
+                        $xmlId = (string)$xmlId;
+                        if ($xmlId !== '' && isset($locksMap[$xmlId])) {
+                            $locks[] = $locksMap[$xmlId];
+                        }
+                    }
+                    $colors = [];
+                    foreach ($colorIds as $xmlId) {
+                        $xmlId = (string)$xmlId;
+                        if ($xmlId !== '' && isset($colorsMap[$xmlId])) {
+                            $colors[] = $colorsMap[$xmlId];
+                        }
+                    }
+                    ?>
+                    <?php if (!empty($locks) || !empty($colors)): ?>
+                        <div class="catalog-detail__params catalog-detail__params_offer" data-basket-props>
+                            <?php if (!empty($locks)): ?>
+                                <fieldset class="catalog-detail__param">
+                                    <legend class="catalog-detail__title">Запирание</legend>
+                                    <div class="params-list">
+                                        <?php foreach ($locks as $idx => $lock): ?>
+                                            <?php
+                                            $lockId = (int)($lock['ID'] ?? 0);
+                                            $lockName = (string)($lock['UF_NAME'] ?? '');
+                                            if ($lockId <= 0 || $lockName === '') {
+                                                continue;
+                                            }
+                                            ?>
+                                            <label class="radio-parameter">
+                                                <input
+                                                    class="radio-parameter__input"
+                                                    type="radio"
+                                                    name="product_lock_type"
+                                                    value="<?= $lockId ?>"
+                                                    data-basket-prop-code="LOCK_TYPE"
+                                                    data-basket-prop-name="Запирание"
+                                                    data-basket-prop-value="<?= htmlspecialcharsbx($lockName) ?>"
+                                                    <?= $idx === 0 ? 'checked' : '' ?>
+                                                >
+                                                <span class="radio-parameter__visual"><?= htmlspecialcharsbx($lockName) ?></span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </fieldset>
+                            <?php endif; ?>
+
+                            <?php if (!empty($colors)): ?>
+                                <fieldset class="catalog-detail__param">
+                                    <legend class="catalog-detail__title">Цвет</legend>
+                                    <div class="params-list">
+                                        <?php foreach ($colors as $idx => $color): ?>
+                                            <?php
+                                            $colorId = (int)($color['ID'] ?? 0);
+                                            $colorName = (string)($color['UF_NAME'] ?? '');
+                                            if ($colorId <= 0 || $colorName === '') {
+                                                continue;
+                                            }
+                                            $colorFileId = (int)($color['UF_FILE'] ?? 0);
+                                            $colorHex = (string)($color['UF_COLOR'] ?? '');
+                                            $colorStyle = '';
+                                            if ($colorFileId > 0) {
+                                                $src = (string)\CFile::GetPath($colorFileId);
+                                                if ($src !== '') {
+                                                    $colorStyle = "background-image: url('" . htmlspecialcharsbx($src) . "');";
+                                                }
+                                            } elseif ($colorHex !== '') {
+                                                $colorStyle = 'background-color: ' . htmlspecialcharsbx($colorHex) . ';';
+                                            }
+                                            ?>
+                                            <label class="radio-parameter">
+                                                <input
+                                                    class="radio-parameter__input"
+                                                    type="radio"
+                                                    name="product_color"
+                                                    value="<?= $colorId ?>"
+                                                    data-basket-prop-code="COLOR"
+                                                    data-basket-prop-name="Цвет"
+                                                    data-basket-prop-value="<?= htmlspecialcharsbx($colorName) ?>"
+                                                    <?= $idx === 0 ? 'checked' : '' ?>
+                                                >
+                                                <span class="radio-parameter__visual">
+                                                    <span class="radio-parameter__color"<?= $colorStyle !== '' ? ' style="' . $colorStyle . '"' : '' ?>></span>
+                                                    <span><?= htmlspecialcharsbx($colorName) ?></span>
+                                                </span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </fieldset>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                     <?php if ($haveOffers && !empty($arResult['OFFERS_PROP'])): ?>
                         <div class="catalog-detail__params catalog-detail__params_offer">
                             <?php foreach ($arResult['SKU_PROPS'] as $skuProperty): ?>
@@ -500,7 +627,10 @@ if (is_array($advantagesProperty)) {
                             <table class="table-specs1">
                                 <?php
                                 $propCount = 0;
-                                foreach ($arResult['DISPLAY_PROPERTIES'] as $property) {
+                                foreach ($arResult['DISPLAY_PROPERTIES'] as $code => $property) {
+                                    if (in_array((string)$code, ['COLOR', 'LOCK_TYPE'], true)) {
+                                        continue;
+                                    }
                                     if ($propCount >= 5) {
                                         break;
                                     }
@@ -1015,7 +1145,8 @@ if (is_array($advantagesProperty)) {
                 <div class="specs-list-wrapper">
                     <?php if (!empty($arResult['DISPLAY_PROPERTIES'])): ?>
                         <ul class="specs-list specs-list_columned">
-                            <?php foreach ($arResult['DISPLAY_PROPERTIES'] as $property): ?>
+                            <?php foreach ($arResult['DISPLAY_PROPERTIES'] as $code => $property): ?>
+                                <?php if (in_array((string)$code, ['COLOR', 'LOCK_TYPE'], true)) { continue; } ?>
                                 <li class="specs-list__row">
                                     <div class="specs-list__key"><?= $property['NAME'] ?></div>
                                     <div class="specs-list__value">
@@ -1152,7 +1283,7 @@ if (is_array($advantagesProperty)) {
                     </div>
                 </div>
             </div>
-            
+
 
             <?php if ($hasCertificates): ?>
                 <div class="tabs2__content tab-certificates" data-tab="content" data-alias="certificates">
@@ -1637,8 +1768,10 @@ if ($arResult['CATALOG'] && $arParams['USE_GIFTS_MAIN_PR_SECTION_LIST'] == 'Y' &
     </div>
 
 <?php
-// Скрытые данные для корзины
+// Скрытые данные для корзины (стандартный механизм: fillBasketProps читает отсюда)
 $emptyProductProperties = empty($arResult['PRODUCT_PROPERTIES']);
+$hasPageBasketProps = $haveOffers && (!empty($locks) || !empty($colors));
+
 if (!$haveOffers && $arParams['ADD_PROPERTIES_TO_BASKET'] === 'Y' && !$emptyProductProperties) {
     ?>
     <div id="<?= $itemIds['BASKET_PROP_DIV'] ?>" style="display: none;">
@@ -1704,6 +1837,21 @@ if (!$haveOffers && $arParams['ADD_PROPERTIES_TO_BASKET'] === 'Y' && !$emptyProd
             <?php
         }
         ?>
+    </div>
+    <?php
+} elseif ($hasPageBasketProps) {
+    // Товар с офферами: выбор Цвет/Запирание на странице — значения подставляем в стандартный BASKET_PROP_DIV
+    $propVar = $arParams['PRODUCT_PROPS_VARIABLE'] ?? 'basket_props';
+    $colorPropId = (int)($arResult['PROPERTIES']['COLOR']['ID'] ?? 0);
+    $lockPropId = (int)($arResult['PROPERTIES']['LOCK_TYPE']['ID'] ?? 0);
+    ?>
+    <div id="<?= $itemIds['BASKET_PROP_DIV'] ?>" style="display: none;">
+        <?php if ($colorPropId > 0): ?>
+            <input type="hidden" name="<?= $propVar ?>[<?= $colorPropId ?>]" id="<?= $itemIds['BASKET_PROP_DIV'] ?>_color" value="">
+        <?php endif; ?>
+        <?php if ($lockPropId > 0): ?>
+            <input type="hidden" name="<?= $propVar ?>[<?= $lockPropId ?>]" id="<?= $itemIds['BASKET_PROP_DIV'] ?>_lock" value="">
+        <?php endif; ?>
     </div>
     <?php
 }
@@ -2045,7 +2193,7 @@ if ($arParams['DISPLAY_COMPARE']) {
 $jsParams["IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED"] =
     $arResult["IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED"];
 
-?>
+?> 
     <script>
         BX.message({
             ECONOMY_INFO_MESSAGE: '<?=GetMessageJS('CT_BCE_CATALOG_ECONOMY_INFO2')?>',
@@ -2237,6 +2385,110 @@ $jsParams["IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED"] =
 
                 syncVisibleControls(eventData.newId);
             });
+        })();
+
+        (function () {
+            var root = document.getElementById('<?=CUtil::JSEscape($itemIds['ID'])?>');
+            if (!root || !root.querySelector('[data-basket-props]')) {
+                return;
+            }
+
+            function getSelected(code) {
+                var input = root.querySelector('input[data-basket-prop-code="' + code + '"]:checked');
+                if (!input) return null;
+                return { id: String(input.value || ''), name: String(input.getAttribute('data-basket-prop-value') || '') };
+            }
+
+            function getOfferId() {
+                if (<?= $haveOffers ? 'true' : 'false' ?> && <?= $obName ?> && <?= $obName ?>.offers && <?= $obName ?>.offers[<?= $obName ?>.offerNum]) {
+                    return parseInt(<?= $obName ?>.offers[<?= $obName ?>.offerNum].ID, 10) || 0;
+                }
+                return parseInt('<?= CUtil::JSEscape((string)$arResult['ID']) ?>', 10) || 0;
+            }
+
+            function getQuantity() {
+                var input = document.getElementById('<?= CUtil::JSEscape($itemIds['QUANTITY_ID']) ?>');
+                if (input && input.value !== undefined && input.value !== '') {
+                    var q = parseFloat(String(input.value).replace(',', '.')) || 1;
+                    return q > 0 ? q : 1;
+                }
+                return 1;
+            }
+
+            function showBasketSuccessPopup() {
+                var popupId = 'CatalogElementBasket_<?= CUtil::JSEscape($itemIds['ID']) ?>_custom';
+                var existing = BX.PopupWindowManager.getPopupById(popupId);
+                if (existing) existing.destroy();
+                var nameEl = root.querySelector('.catalog-detail__name');
+                var imgEl = root.querySelector('.catalog-detail__img img, [data-entity="slider-img"] img, .product-item-detail-slider-image img, .catalog-detail-slider img');
+                var productName = nameEl ? nameEl.textContent.trim() : '';
+                var productPict = imgEl ? (imgEl.getAttribute('src') || imgEl.src) : '';
+                var basketUrl = '<?= CUtil::JSEscape($arParams['BASKET_URL'] ?? '/personal/basket/') ?>';
+                var titleText = BX.message('TITLE_SUCCESSFUL') || 'Товар добавлен в корзину';
+                var btnCartText = BX.message('BTN_MESSAGE_DETAIL_BASKET_REDIRECT') || 'Перейти в корзину';
+                var btnCloseText = BX.message('BTN_MESSAGE_DETAIL_CLOSE_POPUP') || 'Продолжить покупки';
+
+                var popupContent = '<div class="basket-success-popup">'
+                    + '<div class="basket-success-popup__body">'
+                    + (productPict ? '<div class="basket-success-popup__pic"><img src="' + BX.util.htmlspecialchars(productPict) + '" alt="" class="basket-success-popup__img"></div>' : '')
+                    + '<p class="basket-success-popup__name title4">' + BX.util.htmlspecialchars(productName) + '</p>'
+                    + '</div>'
+                    + '<div class="basket-success-popup__btns grid2">'
+                    + '<a href="' + BX.util.htmlspecialchars(basketUrl) + '" class="btn btn_small btn_black btn_wide">' + BX.util.htmlspecialchars(btnCartText) + '</a>'
+                    + '<button type="button" class="btn btn_small btn_grey btn_wide basket-success-popup__btn-close">' + BX.util.htmlspecialchars(btnCloseText) + '</button>'
+                    + '</div></div>';
+
+                var popup = BX.PopupWindowManager.create(popupId, null, {
+                    autoHide: false,
+                    overlay: true,
+                    offsetLeft: 0,
+                    offsetTop: 0,
+                    className: 'basket-success-popup-window'
+                });
+                popup.setTitleBar(titleText);
+                popup.setContent(popupContent);
+                popup.show();
+
+                var container = popup.getPopup ? popup.getPopup() : (popup.popupContainer || (popup.getContainer && popup.getContainer()));
+                if (container && BX.Dom.addClass) {
+                    BX.Dom.addClass(container, 'basket-success-popup-window');
+                }
+                var contentWrap = popup.contentContainer || (container && container.querySelector && container.querySelector('.popup-window-content'));
+                var btnCloseEl = contentWrap ? contentWrap.querySelector('.basket-success-popup__btn-close') : document.querySelector('.basket-success-popup__btn-close');
+                if (btnCloseEl) {
+                    btnCloseEl.addEventListener('click', function () { popup.close(); });
+                }
+            }
+
+            function onAddToBasket(event, isBuy) {
+                if (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                var productId = getOfferId();
+                if (!productId) return;
+                var props = { color: getSelected('COLOR'), lock: getSelected('LOCK_TYPE') };
+
+                BX.ajax.runAction('acroweb:mage.api.cartajax.add', {
+                    data: { productId: productId, quantity: getQuantity(), props: props }
+                }).then(function (response) {
+                    if (response && response.data && response.data.success) {
+                        BX.onCustomEvent('OnBasketChange');
+                        if (isBuy) {
+                            window.location.href = '<?= CUtil::JSEscape($arParams['BASKET_URL'] ?? '/personal/basket/') ?>';
+                        } else {
+                            showBasketSuccessPopup();
+                        }
+                    }
+                }, function () {
+                    if (isBuy) window.location.href = '<?= CUtil::JSEscape($arParams['BASKET_URL'] ?? '/personal/basket/') ?>';
+                });
+            }
+
+            var addBtn = document.getElementById('<?= CUtil::JSEscape($itemIds['ADD_BASKET_LINK']) ?>');
+            if (addBtn) addBtn.addEventListener('click', function (e) { onAddToBasket(e, false); }, true);
+            var buyBtn = document.getElementById('<?= CUtil::JSEscape($itemIds['BUY_LINK']) ?>');
+            if (buyBtn) buyBtn.addEventListener('click', function (e) { onAddToBasket(e, true); }, true);
         })();
     </script>
 <?php

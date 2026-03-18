@@ -3104,7 +3104,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
                 imgSrc = this.defaultBasketItemLogo;
             }
 
-            var allowedPropCodes = ['WIDTH', 'HEIGHT'];
+            var allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE'];
             if (props.length) {
                 for (var i = 0; i < props.length; i++) {
                     var code = props[i].CODE || '';
@@ -3354,7 +3354,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 				titleHtml = '<a href="' + data.DETAIL_PAGE_URL + '">' + titleHtml + '</a>';
 			}
 
-            var allowedPropCodes = ['WIDTH', 'HEIGHT'];
+            var allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE'];
             if (this.options.showPropsInBasket && props.length) {
                 for (var i in props) {
                     if (props.hasOwnProperty(i)) {
@@ -3520,7 +3520,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 				logotype, img, i;
 
             if (column.id === 'PROPS') {
-				var propsNodes = [], props = allData.data.PROPS, allowedPropCodes = ['WIDTH', 'HEIGHT'];
+				var propsNodes = [], props = allData.data.PROPS, allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE'];
                 if (props && props.length) {
                     for (i in props) {
                         if (props.hasOwnProperty(i)) {

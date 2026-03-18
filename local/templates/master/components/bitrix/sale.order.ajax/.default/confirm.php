@@ -329,7 +329,7 @@ if (!empty($arResult["ORDER"])):
                             $isPriceZero = (float)$price <= 0;
                             $canBuy = $item->getField('CAN_BUY') === 'Y' || $item->getField('CAN_BUY') === true;
                             $itemProps = [];
-                            $allowedPropCodes = ['WIDTH', 'HEIGHT'];
+                            $allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE'];
                             foreach ($item->getPropertyCollection() as $prop) {
                                 $propCode = $prop->getField('CODE');
                                 if (!in_array((string)$propCode, $allowedPropCodes, true)) {
