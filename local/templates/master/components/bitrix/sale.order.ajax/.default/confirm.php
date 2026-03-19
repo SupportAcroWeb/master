@@ -90,6 +90,7 @@ if (!empty($arResult["ORDER"])):
         // Получаем связи торговых предложений с товарами
         $productLinks = [];
         $productImages = [];
+        $offerIblockIds = [];
         if (!empty($offerIds)) {
             $offer = \CIBlockElement::GetList(
                 [],
@@ -101,6 +102,36 @@ if (!empty($arResult["ORDER"])):
             while ($offerItem = $offer->fetch()) {
                 $productLinks[$offerItem['ID']] = $offerItem['PROPERTY_CML2_LINK_VALUE'];
                 $productIDs[] = $offerItem['PROPERTY_CML2_LINK_VALUE'];
+                $offerIblockIds[$offerItem['ID']] = (int)$offerItem['IBLOCK_ID'];
+            }
+        }
+
+        // Свойства офферов (для confirm.php: WIDTH/HEIGHT/PROP_001 часто хранятся в свойствах элемента-оффера, а не в свойствах позиции корзины)
+        $offerPropsById = [];
+        foreach ($offerIds as $oidRaw) {
+            $oid = (int)$oidRaw;
+            $offerIblockId = (int)($offerIblockIds[$oid] ?? 0);
+            if ($oid <= 0 || $offerIblockId <= 0) {
+                continue;
+            }
+
+            foreach (['WIDTH', 'HEIGHT', 'PROP_001'] as $code) {
+                $rsProp = \CIBlockElement::GetProperty(
+                    $offerIblockId,
+                    $oid,
+                    ['sort' => 'asc', 'enum_sort' => 'asc', 'value_id' => 'asc'],
+                    ['CODE' => $code, 'EMPTY' => 'N']
+                );
+                if ($row = $rsProp->Fetch()) {
+                    $val = $row['VALUE_ENUM'] ?: $row['VALUE'];
+                    if ($val === null || $val === '') {
+                        continue;
+                    }
+                    $offerPropsById[$oid][$code] = [
+                        'NAME' => (string)($row['NAME'] ?: $code),
+                        'VALUE' => (string)$val,
+                    ];
+                }
             }
         }
 
@@ -328,8 +359,8 @@ if (!empty($arResult["ORDER"])):
                             $measureName = $item->getField('MEASURE_NAME') ?: 'шт.';
                             $isPriceZero = (float)$price <= 0;
                             $canBuy = $item->getField('CAN_BUY') === 'Y' || $item->getField('CAN_BUY') === true;
-                            $itemProps = [];
-                            $allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE'];
+                            $itemPropsByCode = [];
+                            $allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE', 'PROP_001'];
                             foreach ($item->getPropertyCollection() as $prop) {
                                 $propCode = $prop->getField('CODE');
                                 if (!in_array((string)$propCode, $allowedPropCodes, true)) {
@@ -338,7 +369,25 @@ if (!empty($arResult["ORDER"])):
                                 $propName = $prop->getField('NAME');
                                 $propValue = $prop->getField('VALUE');
                                 if ($propName !== null && $propName !== '' && $propValue !== null && $propValue !== '') {
-                                    $itemProps[] = ['NAME' => $propName, 'VALUE' => $propValue];
+                                    $itemPropsByCode[(string)$propCode] = ['NAME' => (string)$propName, 'VALUE' => (string)$propValue];
+                                }
+                            }
+
+                            // Для SKU часть характеристик приходит как свойства самого оффера, а не как свойства позиции корзины.
+                            $offerId = (int)$productId;
+                            if ($offerId > 0 && isset($offerPropsById[$offerId])) {
+                                foreach ($offerPropsById[$offerId] as $code => $p) {
+                                    if (!isset($itemPropsByCode[$code])) {
+                                        $itemPropsByCode[$code] = $p;
+                                    }
+                                }
+                            }
+
+                            // порядок вывода
+                            $itemProps = [];
+                            foreach (['WIDTH', 'HEIGHT', 'PROP_001', 'LOCK_TYPE', 'COLOR'] as $code) {
+                                if (isset($itemPropsByCode[$code])) {
+                                    $itemProps[] = $itemPropsByCode[$code];
                                 }
                             }
                             ?>

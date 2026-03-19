@@ -3093,8 +3093,16 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
                 basePrice = data.BASE_PRICE_FORMATED || '',
                 sum = data.SUM || '',
                 isAvailable = (data.CAN_BUY || 'Y') === 'Y',
-                props = data.PROPS || [],
+                props = [],
                 specsNodes = [];
+
+            // props in sale.order.ajax can come in different shapes depending on product type (product/offer) and template
+            if (BX.type.isArray(data.PROPS))
+                props = data.PROPS;
+            else if (BX.type.isArray(data.SKU_PROPS))
+                props = data.SKU_PROPS;
+            else if (BX.type.isPlainObject(data.PROPS))
+                props = Object.values(data.PROPS);
 
             if (data.PREVIEW_PICTURE_SRC && data.PREVIEW_PICTURE_SRC.length) {
                 imgSrc = data.PREVIEW_PICTURE_SRC;
@@ -3104,7 +3112,31 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
                 imgSrc = this.defaultBasketItemLogo;
             }
 
-            var allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE'];
+            var allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE', 'PROP_001'];
+
+            // For offers, some properties can arrive as flat fields like PROPERTY_WIDTH_VALUE / PROPERTY_HEIGHT_VALUE
+            // (not inside data.PROPS). Convert them to "virtual" props so UI can render them.
+            var hasProp = function (code, value) {
+                if (!props || !props.length) return false;
+                for (var pi = 0; pi < props.length; pi++) {
+                    if (String(props[pi].CODE || '') === String(code) && String(props[pi].VALUE || '') === String(value)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            if (data) {
+                if (data.PROPERTY_WIDTH_VALUE && !hasProp('WIDTH', data.PROPERTY_WIDTH_VALUE)) {
+                    props.push({CODE: 'WIDTH', NAME: 'Ширина', VALUE: String(data.PROPERTY_WIDTH_VALUE)});
+                }
+                if (data.PROPERTY_HEIGHT_VALUE && !hasProp('HEIGHT', data.PROPERTY_HEIGHT_VALUE)) {
+                    props.push({CODE: 'HEIGHT', NAME: 'Высота', VALUE: String(data.PROPERTY_HEIGHT_VALUE)});
+                }
+                if (data.PROPERTY_PROP_001_VALUE && !hasProp('PROP_001', data.PROPERTY_PROP_001_VALUE)) {
+                    props.push({CODE: 'PROP_001', NAME: 'Количество створок', VALUE: String(data.PROPERTY_PROP_001_VALUE)});
+                }
+            }
+
             if (props.length) {
                 for (var i = 0; i < props.length; i++) {
                     var code = props[i].CODE || '';
@@ -3520,7 +3552,32 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
 				logotype, img, i;
 
             if (column.id === 'PROPS') {
-				var propsNodes = [], props = allData.data.PROPS, allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE'];
+				var propsNodes = [], props = allData.data.PROPS, allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE', 'PROP_001'];
+                if (!props && allData.columns && allData.columns.PROPS) {
+                    props = allData.columns.PROPS;
+                }
+                // Same issue as above: WIDTH/HEIGHT for offers may come as flat PROPERTY_* fields
+                if (allData.data) {
+                    props = props && props.length ? props.slice() : [];
+                    var hasHiddenProp = function (code, value) {
+                        if (!props || !props.length) return false;
+                        for (var pi = 0; pi < props.length; pi++) {
+                            if (String(props[pi].CODE || '') === String(code) && String(props[pi].VALUE || '') === String(value)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    };
+                    if (allData.data.PROPERTY_WIDTH_VALUE && !hasHiddenProp('WIDTH', allData.data.PROPERTY_WIDTH_VALUE)) {
+                        props.push({CODE: 'WIDTH', NAME: 'Ширина', VALUE: String(allData.data.PROPERTY_WIDTH_VALUE)});
+                    }
+                    if (allData.data.PROPERTY_HEIGHT_VALUE && !hasHiddenProp('HEIGHT', allData.data.PROPERTY_HEIGHT_VALUE)) {
+                        props.push({CODE: 'HEIGHT', NAME: 'Высота', VALUE: String(allData.data.PROPERTY_HEIGHT_VALUE)});
+                    }
+                    if (allData.data.PROPERTY_PROP_001_VALUE && !hasHiddenProp('PROP_001', allData.data.PROPERTY_PROP_001_VALUE)) {
+                        props.push({CODE: 'PROP_001', NAME: 'Количество створок', VALUE: String(allData.data.PROPERTY_PROP_001_VALUE)});
+                    }
+                }
                 if (props && props.length) {
                     for (i in props) {
                         if (props.hasOwnProperty(i)) {

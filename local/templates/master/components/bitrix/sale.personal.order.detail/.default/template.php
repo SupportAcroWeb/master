@@ -138,6 +138,7 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
 
     $productLinks = [];
     $productImages = [];
+    $offerIblockIds = [];
 
     if (!empty($offerIds)) {
         $offer = CIBlockElement::GetList(
@@ -150,6 +151,7 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
         while ($offerItem = $offer->fetch()) {
             $productLinks[$offerItem['ID']] = $offerItem['PROPERTY_CML2_LINK_VALUE'];
             $productIDs[] = $offerItem['PROPERTY_CML2_LINK_VALUE'];
+            $offerIblockIds[$offerItem['ID']] = (int)$offerItem['IBLOCK_ID'];
         }
     }
 
@@ -171,6 +173,34 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
             $imageId = $productItem['PREVIEW_PICTURE'] ?: $productItem['DETAIL_PICTURE'];
             if ($imageId) {
                 $productImages[$productItem['ID']] = CFile::GetPath($imageId);
+            }
+        }
+    }
+
+    // Свойства офферов (WIDTH/HEIGHT/PROP_001) — на детальной заказа могут не приходить в PROPS позиции
+    $offerPropsById = [];
+    foreach ($offerIds as $oidRaw) {
+        $oid = (int)$oidRaw;
+        $offerIblockId = (int)($offerIblockIds[$oid] ?? 0);
+        if ($oid <= 0 || $offerIblockId <= 0) {
+            continue;
+        }
+        foreach (['WIDTH', 'HEIGHT', 'PROP_001'] as $code) {
+            $rsProp = \CIBlockElement::GetProperty(
+                $offerIblockId,
+                $oid,
+                ['sort' => 'asc', 'enum_sort' => 'asc', 'value_id' => 'asc'],
+                ['CODE' => $code, 'EMPTY' => 'N']
+            );
+            if ($row = $rsProp->Fetch()) {
+                $val = $row['VALUE_ENUM'] ?: $row['VALUE'];
+                if ($val === null || $val === '') {
+                    continue;
+                }
+                $offerPropsById[$oid][$code] = [
+                    'label' => (string)($row['NAME'] ?: $code),
+                    'value' => (string)$val,
+                ];
             }
         }
     }
@@ -411,19 +441,43 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                                 $availabilityClass = $isAvailable ? 'instock' : 'outofstock';
                                 $availabilityText = $isAvailable ? 'В наличии' : 'Нет в наличии';
 
-                                $specs = [];
+                                $specsByCode = [];
                                 if (!empty($basketItem['PROPS']) && is_array($basketItem['PROPS'])) {
                                     foreach ($basketItem['PROPS'] as $prop) {
+                                        $code = (string)($prop['CODE'] ?? '');
                                         $name = (string)($prop['NAME'] ?? '');
                                         $value = (string)($prop['VALUE'] ?? '');
-                                        if ($name === '' || $value === '') {
+                                        if ($value === '' || $name === '') {
                                             continue;
                                         }
-                                        $specs[] = [
-                                            'label' => $name,
-                                            'value' => $value,
-                                        ];
+                                        $key = $code !== '' ? $code : $name;
+                                        $specsByCode[$key] = ['label' => $name, 'value' => $value];
                                     }
+                                }
+
+                                // Для офферов добираем характеристики из свойств элемента-оффера
+                                $offerId = (int)$productId;
+                                if ($offerId > 0 && isset($offerPropsById[$offerId])) {
+                                    foreach ($offerPropsById[$offerId] as $code => $spec) {
+                                        if (!isset($specsByCode[$code])) {
+                                            $specsByCode[$code] = $spec;
+                                        }
+                                    }
+                                }
+
+                                // Порядок вывода
+                                $specs = [];
+                                foreach (['WIDTH', 'HEIGHT', 'PROP_001', 'LOCK_TYPE', 'COLOR'] as $code) {
+                                    if (isset($specsByCode[$code])) {
+                                        $specs[] = $specsByCode[$code];
+                                    }
+                                }
+                                // Остальные (на всякий)
+                                foreach ($specsByCode as $key => $spec) {
+                                    if (in_array($key, ['WIDTH', 'HEIGHT', 'PROP_001', 'LOCK_TYPE', 'COLOR'], true)) {
+                                        continue;
+                                    }
+                                    $specs[] = $spec;
                                 }
                                 ?>
                                 <tr class="order-products__item">

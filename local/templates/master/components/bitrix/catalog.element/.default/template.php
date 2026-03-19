@@ -478,83 +478,6 @@ if (is_array($advantagesProperty)) {
                         }
                     }
                     ?>
-                    <?php if (!empty($locks) || !empty($colors)): ?>
-                        <div class="catalog-detail__params catalog-detail__params_offer" data-basket-props>
-                            <?php if (!empty($locks)): ?>
-                                <fieldset class="catalog-detail__param">
-                                    <legend class="catalog-detail__title">Запирание</legend>
-                                    <div class="params-list">
-                                        <?php foreach ($locks as $idx => $lock): ?>
-                                            <?php
-                                            $lockId = (int)($lock['ID'] ?? 0);
-                                            $lockName = (string)($lock['UF_NAME'] ?? '');
-                                            if ($lockId <= 0 || $lockName === '') {
-                                                continue;
-                                            }
-                                            ?>
-                                            <label class="radio-parameter">
-                                                <input
-                                                    class="radio-parameter__input"
-                                                    type="radio"
-                                                    name="product_lock_type"
-                                                    value="<?= $lockId ?>"
-                                                    data-basket-prop-code="LOCK_TYPE"
-                                                    data-basket-prop-name="Запирание"
-                                                    data-basket-prop-value="<?= htmlspecialcharsbx($lockName) ?>"
-                                                    <?= $idx === 0 ? 'checked' : '' ?>
-                                                >
-                                                <span class="radio-parameter__visual"><?= htmlspecialcharsbx($lockName) ?></span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </fieldset>
-                            <?php endif; ?>
-
-                            <?php if (!empty($colors)): ?>
-                                <fieldset class="catalog-detail__param">
-                                    <legend class="catalog-detail__title">Цвет</legend>
-                                    <div class="params-list">
-                                        <?php foreach ($colors as $idx => $color): ?>
-                                            <?php
-                                            $colorId = (int)($color['ID'] ?? 0);
-                                            $colorName = (string)($color['UF_NAME'] ?? '');
-                                            if ($colorId <= 0 || $colorName === '') {
-                                                continue;
-                                            }
-                                            $colorFileId = (int)($color['UF_FILE'] ?? 0);
-                                            $colorHex = (string)($color['UF_COLOR'] ?? '');
-                                            $colorStyle = '';
-                                            if ($colorFileId > 0) {
-                                                $src = (string)\CFile::GetPath($colorFileId);
-                                                if ($src !== '') {
-                                                    $colorStyle = "background-image: url('" . htmlspecialcharsbx($src) . "');";
-                                                }
-                                            } elseif ($colorHex !== '') {
-                                                $colorStyle = 'background-color: ' . htmlspecialcharsbx($colorHex) . ';';
-                                            }
-                                            ?>
-                                            <label class="radio-parameter">
-                                                <input
-                                                    class="radio-parameter__input"
-                                                    type="radio"
-                                                    name="product_color"
-                                                    value="<?= $colorId ?>"
-                                                    data-basket-prop-code="COLOR"
-                                                    data-basket-prop-name="Цвет"
-                                                    data-basket-prop-value="<?= htmlspecialcharsbx($colorName) ?>"
-                                                    <?= $idx === 0 ? 'checked' : '' ?>
-                                                >
-                                                <span class="radio-parameter__visual">
-                                                    <span class="radio-parameter__color"<?= $colorStyle !== '' ? ' style="' . $colorStyle . '"' : '' ?>></span>
-                                                    <span><?= htmlspecialcharsbx($colorName) ?></span>
-                                                </span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </fieldset>
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
                     <?php if ($haveOffers && !empty($arResult['OFFERS_PROP'])): ?>
                         <div class="catalog-detail__params catalog-detail__params_offer">
                             <?php foreach ($arResult['SKU_PROPS'] as $skuProperty): ?>
@@ -621,6 +544,84 @@ if (is_array($advantagesProperty)) {
                         </div>
                     <?php endif; ?>
 
+                    <?php if (!empty($locks) || !empty($colors)): ?>
+                        <div style="margin-bottom: 20px;" class="catalog-detail__params catalog-detail__params_offer" data-basket-props>
+                            <?php if (!empty($locks)): ?>
+                                <fieldset class="catalog-detail__param">
+                                    <legend class="catalog-detail__title">Запирание</legend>
+                                    <div class="params-list">
+                                        <?php foreach ($locks as $idx => $lock): ?>
+                                            <?php
+                                            $lockId = (int)($lock['ID'] ?? 0);
+                                            $lockName = (string)($lock['UF_NAME'] ?? '');
+                                            if ($lockId <= 0 || $lockName === '') {
+                                                continue;
+                                            }
+                                            ?>
+                                            <label class="radio-parameter">
+                                                <input
+                                                        class="radio-parameter__input"
+                                                        type="radio"
+                                                        name="product_lock_type"
+                                                        value="<?= $lockId ?>"
+                                                        data-basket-prop-code="LOCK_TYPE"
+                                                        data-basket-prop-name="Запирание"
+                                                        data-basket-prop-value="<?= htmlspecialcharsbx($lockName) ?>"
+                                                        <?= $idx === 0 ? 'checked' : '' ?>
+                                                >
+                                                <span class="radio-parameter__visual"><?= htmlspecialcharsbx($lockName) ?></span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </fieldset>
+                            <?php endif; ?>
+
+                            <?php if (!empty($colors)): ?>
+                                <fieldset class="catalog-detail__param">
+                                    <legend class="catalog-detail__title">Цвет</legend>
+                                    <div class="params-list">
+                                        <?php foreach ($colors as $idx => $color): ?>
+                                            <?php
+                                            $colorId = (int)($color['ID'] ?? 0);
+                                            $colorName = (string)($color['UF_NAME'] ?? '');
+                                            if ($colorId <= 0 || $colorName === '') {
+                                                continue;
+                                            }
+                                            $colorFileId = (int)($color['UF_FILE'] ?? 0);
+                                            $colorHex = (string)($color['UF_COLOR'] ?? '');
+                                            $colorStyle = '';
+                                            if ($colorFileId > 0) {
+                                                $src = (string)\CFile::GetPath($colorFileId);
+                                                if ($src !== '') {
+                                                    $colorStyle = "background-image: url('" . htmlspecialcharsbx($src) . "');";
+                                                }
+                                            } elseif ($colorHex !== '') {
+                                                $colorStyle = 'background-color: ' . htmlspecialcharsbx($colorHex) . ';';
+                                            }
+                                            ?>
+                                            <label class="radio-parameter">
+                                                <input
+                                                        class="radio-parameter__input"
+                                                        type="radio"
+                                                        name="product_color"
+                                                        value="<?= $colorId ?>"
+                                                        data-basket-prop-code="COLOR"
+                                                        data-basket-prop-name="Цвет"
+                                                        data-basket-prop-value="<?= htmlspecialcharsbx($colorName) ?>"
+                                                        <?= $idx === 0 ? 'checked' : '' ?>
+                                                >
+                                                <span class="radio-parameter__visual">
+                                                    <span class="radio-parameter__color"<?= $colorStyle !== '' ? ' style="' . $colorStyle . '"' : '' ?>></span>
+                                                    <span><?= htmlspecialcharsbx($colorName) ?></span>
+                                                </span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </fieldset>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+ 
                     <?php if (!empty($arResult['DISPLAY_PROPERTIES'])): ?>
                         <h2 class="catalog-detail__title">Характеристики</h2>
                         <div class="table-specs1-wrapper">

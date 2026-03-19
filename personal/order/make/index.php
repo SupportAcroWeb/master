@@ -40,6 +40,9 @@ $APPLICATION->SetTitle("Оформление заказа");
 			2 => "PROPS",
 			3 => "DISCOUNT_PRICE_PERCENT_FORMATED",
 			4 => "PRICE_FORMATED",
+			5 => "PROPERTY_WIDTH",
+			6 => "PROPERTY_HEIGHT",
+			7 => "PROPERTY_PROP_001",
 		),
 		"PROPS_FADE_LIST_1" => array(
 		),
