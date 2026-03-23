@@ -176,6 +176,8 @@ $prepareDimensionValues = static function (array $values) use ($getDimensionSort
 $sizeTable = [
     'widthPropId' => 0,
     'heightPropId' => 0,
+    'widthPropName' => '',
+    'heightPropName' => '',
     'widths' => [],
     'heights' => [],
     'cells' => [],
@@ -224,21 +226,14 @@ if ($haveOffers && !empty($arResult['OFFERS_PROP']) && !empty($arResult['SKU_PRO
             continue;
         }
 
-        $propertyNameLower = mb_strtolower((string)$skuProperty['NAME']);
         $propertyCodeUpper = mb_strtoupper((string)$skuProperty['CODE']);
 
-        if (
-            $widthSkuProperty === null
-            && ($propertyCodeUpper === 'WIDTH' || mb_strpos($propertyNameLower, 'шир') !== false)
-        ) {
+        if ($widthSkuProperty === null && $propertyCodeUpper === 'WIDTH') {
             $widthSkuProperty = $skuProperty;
             continue;
         }
 
-        if (
-            $heightSkuProperty === null
-            && ($propertyCodeUpper === 'HEIGHT' || mb_strpos($propertyNameLower, 'выс') !== false)
-        ) {
+        if ($heightSkuProperty === null && $propertyCodeUpper === 'HEIGHT') {
             $heightSkuProperty = $skuProperty;
         }
     }
@@ -246,8 +241,33 @@ if ($haveOffers && !empty($arResult['OFFERS_PROP']) && !empty($arResult['SKU_PRO
     if ($widthSkuProperty !== null && $heightSkuProperty !== null) {
         $sizeTable['widthPropId'] = (int)$widthSkuProperty['ID'];
         $sizeTable['heightPropId'] = (int)$heightSkuProperty['ID'];
+        $sizeTable['widthPropName'] = (string)$widthSkuProperty['NAME'];
+        $sizeTable['heightPropName'] = (string)$heightSkuProperty['NAME'];
         $sizeTable['widths'] = $prepareDimensionValues($widthSkuProperty['VALUES']);
         $sizeTable['heights'] = $prepareDimensionValues($heightSkuProperty['VALUES']);
+
+        // Свойство "Стандартная модель": ID берём по CODE, чтобы при удалении/добавлении сохранялась работоспособность.
+        $standartPropId = null;
+        $standartYesValueId = null;
+        foreach (($arResult['SKU_PROPS'] ?? []) as $p) {
+            $codeUpper = mb_strtoupper(trim((string)($p['CODE'] ?? '')));
+            if ($codeUpper !== 'STANDART') {
+                continue;
+            }
+
+            $standartPropId = (int)($p['ID'] ?? 0) ?: null;
+            if ($standartPropId) {
+                foreach (($p['VALUES'] ?? []) as $v) {
+                    $nameLower = mb_strtolower(trim((string)($v['NAME'] ?? '')));
+                    if ($nameLower === 'да') {
+                        $standartYesValueId = (string)($v['ID'] ?? '');
+                        break;
+                    }
+                }
+            }
+
+            break;
+        }
 
         foreach ($arResult['OFFERS'] as $offer) {
             $widthValueId = (string)($offer['TREE']['PROP_' . $sizeTable['widthPropId']] ?? '');
@@ -261,11 +281,19 @@ if ($haveOffers && !empty($arResult['OFFERS_PROP']) && !empty($arResult['SKU_PRO
                 continue;
             }
 
+            $standartValueId = $standartPropId
+                ? (string)($offer['TREE']['PROP_' . $standartPropId] ?? '')
+                : '';
+            $isStandartYes = $standartYesValueId !== null
+                && $standartValueId !== ''
+                && (string)$standartValueId === (string)$standartYesValueId;
+
             $offerPrice = $offer['ITEM_PRICES'][$offer['ITEM_PRICE_SELECTED']] ?? null;
             $sizeTable['cells'][$heightValueId][$widthValueId] = [
                 'offerId' => (int)$offer['ID'],
                 'widthValueId' => (int)$widthValueId,
                 'heightValueId' => (int)$heightValueId,
+                'isStandartYes' => $isStandartYes,
                 'price' => $offerPrice
                     ? ((float)$offerPrice['PRICE'] > 0 ? (string)$offerPrice['PRINT_PRICE'] : 'По запросу')
                     : '',
@@ -489,11 +517,10 @@ if (is_array($advantagesProperty)) {
                                 $propertyId = (int)$skuProperty['ID'];
                                 $selectedValueId = (string)($actualItem['TREE']['PROP_' . $propertyId] ?? '');
                                 $propertyName = (string)$skuProperty['NAME'];
-                                $propertyNameLower = mb_strtolower($propertyName);
-                                $isDimensionProp = mb_strpos($propertyNameLower, 'шир') !== false
-                                    || mb_strpos($propertyNameLower, 'выс') !== false;
+                                $propertyCodeUpper = mb_strtoupper((string)($skuProperty['CODE'] ?? ''));
+                                $isDimensionProp = $propertyCodeUpper === 'WIDTH' || $propertyCodeUpper === 'HEIGHT';
 
-                                if ($isDimensionProp) {
+                                if ($isDimensionProp || $propertyCodeUpper === 'STANDART') {
                                     continue;
                                 }
                                 ?>
@@ -734,9 +761,8 @@ if (is_array($advantagesProperty)) {
                                                 $propertyId = (int)$skuProperty['ID'];
                                                 $selectedValueId = (string)($actualItem['TREE']['PROP_' . $propertyId] ?? '');
                                                 $propertyName = (string)$skuProperty['NAME'];
-                                                $propertyNameLower = mb_strtolower($propertyName);
-                                                $isDimensionProp = mb_strpos($propertyNameLower, 'шир') !== false
-                                                    || mb_strpos($propertyNameLower, 'выс') !== false;
+                                                $propertyCodeUpper = mb_strtoupper((string)($skuProperty['CODE'] ?? ''));
+                                                $isDimensionProp = $propertyCodeUpper === 'WIDTH' || $propertyCodeUpper === 'HEIGHT';
                                                 $dimensionValues = $prepareDimensionValues($skuProperty['VALUES']);
 
                                                 if (!$isDimensionProp || empty($dimensionValues)) {
@@ -1187,8 +1213,8 @@ if (is_array($advantagesProperty)) {
                         data-width-prop-id="<?= $sizeTable['widthPropId'] ?>"
                         data-height-prop-id="<?= $sizeTable['heightPropId'] ?>"
                     >
-                        <span class="table-variants__label"><span>Ширина, мм</span></span>
-                        <span class="table-variants__label vertical"><span>Высота, мм</span></span>
+                        <span class="table-variants__label"><span><?= htmlspecialcharsbx((string)($sizeTable['widthPropName'] ?: 'Ширина, мм')) ?></span></span>
+                        <span class="table-variants__label vertical"><span><?= htmlspecialcharsbx((string)($sizeTable['heightPropName'] ?: 'Высота, мм')) ?></span></span>
                         <div class="table-variants__scroll">
                             <table>
                                 <tr>
@@ -1209,7 +1235,7 @@ if (is_array($advantagesProperty)) {
                                                 <?php if ($cell !== null): ?>
                                                     <button
                                                         type="button"
-                                                        class="table-variants__item green<?= $isActiveSize ? ' active' : '' ?>"
+                                                        class="table-variants__item<?= !empty($cell['isStandartYes']) ? ' green' : ' white' ?><?= $isActiveSize ? ' active' : '' ?>"
                                                         data-size-offer-id="<?= $cell['offerId'] ?>"
                                                         data-width-value-id="<?= $cell['widthValueId'] ?>"
                                                         data-height-value-id="<?= $cell['heightValueId'] ?>"

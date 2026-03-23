@@ -24,7 +24,7 @@ $arUrlRewrite=array (
     'PATH' => '/personal/moi-zakazy/index.php',
     'SORT' => 100,
   ),
-  5 => 
+  7 => 
   array (
     'CONDITION' => '#^/produktsiya/#',
     'RULE' => '',

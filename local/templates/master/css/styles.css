@@ -101,7 +101,9 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
-
+body:not(.mp) .main {
+  padding-bottom: clamp(50px, 8vw, 125px);
+}
 p,
 h1,
 h2,
@@ -3177,6 +3179,10 @@ a {
 }
 .table-variants__item.green {
   background-color: rgba(51, 181, 18, 0.2);
+}
+
+.table-variants__item.white {
+  background-color: #fff;
 }
 .table-variants__item.active {
   border-color: var(--theme-color-accent);

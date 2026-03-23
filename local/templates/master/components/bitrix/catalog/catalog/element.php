@@ -25,6 +25,13 @@ if (isset($arParams['USE_COMMON_SETTINGS_BASKET_POPUP']) && $arParams['USE_COMMO
 
 $isSidebar = ($arParams['SIDEBAR_DETAIL_SHOW'] == 'Y' && !empty($arParams['SIDEBAR_PATH']));
 
+$offerTreeProps = isset($arParams['OFFER_TREE_PROPS']) && is_array($arParams['OFFER_TREE_PROPS'])
+	? $arParams['OFFER_TREE_PROPS']
+	: [];
+if (!in_array('STANDART', $offerTreeProps, true)) {
+	$offerTreeProps[] = 'STANDART';
+}
+
 $componentElementParams = array(
     'IBLOCK_TYPE' => $arParams['IBLOCK_TYPE'],
     'IBLOCK_ID' => $arParams['IBLOCK_ID'],
@@ -91,7 +98,7 @@ $componentElementParams = array(
     'LABEL_PROP_MOBILE' => $arParams['LABEL_PROP_MOBILE'],
     'LABEL_PROP_POSITION' => $arParams['LABEL_PROP_POSITION'],
     'OFFER_ADD_PICT_PROP' => $arParams['OFFER_ADD_PICT_PROP'],
-    'OFFER_TREE_PROPS' => (isset($arParams['OFFER_TREE_PROPS']) ? $arParams['OFFER_TREE_PROPS'] : []),
+	'OFFER_TREE_PROPS' => $offerTreeProps,
     'PRODUCT_SUBSCRIPTION' => $arParams['PRODUCT_SUBSCRIPTION'],
     'SHOW_DISCOUNT_PERCENT' => $arParams['SHOW_DISCOUNT_PERCENT'],
     'DISCOUNT_PERCENT_POSITION' => (isset($arParams['DISCOUNT_PERCENT_POSITION']) ? $arParams['DISCOUNT_PERCENT_POSITION'] : ''),

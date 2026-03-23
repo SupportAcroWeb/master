@@ -10,7 +10,10 @@ $APPLICATION->SetTitle("Продукция");
 		"ADD_ELEMENT_CHAIN" => "Y",
 		"ADD_PICT_PROP" => "MORE_PHOTO",
 		"ADD_PROPERTIES_TO_BASKET" => "Y",
-		"PRODUCT_PROPERTIES" => array("COLOR", "LOCK_TYPE"),
+		"PRODUCT_PROPERTIES" => array(
+			0 => "COLOR",
+			1 => "LOCK_TYPE",
+		),
 		"ADD_SECTIONS_CHAIN" => "Y",
 		"AJAX_MODE" => "N",
 		"AJAX_OPTION_ADDITIONAL" => "",
@@ -236,8 +239,9 @@ $APPLICATION->SetTitle("Продукция");
 			1 => "",
 		),
 		"DETAIL_MAIN_BLOCK_OFFERS_PROPERTY_CODE" => array(
-			0 => "WIDTH",
-			1 => "HEIGHT",
+			0 => "HEIGHT",
+			1 => "WIDTH",
+			2 => "STANDART",
 		),
 		"OFFERS_SORT_FIELD" => "sort",
 		"OFFERS_SORT_ORDER" => "asc",
