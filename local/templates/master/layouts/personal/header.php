@@ -11,7 +11,7 @@ use Acroweb\Mage\Helpers\TemplateHelper;
 <div class="container">
     <?
     TemplateHelper::includePartial('breadcrumbs'); ?>
-    <div class="layout-sidebar features-wrapper">
+    <div class="layout-sidebar features-wrapper<?php TemplateHelper::showDivClass('personalClassTwo'); ?>">
         <aside class="layout-sidebar__aside lk-aside">
             <div class="lk-aside__inner">
                 <button class="lk-aside__toggle" type="button">

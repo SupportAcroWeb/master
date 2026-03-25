@@ -3127,10 +3127,10 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
             };
             if (data) {
                 if (data.PROPERTY_WIDTH_VALUE && !hasProp('WIDTH', data.PROPERTY_WIDTH_VALUE)) {
-                    props.push({CODE: 'WIDTH', NAME: 'Ширина', VALUE: String(data.PROPERTY_WIDTH_VALUE)});
+                    props.push({CODE: 'WIDTH', NAME: 'Сторона А, мм', VALUE: String(data.PROPERTY_WIDTH_VALUE)});
                 }
                 if (data.PROPERTY_HEIGHT_VALUE && !hasProp('HEIGHT', data.PROPERTY_HEIGHT_VALUE)) {
-                    props.push({CODE: 'HEIGHT', NAME: 'Высота', VALUE: String(data.PROPERTY_HEIGHT_VALUE)});
+                    props.push({CODE: 'HEIGHT', NAME: 'Сторона B, мм', VALUE: String(data.PROPERTY_HEIGHT_VALUE)});
                 }
                 if (data.PROPERTY_PROP_001_VALUE && !hasProp('PROP_001', data.PROPERTY_PROP_001_VALUE)) {
                     props.push({CODE: 'PROP_001', NAME: 'Количество створок', VALUE: String(data.PROPERTY_PROP_001_VALUE)});
@@ -3569,10 +3569,10 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
                         return false;
                     };
                     if (allData.data.PROPERTY_WIDTH_VALUE && !hasHiddenProp('WIDTH', allData.data.PROPERTY_WIDTH_VALUE)) {
-                        props.push({CODE: 'WIDTH', NAME: 'Ширина', VALUE: String(allData.data.PROPERTY_WIDTH_VALUE)});
+                        props.push({CODE: 'WIDTH', NAME: 'Сторона А, мм', VALUE: String(allData.data.PROPERTY_WIDTH_VALUE)});
                     }
                     if (allData.data.PROPERTY_HEIGHT_VALUE && !hasHiddenProp('HEIGHT', allData.data.PROPERTY_HEIGHT_VALUE)) {
-                        props.push({CODE: 'HEIGHT', NAME: 'Высота', VALUE: String(allData.data.PROPERTY_HEIGHT_VALUE)});
+                        props.push({CODE: 'HEIGHT', NAME: 'Сторона B, мм', VALUE: String(allData.data.PROPERTY_HEIGHT_VALUE)});
                     }
                     if (allData.data.PROPERTY_PROP_001_VALUE && !hasHiddenProp('PROP_001', allData.data.PROPERTY_PROP_001_VALUE)) {
                         props.push({CODE: 'PROP_001', NAME: 'Количество створок', VALUE: String(allData.data.PROPERTY_PROP_001_VALUE)});

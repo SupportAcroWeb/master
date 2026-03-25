@@ -55,7 +55,7 @@ foreach ($this->basketItems as $row)
 		'PRODUCT_PROVIDER_CLASS' => $row['PRODUCT_PROVIDER_CLASS'],
 		'NOT_AVAILABLE' => isset($row['NOT_AVAILABLE']) && $row['NOT_AVAILABLE'] === true,
 		'DELAYED' => $row['DELAY'] === 'Y',
-		'PREVIEW_TEXT' => !empty($row['PREVIEW_TEXT']) ? ($row['~PREVIEW_TEXT'] ?? $row['PREVIEW_TEXT']) : '',
+		'PREVIEW_TEXT' => strip_tags($row['PREVIEW_TEXT']),
 		'SKU_BLOCK_LIST' => array(),
 		'COLUMN_LIST' => array(),
 		'SHOW_LABEL' => false,

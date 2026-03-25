@@ -101,6 +101,9 @@ elseif ($currentPage == '/personal/' || $currentPage == '/personal/moi-zakazy/')
 {
     $layout = 'personal';
     TemplateHelper::setParam('personalClass', 'container_personal');
+    if ($currentPage == '/personal/moi-zakazy/') {
+        TemplateHelper::setParam('personalClassTwo', 'orders-wrapper');
+    }
 }
 elseif ($currentPage == '/personal/dannye-organizatsii/')
 {
