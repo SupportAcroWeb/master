@@ -149,8 +149,8 @@ $APPLICATION->IncludeComponent(
                 <button data-hystclose data-btn class="btn btn_primary"></button>
             </div>
             <button data-hystclose class="hystmodal__close">
-                <svg aria-hidden="true" width="20" height="20">
-                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#close1"></use>
+                <svg aria-hidden="true" width="24" height="24">
+                    <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#cross1"></use>
                 </svg>
                 <span class="v-h">Закрыть</span>
             </button>

@@ -45,10 +45,13 @@ AW.initMask = function ($field) {
   const type = $field.attr("data-mask");
   switch (type) {
     case "phone":
-      IMask($field[0], {
+      mask = IMask($field[0], {
         mask: "+{7} (000) 000-00-00",
-        lazy: false,
+        lazy: true,
         placeholderChar: "_",
+      });
+      $field.on("focus", () => {
+        if (mask.value === "") mask.value = "+7 ";
       });
       break;
   }

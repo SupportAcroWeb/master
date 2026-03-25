@@ -106,7 +106,6 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                     <th>Статус оплаты</th>
                     <th>Статус заказа</th>
                     <th></th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -176,13 +175,13 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
 
             <tr data-entity="item">
                 <td data-label="№">
-                    <div>№ <?= htmlspecialcharsbx($order['ORDER']['ACCOUNT_NUMBER']) ?></div>
+                    <div class="orders-table__string">№ <?= htmlspecialcharsbx($order['ORDER']['ACCOUNT_NUMBER']) ?></div>
                 </td>
                 <td data-label="Создан">
                     <div><?= htmlspecialcharsbx($order['ORDER']['DATE_INSERT_FORMATED']) ?></div>
                 </td>
                 <td data-label="Сумма">
-                    <div><?= html_entity_decode($order['ORDER']['FORMATED_PRICE'], ENT_QUOTES, 'UTF-8') ?></div>
+                    <div class="orders-table__string"><?= html_entity_decode($order['ORDER']['FORMATED_PRICE'], ENT_QUOTES, 'UTF-8') ?></div>
                 </td>
                 <td data-label="Статус оплаты">
                     <div>
@@ -241,8 +240,6 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                             </svg>
                         </a>
                     </div>
-                </td>
-                <td class="cell--details">
                     <div>
                         <a
                             class="btn-text btn-text_primary"

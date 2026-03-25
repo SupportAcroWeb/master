@@ -208,10 +208,10 @@ $APPLICATION->ShowPanel();
                         </div>
                     </div>
                 </div>
-                <div class="menu-catalog__menu">
+                <div class="menu-catalog__menu z1">
                     <?php $APPLICATION->IncludeComponent(
                             'bitrix:menu',
-                            'head_menu',
+                            'head_menu_mob',
                             [
                                     'ALLOW_MULTI_SELECT' => 'N',
                                     'CHILD_MENU_TYPE' => 'podmenu',

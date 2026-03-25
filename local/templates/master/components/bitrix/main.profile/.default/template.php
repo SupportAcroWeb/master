@@ -58,7 +58,7 @@ $APPLICATION->SetTitle("Личные данные");
         <div class="form-group1">
             <input
                     id="profile_last_name"
-                    class="field-input1 form-group1__field"
+                    class="field-input2 form-group1__field"
                     type="text"
                     name="LAST_NAME"
                     placeholder="Введите Фамилию"
@@ -73,7 +73,7 @@ $APPLICATION->SetTitle("Личные данные");
         <div class="form-group1">
             <input
                     id="profile_name"
-                    class="field-input1 form-group1__field"
+                    class="field-input2 form-group1__field"
                     type="text"
                     name="NAME"
                     placeholder="Введите Имя"
@@ -88,7 +88,7 @@ $APPLICATION->SetTitle("Личные данные");
         <div class="form-group1">
             <input
                     id="profile_second_name"
-                    class="field-input1 form-group1__field"
+                    class="field-input2 form-group1__field"
                     type="text"
                     name="SECOND_NAME"
                     placeholder="Введите Отчество"
@@ -108,7 +108,7 @@ $APPLICATION->SetTitle("Личные данные");
         <div class="form-group1">
             <input
                     id="profile_email"
-                    class="field-input1 form-group1__field"
+                    class="field-input2 form-group1__field"
                     type="email"
                     data-type="email"
                     data-mask="email"
@@ -125,7 +125,7 @@ $APPLICATION->SetTitle("Личные данные");
         <div class="form-group1">
             <input
                     id="profile_phone"
-                    class="field-input1 form-group1__field"
+                    class="field-input3 form-group1__field"
                     type="text"
                     data-type="phone"
                     data-mask="phone"

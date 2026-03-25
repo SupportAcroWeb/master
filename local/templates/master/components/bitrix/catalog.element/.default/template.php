@@ -173,6 +173,11 @@ $prepareDimensionValues = static function (array $values) use ($getDimensionSort
     return $preparedValues;
 };
 
+$normalizeSkuValueName = static function (string $valueName): string {
+    $normalizedValue = trim($valueName);
+    return $normalizedValue === '-' ? 'Не указано' : $normalizedValue;
+};
+
 $sizeTable = [
     'widthPropId' => 0,
     'heightPropId' => 0,
@@ -529,7 +534,7 @@ if (is_array($advantagesProperty)) {
                                     <div class="params-list">
                                         <?php foreach ($skuProperty['VALUES'] as $value): ?>
                                             <?php
-                                            $valueName = htmlspecialcharsbx((string)$value['NAME']);
+                                            $valueName = htmlspecialcharsbx($normalizeSkuValueName((string)$value['NAME']));
                                             $checked = $selectedValueId !== '' && $selectedValueId === (string)$value['ID'];
                                             ?>
                                             <label class="radio-parameter">
@@ -650,30 +655,32 @@ if (is_array($advantagesProperty)) {
                     <?php endif; ?>
  
                     <?php if (!empty($arResult['DISPLAY_PROPERTIES'])): ?>
-                        <h2 class="catalog-detail__title">Характеристики</h2>
-                        <div class="table-specs1-wrapper">
-                            <table class="table-specs1">
-                                <?php
-                                $propCount = 0;
-                                foreach ($arResult['DISPLAY_PROPERTIES'] as $code => $property) {
-                                    if (in_array((string)$code, ['COLOR', 'LOCK_TYPE'], true)) {
-                                        continue;
-                                    }
-                                    if ($propCount >= 5) {
-                                        break;
+                        <div class="catalog-detail__specs">
+                            <h2 class="catalog-detail__title">Характеристики</h2>
+                            <div class="table-specs1-wrapper">
+                                <table class="table-specs1">
+                                    <?php
+                                    $propCount = 0;
+                                    foreach ($arResult['DISPLAY_PROPERTIES'] as $code => $property) {
+                                        if (in_array((string)$code, ['COLOR', 'LOCK_TYPE'], true)) {
+                                            continue;
+                                        }
+                                        if ($propCount >= 5) {
+                                            break;
+                                        }
+                                        ?>
+                                        <tr>
+                                            <td><?= $property['NAME'] ?></td>
+                                            <td><?= is_array($property['DISPLAY_VALUE'])
+                                                    ? implode(' / ', $property['DISPLAY_VALUE'])
+                                                    : $property['DISPLAY_VALUE'] ?></td>
+                                        </tr>
+                                        <?php
+                                        $propCount++;
                                     }
                                     ?>
-                                    <tr>
-                                        <td><?= $property['NAME'] ?></td>
-                                        <td><?= is_array($property['DISPLAY_VALUE'])
-                                                ? implode(' / ', $property['DISPLAY_VALUE'])
-                                                : $property['DISPLAY_VALUE'] ?></td>
-                                    </tr>
-                                    <?php
-                                    $propCount++;
-                                }
-                                ?>
-                            </table>
+                                </table>
+                            </div>
                         </div>
                     <?php endif; ?>
 
@@ -696,7 +703,7 @@ if (is_array($advantagesProperty)) {
                                 <div class="product-item-detail-info-container" data-entity="sku-line-block">
                                     <ul class="product-item-scu-item-list">
                                         <?php foreach ($skuProperty['VALUES'] as &$value): ?>
-                                            <?php $value['NAME'] = htmlspecialcharsbx($value['NAME']); ?>
+                                            <?php $value['NAME'] = htmlspecialcharsbx($normalizeSkuValueName((string)$value['NAME'])); ?>
                                             <?php if ($skuProperty['SHOW_MODE'] === 'PICT'): ?>
                                                 <li
                                                     class="product-item-scu-item-color-container"
@@ -1719,7 +1726,7 @@ if ($arResult['CATALOG'] && $arParams['USE_GIFTS_MAIN_PR_SECTION_LIST'] == 'Y' &
                                     $propertyId = $skuProperty['ID'];
 
                                     foreach ($skuProperty['VALUES'] as $value) {
-                                        $value['NAME'] = htmlspecialcharsbx($value['NAME']);
+                                        $value['NAME'] = htmlspecialcharsbx($normalizeSkuValueName((string)$value['NAME']));
                                         if ($skuProperty['SHOW_MODE'] === 'PICT') {
                                             ?>
                                             <div class="product-item-selected-scu product-item-selected-scu-color selected"
@@ -1982,8 +1989,8 @@ if ($haveOffers) {
                     ?>
                 </div>
                 <button data-hystclose class="hystmodal__close">
-                    <svg aria-hidden="true" width="20" height="20">
-                        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#close1"></use>
+                    <svg aria-hidden="true" width="24" height="24">
+                        <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#cross1"></use>
                     </svg>
                     <span class="v-h">Закрыть</span>
                 </button>
@@ -2291,6 +2298,39 @@ $jsParams["IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED"] =
                 }
             }
 
+            function isTreeValueAllowed(treeValue) {
+                var hiddenItem = hiddenTree.querySelector('[data-treevalue="' + treeValue + '"]');
+                return !hiddenItem || !hiddenItem.classList.contains('notallowed');
+            }
+
+            function syncCustomSkuAvailability() {
+                root.querySelectorAll('[data-sku-radio]').forEach(function (input) {
+                    var treeValue = String(input.getAttribute('data-sku-radio') || '');
+                    var isAllowed = treeValue !== '' && isTreeValueAllowed(treeValue);
+                    input.disabled = !isAllowed;
+                });
+
+                root.querySelectorAll('[data-sku-select]').forEach(function (select) {
+                    var propId = String(select.getAttribute('data-sku-select') || '');
+
+                    Array.prototype.forEach.call(select.options, function (option) {
+                        var valueId = String(option.value || '');
+                        var treeValue = propId + '_' + valueId;
+                        var isAllowed = propId !== '' && valueId !== '' && isTreeValueAllowed(treeValue);
+                        option.disabled = !isAllowed;
+                    });
+
+                    if (select.tomselect) {
+                        if (typeof select.tomselect.sync === 'function') {
+                            select.tomselect.sync();
+                        }
+                        if (typeof select.tomselect.refreshOptions === 'function') {
+                            select.tomselect.refreshOptions(false);
+                        }
+                    }
+                });
+            }
+
             function syncArticle(offer) {
                 if (!articleNode) {
                     return;
@@ -2372,6 +2412,7 @@ $jsParams["IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED"] =
                 syncArticle(offer);
                 syncOldPriceRow(offer);
                 syncSizeTable(offerId);
+                syncCustomSkuAvailability();
             }
 
             root.querySelectorAll('[data-sku-radio]').forEach(function (input) {
@@ -2416,7 +2457,7 @@ $jsParams["IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED"] =
 
         (function () {
             var root = document.getElementById('<?=CUtil::JSEscape($itemIds['ID'])?>');
-            if (!root || !root.querySelector('[data-basket-props]')) {
+            if (!root) {
                 return;
             }
 
@@ -2447,9 +2488,12 @@ $jsParams["IS_FACEBOOK_CONVERSION_CUSTOMIZE_PRODUCT_EVENT_ENABLED"] =
                 var existing = BX.PopupWindowManager.getPopupById(popupId);
                 if (existing) existing.destroy();
                 var nameEl = root.querySelector('.catalog-detail__name');
-                var imgEl = root.querySelector('.catalog-detail__img img, [data-entity="slider-img"] img, .product-item-detail-slider-image img, .catalog-detail-slider img');
+                //var imgEl = root.querySelector('.catalog-detail__img img, [data-entity="slider-img"] img, .product-item-detail-slider-image img, .catalog-detail-slider img');
+                var imgEl = root.querySelector('.swiper-photos .swiper-slide:first-child img');
                 var productName = nameEl ? nameEl.textContent.trim() : '';
                 var productPict = imgEl ? (imgEl.getAttribute('src') || imgEl.src) : '';
+                console.log('test');
+                console.log(productPict);
                 var basketUrl = '<?= CUtil::JSEscape($arParams['BASKET_URL'] ?? '/personal/basket/') ?>';
                 var titleText = BX.message('TITLE_SUCCESSFUL') || 'Товар добавлен в корзину';
                 var btnCartText = BX.message('BTN_MESSAGE_DETAIL_BASKET_REDIRECT') || 'Перейти в корзину';
