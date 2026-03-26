@@ -91,6 +91,9 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 			</td>
 
 			<td class="cart-table__cell2">
+				{{#SHOW_ARTICLE}}
+					<div class="cart-table__article"><?= Loc::getMessage('SBB_ARTICLE_LABEL') ?> {{ARTICLE_VALUE}}</div>
+				{{/SHOW_ARTICLE}}
 				<div class="cart-table__name">
 					{{#DETAIL_PAGE_URL}}
 						<a href="{{DETAIL_PAGE_URL}}" data-entity="basket-item-name">
@@ -100,10 +103,6 @@ if (!empty($arParams['LABEL_PROP_POSITION']))
 						</a>
 					{{/DETAIL_PAGE_URL}}
 				</div>
-
-				{{#PREVIEW_TEXT}}
-					<div class="cart-table__article">{{PREVIEW_TEXT}}</div>
-				{{/PREVIEW_TEXT}}
 
 				<div class="cart-table__parameters">
 					<div class="cart-table__specs">

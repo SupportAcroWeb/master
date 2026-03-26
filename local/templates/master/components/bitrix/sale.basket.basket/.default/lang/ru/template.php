@@ -42,6 +42,7 @@ $MESS["SBB_BACK_TO_CATALOG"] = "вернуться к покупкам";
 $MESS["SBB_BASKET_TITLE"] = "корзина";
 $MESS["SBB_BASKET_CLEAR"] = "очистить корзину";
 $MESS["SBB_BASKET_CLEAR_CONFIRM"] = "Вы действительно хотите очистить корзину?";
+$MESS["SBB_ARTICLE_LABEL"] = "Артикул:";
 $MESS["SBB_CHARACTERISTICS"] = "Характеристики";
 $MESS["SBB_BASKET_ITEM_AVAILABLE"] = "В наличии";
 $MESS["SBB_BASKET_ITEM_DECREASE"] = "Уменьшить количество";

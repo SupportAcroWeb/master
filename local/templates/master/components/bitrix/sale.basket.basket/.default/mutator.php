@@ -63,7 +63,33 @@ foreach ($this->basketItems as $row)
 		'BRAND' => $row[$this->arParams['BRAND_PROPERTY'] . '_VALUE'] ?? '',
 	);
 
-	// Сохраняем базовые цены за единицу товара (без учета кратности)
+	$articleRaw = $row['~PROPERTY_ARTNUMBER_VALUE'] ?? $row['PROPERTY_ARTNUMBER_VALUE'] ?? '';
+	if (is_array($articleRaw))
+	{
+		$articleRaw = implode(', ', $articleRaw);
+	}
+	$articleValue = trim(strip_tags((string)$articleRaw));
+	$rowData['SHOW_ARTICLE'] = $articleValue !== '';
+	$rowData['ARTICLE_VALUE'] = $articleValue;
+
+	if (!empty($rowData['PROPS']) && is_array($rowData['PROPS']))
+	{
+		$rowData['PROPS'] = array_values(
+			array_filter(
+				$rowData['PROPS'],
+				static function ($prop): bool {
+					if (!is_array($prop))
+					{
+						return true;
+					}
+					$code = isset($prop['CODE']) ? (string)$prop['CODE'] : '';
+
+					return $code !== 'ARTNUMBER';
+				}
+			)
+		);
+	}
+
 	$rowData['BASE_PRICE'] = $rowData['PRICE'];
 	$rowData['BASE_PRICE_FORMATED'] = $rowData['PRICE_FORMATED'];
 	$rowData['BASE_FULL_PRICE'] = $rowData['FULL_PRICE'];
@@ -71,10 +97,8 @@ foreach ($this->basketItems as $row)
 	$rowData['BASE_DISCOUNT_PRICE'] = $rowData['DISCOUNT_PRICE'];
 	$rowData['BASE_DISCOUNT_PRICE_FORMATED'] = $rowData['DISCOUNT_PRICE_FORMATED'];
 	
-	// Проверка на нулевую цену
 	$rowData['IS_PRICE_ZERO'] = (float)$rowData['PRICE'] <= 0;
 
-	// show price including ratio
 	if ($rowData['MEASURE_RATIO'] != 1)
 	{
 		$price = PriceMaths::roundPrecision($rowData['PRICE'] * $rowData['MEASURE_RATIO']);
@@ -232,6 +256,8 @@ foreach ($this->basketItems as $row)
 			'PROPS' => true,
 			'DELETE' => true,
 			'DELAY' => true,
+			'PROPERTY_ARTNUMBER' => true,
+			'PROPERTY_ARTNUMBER_VALUE' => true,
 		];
 
 		foreach ($result['GRID']['HEADERS'] as &$value)
@@ -390,11 +416,25 @@ foreach ($this->basketItems as $row)
 		}
 
 		unset($value);
+
+		if (!empty($rowData['COLUMN_LIST']))
+		{
+			$rowData['COLUMN_LIST'] = array_values(
+				array_filter(
+					$rowData['COLUMN_LIST'],
+					static function (array $col): bool {
+						$code = isset($col['CODE']) ? (string)$col['CODE'] : '';
+
+						return $code !== 'PROPERTY_ARTNUMBER_VALUE'
+							&& $code !== 'PROPERTY_ARTNUMBER';
+					}
+				)
+			);
+		}
 	}
 
 	if (!empty($row['LABEL_ARRAY_VALUE']))
 	{
-		// Маппинг классов для лейблов
 		$arLabelsClass = [
 			'NEWPRODUCT' => 'badge1_black',
 			'SALELEADER' => 'badge1_red',
@@ -419,7 +459,6 @@ foreach ($this->basketItems as $row)
 	$result['BASKET_ITEM_RENDER_DATA'][] = $rowData;
 }
 
-// Подсчет количества позиций в корзине
 $itemsCount = 0;
 foreach ($this->basketItems as $item)
 {
@@ -429,15 +468,12 @@ foreach ($this->basketItems as $item)
 	}
 }
 
-// Склонение слова "товар" в зависимости от количества
-// Declension($one, $four, $five) - для 1, 2-4, 5+
 $itemsDeclension = new Declension(
-	Loc::getMessage('SBB_BASKET_ITEMS_ONE'),   // 1 товар
-	Loc::getMessage('SBB_BASKET_ITEMS_FOUR'),  // 2-4 товара
-	Loc::getMessage('SBB_BASKET_ITEMS_FIVE')   // 5+ товаров
+	Loc::getMessage('SBB_BASKET_ITEMS_ONE'),
+	Loc::getMessage('SBB_BASKET_ITEMS_FOUR'),
+	Loc::getMessage('SBB_BASKET_ITEMS_FIVE')
 );
 
-// Формируем готовую строку: "Товара, 2 шт."
 $itemsText = sprintf(
 	'%s, %d %s',
 	$itemsDeclension->get($itemsCount),

@@ -182,12 +182,12 @@ if ($arResult['SHOW_SMS_FIELD'] === true) {
                     Пароль <span class="req">*</span>
                 </label>
                 <div class="password-toggle">
-                    <button type="button" class="password-toggle__btn show">
+                    <button type="button" class="password-toggle__btn password-toggle__btn--masked">
                         <svg class="btn-text__icon" width="24" height="24" aria-hidden="true">
                             <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#eye-on1"></use>
                         </svg>
                     </button>
-                    <button type="button" class="password-toggle__btn hide">
+                    <button type="button" class="password-toggle__btn password-toggle__btn--plain">
                         <svg class="btn-text__icon" width="24" height="24" aria-hidden="true">
                             <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#eye-off1"></use>
                         </svg>
@@ -212,12 +212,12 @@ if ($arResult['SHOW_SMS_FIELD'] === true) {
                     Повторить пароль <span class="req">*</span>
                 </label>
                 <div class="password-toggle">
-                    <button type="button" class="password-toggle__btn show">
+                    <button type="button" class="password-toggle__btn password-toggle__btn--masked">
                         <svg class="btn-text__icon" width="24" height="24" aria-hidden="true">
                             <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#eye-on1"></use>
                         </svg>
                     </button>
-                    <button type="button" class="password-toggle__btn hide">
+                    <button type="button" class="password-toggle__btn password-toggle__btn--plain">
                         <svg class="btn-text__icon" width="24" height="24" aria-hidden="true">
                             <use xlink:href="<?= SITE_TEMPLATE_PATH ?>/img/sprite.svg#eye-off1"></use>
                         </svg>

@@ -505,14 +505,14 @@ const PasswordToggle = {
   },
 
   bindEvents() {
-    $(".password-toggle__btn.show").on("click", (e) => {
+    $(".password-toggle__btn--masked").on("click", (e) => {
       this.togglePassword(
         $(e.currentTarget).closest(".form-group1--password"),
         true,
       );
     });
 
-    $(".password-toggle__btn.hide").on("click", (e) => {
+    $(".password-toggle__btn--plain").on("click", (e) => {
       this.togglePassword(
         $(e.currentTarget).closest(".form-group1--password"),
         false,
@@ -525,8 +525,8 @@ const PasswordToggle = {
 
     $input.attr("type", show ? "text" : "password");
 
-    $group.find(".password-toggle__btn.show").toggle(!show);
-    $group.find(".password-toggle__btn.hide").toggle(show);
+    $group.find(".password-toggle__btn--masked").toggle(!show);
+    $group.find(".password-toggle__btn--plain").toggle(show);
   },
 };
 

@@ -347,7 +347,7 @@ a {
   font-size: 16px;
   line-height: 1.25;
   font-weight: 700;
-  padding: 5px 20px;
+  padding: 5px 31px;
   border-radius: calc(var(--height) / 2);
   min-height: var(--height);
   text-transform: uppercase;
@@ -369,11 +369,12 @@ a {
 }
 .btn_small {
   --height: 54px;
+  padding: 5px 23px;
 }
 .btn_big {
   --height: 66px;
-  padding-left: 36px;
-  padding-right: 36px;
+  padding-left: 32px;
+  padding-right: 32px;
 }
 .btn_compact {
   --height: auto;
@@ -1133,15 +1134,6 @@ textarea.field-input1 {
   line-height: 1.1;
   color: var(--theme-color-text-common);
   min-height: 16px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: start;
-      -ms-flex-pack: start;
-          justify-content: flex-start;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
 }
 .checkbox-text__label a {
   color: var(--theme-color-accent);
@@ -3602,7 +3594,7 @@ td.target .table-variants__item {
   font-size: 18px;
   line-height: 1.2;
   font-weight: 800;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
@@ -3614,7 +3606,7 @@ td.target .table-variants__item {
   line-height: 100%;
   vertical-align: middle;
   color: rgba(87, 87, 87, 0.6980392157);
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 .cart-table__spec {
   margin-bottom: 14px;
@@ -3632,13 +3624,14 @@ td.target .table-variants__item {
   color: #0c0b0b;
 }
 .cart-table__parameters {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 .cart-table__price-per-unit {
   font-weight: 400;
   white-space: nowrap;
   font-size: 14px;
   line-height: 100%;
+  padding-left: 15px;
   vertical-align: middle;
   color: rgba(87, 87, 87, 0.6980392157);
 }
@@ -6556,7 +6549,7 @@ td.target .table-variants__item {
 .password-toggle__btn svg {
   fill: rgb(241, 30, 31);
 }
-.password-toggle__btn.hide {
+.password-toggle__btn--plain {
   display: none;
 }
 @media (max-width: 575px) {

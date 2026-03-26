@@ -47,7 +47,7 @@ else
 		</span>
 	</span>
 	<span class="checkbox-text__label">
-		<span class="<?=$linkClassName?> checkbox-text__label"><?=$label?></span>
+		<span class="<?=$linkClassName?> checkbox-text__label">Нажимая на кнопку, принимаю <?=$label?></span>
 	</span>
 </label>
 <div data-bx-template="main-user-consent-request-loader" style="display: none;">

@@ -4,12 +4,20 @@ $APPLICATION->SetTitle("Корзина");
 ?><?$APPLICATION->IncludeComponent(
 	"bitrix:sale.basket.basket", 
 	".default", 
-	[
+	array(
 		"ACTION_VARIABLE" => "basketAction",
 		"ADDITIONAL_PICT_PROP_3" => "MORE_PHOTO",
 		"AUTO_CALCULATION" => "Y",
 		"BASKET_IMAGES_SCALING" => "standard",
-		"COLUMNS_LIST_EXT" => [
+		"COLUMNS_LIST_EXT" => array(
+			0 => "PREVIEW_PICTURE",
+			1 => "PROPS",
+			2 => "DELETE",
+			3 => "SUM",
+			4 => "PROPERTY_ARTNUMBER",
+			5 => "PROPERTY_PROP_001",
+		),
+		"COLUMNS_LIST_MOBILE" => array(
 			0 => "PREVIEW_PICTURE",
 			1 => "PROPS",
 			2 => "DELETE",
@@ -26,25 +34,7 @@ $APPLICATION->SetTitle("Корзина");
 			13 => "PROPERTY_INSERT_OBRABATYVAEMYJ_MATERIAL_TRY_70",
 			14 => "PROPERTY_INSERT_MATERIAL_PLASTINY",
 			15 => "PROPERTY_ZADNIJ_UGOL_PLASTINY",
-		],
-		"COLUMNS_LIST_MOBILE" => [
-			0 => "PREVIEW_PICTURE",
-			1 => "PROPS",
-			2 => "DELETE",
-			3 => "SUM",
-			4 => "PROPERTY_ARTNUMBER",
-			5 => "PROPERTY_FORMA_PLASTINY_ISO_PLASTINY",
-			6 => "PROPERTY_RAZMER_PLASTINY_100",
-			7 => "PROPERTY_INSERT_R",
-			8 => "PROPERTY_INSERT_DIAMETR_OKRUZNOSTI",
-			9 => "PROPERTY_TOKARNYE_PLASTINY_TOLSHINA",
-			10 => "PROPERTY_INSERT_L_REG_KROMKI",
-			11 => "PROPERTY_INSERT_D_OTVERSTIY",
-			12 => "PROPERTY_INSERT_VID_OBRABOTKI_152",
-			13 => "PROPERTY_INSERT_OBRABATYVAEMYJ_MATERIAL_TRY_70",
-			14 => "PROPERTY_INSERT_MATERIAL_PLASTINY",
-			15 => "PROPERTY_ZADNIJ_UGOL_PLASTINY",
-		],
+		),
 		"COMPATIBLE_MODE" => "Y",
 		"CORRECT_RATIO" => "Y",
 		"DEFERRED_REFRESH" => "N",
@@ -65,11 +55,11 @@ $APPLICATION->SetTitle("Корзина");
 		"GIFTS_SHOW_OLD_PRICE" => "N",
 		"GIFTS_TEXT_LABEL_GIFT" => "Подарок",
 		"HIDE_COUPON" => "N",
-		"LABEL_PROP" => [
+		"LABEL_PROP" => array(
 			0 => "NEWPRODUCT",
 			1 => "SALELEADER",
 			2 => "SPECIALOFFER",
-		],
+		),
 		"PATH_TO_ORDER" => "/personal/order/make/",
 		"PRICE_DISPLAY_MODE" => "Y",
 		"PRICE_VAT_SHOW_VALUE" => "N",
@@ -80,22 +70,23 @@ $APPLICATION->SetTitle("Корзина");
 		"SHOW_FILTER" => "N",
 		"SHOW_RESTORE" => "Y",
 		"TEMPLATE_THEME" => "blue",
-		"TOTAL_BLOCK_DISPLAY" => [
+		"TOTAL_BLOCK_DISPLAY" => array(
 			0 => "bottom",
-		],
+		),
 		"USE_DYNAMIC_SCROLL" => "Y",
 		"USE_ENHANCED_ECOMMERCE" => "N",
 		"USE_GIFTS" => "N",
 		"USE_PREPAYMENT" => "N",
 		"USE_PRICE_ANIMATION" => "Y",
 		"COMPONENT_TEMPLATE" => ".default",
-		"LABEL_PROP_MOBILE" => [
+		"LABEL_PROP_MOBILE" => array(
 			0 => "NEWPRODUCT",
 			1 => "SALELEADER",
 			2 => "SPECIALOFFER",
-		],
+		),
 		"LABEL_PROP_POSITION" => "top-left",
-		"PATH_TO_CATALOG" => "/produktsiya/"
-	],
+		"PATH_TO_CATALOG" => "/produktsiya/",
+		"ADDITIONAL_PICT_PROP_5" => "-"
+	),
 	false
 );?><?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

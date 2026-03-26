@@ -58,7 +58,7 @@ $currentPage = Application::getInstance()->getContext()->getRequest()->getReques
 $request = Application::getInstance()->getContext()->getRequest();
 $searchQuery = trim((string)$request->get('q'));
 
-if (preg_match('#^/personal/#i', $currentPage) && !$USER->IsAuthorized() && $currentPage != '/personal/basket/')
+if (preg_match('#^/personal/#i', $currentPage) && !$USER->IsAuthorized() && $currentPage != '/personal/basket/'&& $currentPage != '/personal/order/make/')
 {
     LocalRedirect('/auth/');
 }

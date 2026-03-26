@@ -3137,9 +3137,28 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
                 }
             }
 
+            var articleLine = '';
+            if (data) {
+                var rawArt = data['~PROPERTY_ARTNUMBER_VALUE'];
+                if (rawArt === undefined || rawArt === null || rawArt === '') {
+                    rawArt = data.PROPERTY_ARTNUMBER_VALUE;
+                }
+                if (rawArt !== undefined && rawArt !== null && rawArt !== '') {
+                    if (BX.type.isArray(rawArt)) {
+                        articleLine = rawArt.join(', ');
+                    } else {
+                        articleLine = String(rawArt);
+                    }
+                    articleLine = BX.util.trim(articleLine.replace(/<[^>]*>/g, ''));
+                }
+            }
+
             if (props.length) {
                 for (var i = 0; i < props.length; i++) {
                     var code = props[i].CODE || '';
+                    if (code === 'ARTNUMBER') {
+                        continue;
+                    }
                     if (allowedPropCodes.indexOf(code) === -1) {
                         continue;
                     }
@@ -3166,7 +3185,17 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
                 }
             }
 
-            var infoChildren = [
+            var infoChildren = [];
+            if (articleLine.length) {
+                var articleLabel = (typeof BX !== 'undefined' && BX.message && BX.message('SOA_ARTICLE_LABEL')) ? BX.message('SOA_ARTICLE_LABEL') : 'Артикул: ';
+                infoChildren.push(
+                    BX.create('DIV', {
+                        props: {className: 'order-products__article cart-table__article'},
+                        html: this.htmlspecialcharsEx(articleLabel + articleLine)
+                    })
+                );
+            }
+            infoChildren.push(
                 BX.create('DIV', {
                     props: {className: 'order-products__name'},
                     children: [
@@ -3176,7 +3205,7 @@ BX.namespace('BX.Sale.OrderAjaxComponent');
                         })
                     ]
                 })
-            ];
+            );
 
             if (specsNodes.length) {
                 infoChildren.push(

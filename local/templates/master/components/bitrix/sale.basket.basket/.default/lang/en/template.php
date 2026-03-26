@@ -38,3 +38,4 @@ $MESS["SBB_TOTAL_MSGVER_1"] = "Total:";
 $MESS["SBB_VAT_MSGVER_1"] = "Tax amount: #VAT_SUM_FORMATED#";
 $MESS["SBB_WARNING_ITEM"] = "with errors";
 $MESS["SBB_WEIGHT_MSGVER_1"] = "Total weight: #WEIGHT_FORMATED#";
+$MESS["SBB_ARTICLE_LABEL"] = "Article:";

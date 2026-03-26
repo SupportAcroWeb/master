@@ -13,7 +13,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Order;
-use Bitrix\Iblock\ElementTable;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Main\Loader;
 
@@ -25,19 +24,86 @@ Loader::includeModule('sale');
 Loader::includeModule('catalog');
 Loader::includeModule('iblock');
 
+Loc::loadMessages(__DIR__ . '/template.php');
+
+$extractPropertyCodesFromGridColumns = static function (array $columns): array {
+    $codes = [];
+    foreach ($columns as $key => $value) {
+        if (is_string($value) && strncmp($value, 'PROPERTY_', 9) === 0) {
+            $code = substr($value, 9);
+            if ($code !== '' && !in_array($code, $codes, true)) {
+                $codes[] = $code;
+            }
+            continue;
+        }
+        if (is_string($key) && strncmp($key, 'PROPERTY_', 9) === 0) {
+            $code = substr($key, 9);
+            if ($code !== '' && !in_array($code, $codes, true)) {
+                $codes[] = $code;
+            }
+        }
+    }
+
+    return $codes;
+};
+
+$orderedPropertyCodes = [];
+foreach (['PRODUCT_COLUMNS', 'PRODUCT_COLUMNS_HIDDEN'] as $paramKey) {
+    if (empty($arParams[$paramKey]) || !is_array($arParams[$paramKey])) {
+        continue;
+    }
+    foreach ($extractPropertyCodesFromGridColumns($arParams[$paramKey]) as $code) {
+        if (!in_array($code, $orderedPropertyCodes, true)) {
+            $orderedPropertyCodes[] = $code;
+        }
+    }
+}
+if ($orderedPropertyCodes === [] && !empty($arParams['PRODUCT_COLUMNS_VISIBLE']) && is_array($arParams['PRODUCT_COLUMNS_VISIBLE'])) {
+    foreach ($extractPropertyCodesFromGridColumns($arParams['PRODUCT_COLUMNS_VISIBLE']) as $code) {
+        if (!in_array($code, $orderedPropertyCodes, true)) {
+            $orderedPropertyCodes[] = $code;
+        }
+    }
+}
+if ($orderedPropertyCodes === []) {
+    $orderedPropertyCodes = ['WIDTH', 'HEIGHT', 'PROP_001', 'COLOR', 'LOCK_TYPE'];
+}
+$specPropertyCodes = [];
+foreach ($orderedPropertyCodes as $pc) {
+    if (strtoupper($pc) !== 'ARTNUMBER') {
+        $specPropertyCodes[] = $pc;
+    }
+}
+$dimensionBlockOrder = ['WIDTH', 'HEIGHT', 'PROP_001'];
+$specPropertyCodesDisplay = [];
+foreach ($dimensionBlockOrder as $c) {
+    if (in_array($c, $specPropertyCodes, true)) {
+        $specPropertyCodesDisplay[] = $c;
+    }
+}
+foreach ($specPropertyCodes as $c) {
+    if (!in_array($c, $dimensionBlockOrder, true)) {
+        $specPropertyCodesDisplay[] = $c;
+    }
+}
+$confirmSpecNameOverrides = [
+    'WIDTH' => 'Сторона А, мм',
+    'HEIGHT' => 'Сторона B, мм',
+    'PROP_001' => 'Количество створок',
+];
+$codesToFetchFromOffer = array_values(array_unique(array_merge($orderedPropertyCodes, ['ARTNUMBER'])));
+
 if (!empty($arResult["ORDER"])):
     $orderId = $arResult["ORDER"]['ID'];
     $order = Order::load($orderId);
 
     if ($order):
-        // Получаем свойства заказа
         $propertyCollection = $order->getPropertyCollection();
         $properties = [];
         foreach ($propertyCollection as $property) {
             $properties[$property->getField('CODE')] = $property->getValue();
         }
 
-        // Получаем доставку
         $shipmentCollection = $order->getShipmentCollection();
         $shipment = null;
         foreach ($shipmentCollection as $shipmentItem) {
@@ -48,7 +114,6 @@ if (!empty($arResult["ORDER"])):
         }
         $deliveryService = $shipment ? $shipment->getDelivery() : null;
 
-        // Получаем оплату
         $paymentCollection = $order->getPaymentCollection();
         $payment = null;
         foreach ($paymentCollection as $paymentItem) {
@@ -59,17 +124,14 @@ if (!empty($arResult["ORDER"])):
         }
         $paySystemName = $payment ? $payment->getPaymentSystemName() : '';
 
-        // Получаем корзину
         $basket = $order->getBasket();
         $basketItems = $basket->getBasketItems();
 
-        // Получаем ID товаров
         $basketItemIds = [];
         foreach ($basketItems as $item) {
             $basketItemIds[] = $item->getProductId();
         }
 
-        // Определяем типы товаров (товар или торговое предложение)
         $offerIds = [];
         $productIDs = [];
         if (!empty($basketItemIds)) {
@@ -87,7 +149,6 @@ if (!empty($arResult["ORDER"])):
             }
         }
 
-        // Получаем связи торговых предложений с товарами
         $productLinks = [];
         $productImages = [];
         $offerIblockIds = [];
@@ -106,7 +167,6 @@ if (!empty($arResult["ORDER"])):
             }
         }
 
-        // Свойства офферов (для confirm.php: WIDTH/HEIGHT/PROP_001 часто хранятся в свойствах элемента-оффера, а не в свойствах позиции корзины)
         $offerPropsById = [];
         foreach ($offerIds as $oidRaw) {
             $oid = (int)$oidRaw;
@@ -115,7 +175,7 @@ if (!empty($arResult["ORDER"])):
                 continue;
             }
 
-            foreach (['WIDTH', 'HEIGHT', 'PROP_001'] as $code) {
+            foreach ($codesToFetchFromOffer as $code) {
                 $rsProp = \CIBlockElement::GetProperty(
                     $offerIblockId,
                     $oid,
@@ -141,7 +201,8 @@ if (!empty($arResult["ORDER"])):
             }
         }
 
-        // Получаем изображения товаров
+        $productArtnumberById = [];
+        $productPropsById = [];
         if (!empty($productIDs)) {
             $products = \CIBlockElement::GetList(
                 [],
@@ -151,14 +212,37 @@ if (!empty($arResult["ORDER"])):
                 ['ID', 'IBLOCK_ID', 'PREVIEW_PICTURE', 'DETAIL_PICTURE']
             );
             while ($productItem = $products->fetch()) {
+                $pid = (int)$productItem['ID'];
+                $iblockId = (int)$productItem['IBLOCK_ID'];
                 $imageId = $productItem['PREVIEW_PICTURE'] ?: $productItem['DETAIL_PICTURE'];
                 if ($imageId) {
-                    $productImages[$productItem['ID']] = CFile::GetPath($imageId);
+                    $productImages[$pid] = CFile::GetPath($imageId);
+                }
+                foreach ($codesToFetchFromOffer as $code) {
+                    $rsProp = \CIBlockElement::GetProperty(
+                        $iblockId,
+                        $pid,
+                        ['sort' => 'asc', 'enum_sort' => 'asc', 'value_id' => 'asc'],
+                        ['CODE' => $code, 'EMPTY' => 'N']
+                    );
+                    if ($row = $rsProp->Fetch()) {
+                        $val = $row['VALUE_ENUM'] ?: $row['VALUE'];
+                        if ($val === null || $val === '') {
+                            continue;
+                        }
+                        if ($code === 'ARTNUMBER') {
+                            $productArtnumberById[$pid] = (string)$val;
+                        } else {
+                            $productPropsById[$pid][$code] = [
+                                'NAME' => (string)($row['NAME'] ?: $code),
+                                'VALUE' => (string)$val,
+                            ];
+                        }
+                    }
                 }
             }
         }
 
-        // Рассчитываем суммы
         $basketPrice = $basket->getPrice();
         $basketBasePrice = $basket->getBasePrice();
         $basketDiscountSum = $basketBasePrice - $basketPrice;
@@ -166,8 +250,17 @@ if (!empty($arResult["ORDER"])):
         $totalPrice = $order->getPrice();
         $personalOrdersUrl = $arParams['PATH_TO_PERSONAL'] ?? '/personal/';
         $personalOrdersUrl = rtrim($personalOrdersUrl, '/') . '/moi-zakazy/detail/' . $arResult["ORDER"]["ACCOUNT_NUMBER"] . '/';
-        ?>
 
+        $articleLabel = Loc::getMessage('SOA_ARTICLE_LABEL');
+        if ($articleLabel === null || $articleLabel === '') {
+            $articleLabel = 'Артикул:';
+        }
+        ?>
+<style>
+    .card-richbox {
+        cursor: auto;
+    }
+</style>
 <div class="order-header">
     <h1 class="title3">Заказ успешно оформлен</h1>
 </div>
@@ -350,7 +443,7 @@ if (!empty($arResult["ORDER"])):
                         <tbody class="order-products__body">
                         <?php foreach ($basketItems as $item):
                             $productId = $item->getProductId();
-                            $linkedProductId = $productLinks[$productId] ?? $productId;
+                            $linkedProductId = (int)($productLinks[$productId] ?? $productId);
                             $imagePath = $productImages[$linkedProductId] ?? SITE_TEMPLATE_PATH . '/img/no-image.png';
                             $quantity = $item->getQuantity();
                             $price = $item->getPrice();
@@ -360,10 +453,12 @@ if (!empty($arResult["ORDER"])):
                             $isPriceZero = (float)$price <= 0;
                             $canBuy = $item->getField('CAN_BUY') === 'Y' || $item->getField('CAN_BUY') === true;
                             $itemPropsByCode = [];
-                            $allowedPropCodes = ['WIDTH', 'HEIGHT', 'COLOR', 'LOCK_TYPE', 'PROP_001'];
                             foreach ($item->getPropertyCollection() as $prop) {
                                 $propCode = $prop->getField('CODE');
-                                if (!in_array((string)$propCode, $allowedPropCodes, true)) {
+                                if (strtoupper((string)$propCode) === 'ARTNUMBER') {
+                                    continue;
+                                }
+                                if (!in_array((string)$propCode, $specPropertyCodesDisplay, true)) {
                                     continue;
                                 }
                                 $propName = $prop->getField('NAME');
@@ -373,22 +468,56 @@ if (!empty($arResult["ORDER"])):
                                 }
                             }
 
-                            // Для SKU часть характеристик приходит как свойства самого оффера, а не как свойства позиции корзины.
                             $offerId = (int)$productId;
                             if ($offerId > 0 && isset($offerPropsById[$offerId])) {
                                 foreach ($offerPropsById[$offerId] as $code => $p) {
+                                    if (strtoupper((string)$code) === 'ARTNUMBER') {
+                                        continue;
+                                    }
+                                    if (!in_array((string)$code, $specPropertyCodesDisplay, true)) {
+                                        continue;
+                                    }
                                     if (!isset($itemPropsByCode[$code])) {
                                         $itemPropsByCode[$code] = $p;
                                     }
                                 }
                             }
 
-                            // порядок вывода
-                            $itemProps = [];
-                            foreach (['WIDTH', 'HEIGHT', 'PROP_001', 'LOCK_TYPE', 'COLOR'] as $code) {
-                                if (isset($itemPropsByCode[$code])) {
-                                    $itemProps[] = $itemPropsByCode[$code];
+                            if ($linkedProductId > 0 && isset($productPropsById[$linkedProductId])) {
+                                foreach ($productPropsById[$linkedProductId] as $code => $p) {
+                                    if (strtoupper((string)$code) === 'ARTNUMBER') {
+                                        continue;
+                                    }
+                                    if (!in_array((string)$code, $specPropertyCodesDisplay, true)) {
+                                        continue;
+                                    }
+                                    if (!isset($itemPropsByCode[$code])) {
+                                        $itemPropsByCode[$code] = $p;
+                                    }
                                 }
+                            }
+
+                            $itemProps = [];
+                            foreach ($specPropertyCodesDisplay as $code) {
+                                if (!isset($itemPropsByCode[$code])) {
+                                    continue;
+                                }
+                                $row = $itemPropsByCode[$code];
+                                if (isset($confirmSpecNameOverrides[$code])) {
+                                    $row['NAME'] = $confirmSpecNameOverrides[$code];
+                                }
+                                $itemProps[] = $row;
+                            }
+
+                            $articleText = '';
+                            if ($offerId > 0 && isset($offerPropsById[$offerId]['ARTNUMBER']['VALUE'])) {
+                                $articleText = (string)$offerPropsById[$offerId]['ARTNUMBER']['VALUE'];
+                            }
+                            if ($articleText === '' && $linkedProductId > 0 && isset($productArtnumberById[$linkedProductId])) {
+                                $articleText = $productArtnumberById[$linkedProductId];
+                            }
+                            if ($articleText === '' && isset($productArtnumberById[$offerId])) {
+                                $articleText = $productArtnumberById[$offerId];
                             }
                             ?>
                         <tr class="order-products__item">
@@ -400,6 +529,9 @@ if (!empty($arResult["ORDER"])):
                                 </div>
                             </td>
                             <td class="order-products__cell order-products__cell--info">
+                                <?php if ($articleText !== ''): ?>
+                                <div class="order-products__article cart-table__article"><?= htmlspecialcharsbx($articleLabel . $articleText) ?></div>
+                                <?php endif; ?>
                                 <div class="order-products__name">
                                     <a href="<?= htmlspecialcharsbx($item->getField('DETAIL_PAGE_URL')) ?>"><?= htmlspecialcharsbx($item->getField('NAME')) ?></a>
                                 </div>

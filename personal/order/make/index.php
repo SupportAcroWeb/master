@@ -33,6 +33,7 @@ $APPLICATION->SetTitle("Оформление заказа");
 		"PICKUP_MAP_TYPE" => "yandex",
 		"PRODUCT_COLUMNS_HIDDEN" => array(
 			0 => "PREVIEW_TEXT",
+			1 => "PROPERTY_ARTNUMBER",
 		),
 		"PRODUCT_COLUMNS_VISIBLE" => array(
 			0 => "PREVIEW_PICTURE",
@@ -40,9 +41,10 @@ $APPLICATION->SetTitle("Оформление заказа");
 			2 => "PROPS",
 			3 => "DISCOUNT_PRICE_PERCENT_FORMATED",
 			4 => "PRICE_FORMATED",
-			5 => "PROPERTY_WIDTH",
-			6 => "PROPERTY_HEIGHT",
-			7 => "PROPERTY_PROP_001",
+			5 => "PROPERTY_ARTNUMBER",
+			6 => "PROPERTY_PROP_001",
+			7 => "PROPERTY_HEIGHT",
+			8 => "PROPERTY_WIDTH",
 		),
 		"PROPS_FADE_LIST_1" => array(
 		),

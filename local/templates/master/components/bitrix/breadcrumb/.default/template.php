@@ -7,7 +7,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 global $APPLICATION;
 
-//delayed function must return a string
+include __DIR__ . '/result_modifier.php';
+
 if(empty($arResult))
     return "";
 

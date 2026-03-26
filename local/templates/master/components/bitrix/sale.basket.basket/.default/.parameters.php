@@ -1,5 +1,8 @@
-<?
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Loader;
 use Bitrix\Catalog;
@@ -7,15 +10,6 @@ use Bitrix\Iblock;
 use Bitrix\Main\Web\Json;
 
 CBitrixComponent::includeComponentClass($componentName);
-
-$arTemplateParameters['COLUMNS_LIST_MOBILE'] = array(
-	'PARENT' => 'VISUAL',
-	'NAME' => GetMessage('CP_SBB_TPL_COLUMNS_LIST_MOBILE'),
-	'TYPE' => 'LIST',
-	'COLS' => 25,
-	'SIZE' => 7,
-	'MULTIPLE' => 'Y',
-);
 
 $themes = array();
 
@@ -279,6 +273,8 @@ $arTemplateParameters['USE_ENHANCED_ECOMMERCE'] = array(
 	'DEFAULT' => 'N'
 );
 
+$propList = [];
+
 if (isset($arCurrentValues['USE_ENHANCED_ECOMMERCE']) && $arCurrentValues['USE_ENHANCED_ECOMMERCE'] === 'Y')
 {
 	if (Loader::includeModule('catalog'))
@@ -302,7 +298,7 @@ if (isset($arCurrentValues['USE_ENHANCED_ECOMMERCE']) && $arCurrentValues['USE_E
 			$arProps = array();
 			$propertyIterator = Iblock\PropertyTable::getList(array(
 				'select' => array('ID', 'CODE', 'NAME', 'IBLOCK_ID'),
-				'filter' => array('@IBLOCK_ID' => $arIblockIDs, '=ACTIVE' => 'Y', '!=XML_ID' => CIBlockPropertyTools::XML_SKU_LINK),
+				'filter' => array('@IBLOCK_ID' => $arIblockIDs, '=ACTIVE' => 'Y', '!=XML_ID' => \CIBlockPropertyTools::XML_SKU_LINK),
 				'order' => array('IBLOCK_ID' => 'ASC', 'SORT' => 'ASC', 'ID' => 'ASC')
 			));
 			while ($property = $propertyIterator->fetch())
