@@ -11,6 +11,8 @@ $(document).ready(function () {
         return;
     }
 
+    let lastRegisterFormData = null;
+
     // Синхронизация EMAIL с LOGIN
     $form.on('input', 'input[name="REGISTER[EMAIL]"]', function () {
         const email = $(this).val();
@@ -62,9 +64,57 @@ $(document).ready(function () {
             return;
         }
 
-        // Все проверки пройдены — отправляем форму стандартным способом
+        const bx = window.BX;
+        // Все проверки пройдены — отправка делается только после сохранения согласия
+        // (bitrix:main.userconsent.request слушает BX custom event с этим именем).
+        if (bx && bx.UserConsent) {
+            lastRegisterFormData = data;
+            $('.form-loader').removeClass('form-loader_active');
+            bx.onCustomEvent('register_submit', []);
+            return;
+        }
+
+        // fallback: если userconsent не инициализирован, отправляем как раньше
         data.form.submit();
     });
+
+    const bx = window.BX;
+    const formNode = document.querySelector('form[name="regform"]');
+    if (formNode && bx && bx.UserConsent) {
+        const consentControl = bx.UserConsent.load(formNode);
+        if (consentControl) {
+            bx.addCustomEvent(
+                bx.UserConsent,
+                bx.UserConsent.events.save,
+                function(item) {
+                    if (!lastRegisterFormData) {
+                        return;
+                    }
+                    if (item !== consentControl) {
+                        return;
+                    }
+
+                    const formToSubmit = lastRegisterFormData.form;
+                    lastRegisterFormData = null;
+
+                    // Важно: при вызове form.submit() браузер может не передать
+                    // data-ключ сабмит-кнопки (submitter), а сервер main.register
+                    // проверяет isset($_POST['register_submit_button']).
+                    // Поэтому добавляем hidden-поле гарантированно.
+                    if (!formToSubmit.querySelector('input[type="hidden"][name="register_submit_button"]')) {
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'register_submit_button';
+                        hiddenInput.value = 'Y';
+                        formToSubmit.appendChild(hiddenInput);
+                    }
+
+                    $('.form-loader').addClass('form-loader_active');
+                    formToSubmit.submit();
+                }
+            );
+        }
+    }
 });
 
 })();

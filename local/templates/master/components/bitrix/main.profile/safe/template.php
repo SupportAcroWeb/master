@@ -62,7 +62,7 @@ if ($arResult['SHOW_SMS_FIELD'] === true) {
                 <div class="form-group1 form-group1--password">
                     <input
                         id="cabinet_password2"
-                        class="field-input1 form-group__field"
+                        class="field-input2 form-group__field"
                         type="password"
                         name="NEW_PASSWORD"
                         placeholder="Новый пароль"
@@ -92,7 +92,7 @@ if ($arResult['SHOW_SMS_FIELD'] === true) {
                 <div class="form-group1 form-group1--password">
                     <input
                         id="cabinet_password3"
-                        class="field-input1 form-group__field"
+                        class="field-input2 form-group__field"
                         type="password"
                         name="NEW_PASSWORD_CONFIRM"
                         placeholder="Повторить новый пароль"

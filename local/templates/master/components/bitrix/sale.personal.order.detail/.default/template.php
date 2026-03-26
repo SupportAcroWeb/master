@@ -161,6 +161,13 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
         }
     }
 
+    $specNameOverrides = [
+        'WIDTH' => 'Сторона А, мм',
+        'HEIGHT' => 'Сторона B, мм',
+        'PROP_001' => 'Количество створок',
+    ];
+    $codesToFetch = ['ARTNUMBER', 'WIDTH', 'HEIGHT', 'PROP_001'];
+
     if (!empty($productIDs)) {
         $products = CIBlockElement::GetList(
             [],
@@ -169,15 +176,43 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
             false,
             ['ID', 'IBLOCK_ID', 'PREVIEW_PICTURE', 'DETAIL_PICTURE']
         );
+        $productArtnumberById = [];
+        $productPropsById = [];
         while ($productItem = $products->fetch()) {
+            $pid = (int)$productItem['ID'];
+            $iblockId = (int)$productItem['IBLOCK_ID'];
             $imageId = $productItem['PREVIEW_PICTURE'] ?: $productItem['DETAIL_PICTURE'];
             if ($imageId) {
-                $productImages[$productItem['ID']] = CFile::GetPath($imageId);
+                $productImages[$pid] = CFile::GetPath($imageId);
+            }
+
+            foreach ($codesToFetch as $code) {
+                $rsProp = \CIBlockElement::GetProperty(
+                    $iblockId,
+                    $pid,
+                    ['sort' => 'asc', 'enum_sort' => 'asc', 'value_id' => 'asc'],
+                    ['CODE' => $code, 'EMPTY' => 'N']
+                );
+                if ($row = $rsProp->Fetch()) {
+                    $val = $row['VALUE_ENUM'] ?: $row['VALUE'];
+                    if ($val === null || $val === '') {
+                        continue;
+                    }
+                    if ($code === 'ARTNUMBER') {
+                        $productArtnumberById[$pid] = (string)$val;
+                    } else {
+                        $label = $specNameOverrides[$code] ?? (string)($row['NAME'] ?: $code);
+                        $productPropsById[$pid][$code] = [
+                            'label' => $label,
+                            'value' => (string)$val,
+                        ];
+                    }
+                }
             }
         }
     }
 
-    // Свойства офферов (WIDTH/HEIGHT/PROP_001) — на детальной заказа могут не приходить в PROPS позиции
+    // Свойства офферов — на детальной заказа могут не приходить в PROPS позиции
     $offerPropsById = [];
     foreach ($offerIds as $oidRaw) {
         $oid = (int)$oidRaw;
@@ -185,7 +220,7 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
         if ($oid <= 0 || $offerIblockId <= 0) {
             continue;
         }
-        foreach (['WIDTH', 'HEIGHT', 'PROP_001'] as $code) {
+        foreach ($codesToFetch as $code) {
             $rsProp = \CIBlockElement::GetProperty(
                 $offerIblockId,
                 $oid,
@@ -197,8 +232,16 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                 if ($val === null || $val === '') {
                     continue;
                 }
+                if ($code === 'ARTNUMBER') {
+                    $offerPropsById[$oid][$code] = [
+                        'label' => (string)($row['NAME'] ?: $code),
+                        'value' => (string)$val,
+                    ];
+                    continue;
+                }
+                $label = $specNameOverrides[$code] ?? (string)($row['NAME'] ?: $code);
                 $offerPropsById[$oid][$code] = [
-                    'label' => (string)($row['NAME'] ?: $code),
+                    'label' => $label,
                     'value' => (string)$val,
                 ];
             }
@@ -260,7 +303,12 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
         }
     }
     ?>
+<style>
+    .card-richbox {
+        cursor: auto;
 
+    }
+</style>
     <div class="columns-grid2 block-orderstatus">
         <div class="columns-grid2__content">
             <div class="columns-grid2__content-inner">
@@ -450,6 +498,9 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                                         if ($value === '' || $name === '') {
                                             continue;
                                         }
+                                        if (strtoupper($code) === 'ARTNUMBER') {
+                                            continue;
+                                        }
                                         $key = $code !== '' ? $code : $name;
                                         $specsByCode[$key] = ['label' => $name, 'value' => $value];
                                     }
@@ -459,10 +510,30 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                                 $offerId = (int)$productId;
                                 if ($offerId > 0 && isset($offerPropsById[$offerId])) {
                                     foreach ($offerPropsById[$offerId] as $code => $spec) {
+                                        if (strtoupper((string)$code) === 'ARTNUMBER') {
+                                            continue;
+                                        }
                                         if (!isset($specsByCode[$code])) {
                                             $specsByCode[$code] = $spec;
                                         }
                                     }
+                                }
+
+                                if (isset($productPropsById[$linkedProductId]) && is_array($productPropsById[$linkedProductId])) {
+                                    foreach ($productPropsById[$linkedProductId] as $code => $spec) {
+                                        if (!isset($specsByCode[$code])) {
+                                            $specsByCode[$code] = $spec;
+                                        }
+                                    }
+                                }
+
+                                $articleLabel = (string)(Loc::getMessage('SPOD_ARTICLE_LABEL') ?: 'Артикул:');
+                                $articleText = '';
+                                if ($offerId > 0 && isset($offerPropsById[$offerId]['ARTNUMBER']['value'])) {
+                                    $articleText = (string)$offerPropsById[$offerId]['ARTNUMBER']['value'];
+                                }
+                                if ($articleText === '' && isset($productArtnumberById[$linkedProductId])) {
+                                    $articleText = (string)$productArtnumberById[$linkedProductId];
                                 }
 
                                 // Порядок вывода
@@ -490,6 +561,9 @@ if (!empty($arResult['ERRORS']['FATAL'])) {
                                     </td>
 
                                     <td class="order-products__cell order-products__cell--info">
+                                        <?php if ($articleText !== ''): ?>
+                                            <div class="order-products__article cart-table__article"><?= htmlspecialcharsbx($articleLabel . $articleText) ?></div>
+                                        <?php endif; ?>
                                         <div class="order-products__name">
                                             <a href="<?= htmlspecialcharsbx($basketItem['DETAIL_PAGE_URL']) ?>"><?= htmlspecialcharsbx($basketItem['NAME']) ?></a>
                                         </div>

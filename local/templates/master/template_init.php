@@ -58,6 +58,17 @@ $currentPage = Application::getInstance()->getContext()->getRequest()->getReques
 $request = Application::getInstance()->getContext()->getRequest();
 $searchQuery = trim((string)$request->get('q'));
 
+if ($currentPage === '/produktsiya/' && $request->getQuery('debug_q') !== 'Y' && $request->getQuery('debug_q') !== '1')
+{
+    $qRaw = $request->getQueryList()->getRaw('q');
+
+    // Если ?q= передан, но пустой, то заменяем на подсказку в виде значения.
+    if ($qRaw !== null && is_string($qRaw) && trim($qRaw) === '')
+    {
+        LocalRedirect('/produktsiya/?q=' . urlencode('Введите ваш запрос'));
+    }
+}
+
 if (preg_match('#^/personal/#i', $currentPage) && !$USER->IsAuthorized() && $currentPage != '/personal/basket/'&& $currentPage != '/personal/order/make/')
 {
     LocalRedirect('/auth/');

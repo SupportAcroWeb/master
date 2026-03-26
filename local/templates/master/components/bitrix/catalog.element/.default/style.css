@@ -1026,3 +1026,8 @@ input::-webkit-inner-spin-button { -webkit-appearance: none; }
 .basket-success-popup__name { margin: 0; font-size: inherit; }
 .basket-success-popup__btns { gap: 12px; margin-top: 0; }
 .basket-success-popup__btns .btn { cursor: pointer; }
+
+.specs-list.specs-list_columned.one-columned {
+	columns: 1;
+	width: 50%;
+}

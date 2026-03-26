@@ -86,4 +86,5 @@ $MESS["SPOD_TPL_SUMOF"] = "total";
 $MESS["SPOD_TPL_TWO_GOODS"] = "product";
 $MESS["SPOD_USER_INFORMATION"] = "User information";
 $MESS["SPOD_YES"] = "Yes";
+$MESS["SPOD_ARTICLE_LABEL"] = "Article:";
 ?>

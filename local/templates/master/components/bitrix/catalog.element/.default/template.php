@@ -1178,9 +1178,9 @@ if (is_array($advantagesProperty)) {
                 <h2 class="title6">Характеристики</h2>
                 <div class="specs-list-wrapper">
                     <?php if (!empty($arResult['DISPLAY_PROPERTIES'])): ?>
-                        <ul class="specs-list specs-list_columned">
+                        <ul class="specs-list specs-list_columned<?= (is_array($arResult['DISPLAY_PROPERTIES']) && count($arResult['DISPLAY_PROPERTIES']) < 10 ) ? ' one-columned' : '' ?>">
                             <?php foreach ($arResult['DISPLAY_PROPERTIES'] as $code => $property): ?>
-                                <?php if (in_array((string)$code, ['COLOR', 'LOCK_TYPE'], true)) { continue; } ?>
+                                <?php // if (in_array((string)$code, ['COLOR', 'LOCK_TYPE'], true)) { continue; } ?>
                                 <li class="specs-list__row">
                                     <div class="specs-list__key"><?= $property['NAME'] ?></div>
                                     <div class="specs-list__value">

@@ -160,8 +160,8 @@ if ($arResult['SHOW_SMS_FIELD'] === true) {
                     value="<?= htmlspecialcharsbx($arResult['VALUES']['PERSONAL_PHONE']) ?>"
                     required
                 >
-                <label class="form-group1__label form-group1__label_hidden" for="register_phone_top">
-                    Номер телефона
+                <label class="form-group1__label" for="register_email_top">
+                    Номер телефона <span class="req">*</span>
                 </label> 
             </div>
         </div>
@@ -257,10 +257,27 @@ if ($arResult['SHOW_SMS_FIELD'] === true) {
         <?php endif ?>
 
         <div class="form-grid1__row form-grid1__btns">
-            <p class="form-grid1__policy_link">
-                Нажав на кнопку «Зарегистрироваться», соглашаюсь на
-                <a href="/privacy-policy/">обработку персональных данных</a>
-            </p>
+            <?php
+            $agreementSubmitEventName = 'register_submit';
+            ?>
+            <?php $APPLICATION->IncludeComponent(
+                'bitrix:main.userconsent.request',
+                '',
+                [
+                    'ID' => 2,
+                    'IS_INSERTED' => 'Y',
+                    'AUTO_SAVE' => 'Y',
+                    'IS_CHECKED' => 'N',
+                    'IS_LOADED' => 'Y',
+                    'INPUT_NAME' => 'agreement',
+                    'SUBMIT_EVENT_NAME' => $agreementSubmitEventName,
+                    'REPLACE' => [
+                        'button_caption' => GetMessage('AUTH_REGISTER'),
+                    ],
+                ],
+                null,
+                ['HIDE_ICONS' => 'Y']
+            ); ?>
             <button
                 class="btn btn_small btn_black btn_wide form-grid1__btns_m"
                 type="submit"
