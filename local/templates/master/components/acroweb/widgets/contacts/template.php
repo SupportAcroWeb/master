@@ -17,6 +17,7 @@ use Acroweb\Mage\Settings\TemplateSettings;
 $settings = TemplateSettings::getInstance();
 $shopAdr = $settings->getSettingValue('shopAdr');
 $shopOfName = $settings->getSettingValue('shopOfName');
+$siteName = $settings->getSettingValue('siteName');
 $phoneList = $settings->getSettingValue('siteTelephone');
 $emailList = $settings->getSettingValue('siteEmail');
 $shopLocationLatitude = $settings->getSettingValue('shopLocationLatitude');
@@ -30,8 +31,8 @@ $shopAdrDisplay = is_array($shopAdr) ? ($shopAdr[0] ?? '') : (string)$shopAdr;
     <div id="map1" class="contact-cart__map" style="position:absolute;top:0;left:0;right:0;width:100%;height:520px;"></div>
     <div class="container">
         <div class="contacts-card">
-            <?php if (!empty($shopOfName)): ?>
-            <p class="contacts-card__name"><?= htmlspecialcharsbx($shopOfName) ?></p>
+            <?php if (!empty($siteName)): ?>
+            <p class="contacts-card__name"><?= htmlspecialcharsbx($siteName) ?></p>
             <?php endif; ?>
             <?php if (!empty($shopAdrDisplay)): ?>
             <p class="contacts-card__title">Адрес</p>

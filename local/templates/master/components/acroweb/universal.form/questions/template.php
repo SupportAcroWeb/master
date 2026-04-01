@@ -43,13 +43,13 @@ $this->setFrameMode(true);
                         <label class="form-group1__label" for="<?= $question['INPUT_ID'] ?>"><?= htmlspecialcharsbx($question['TITLE']) ?></label>
                     <?php elseif ($question['SID'] === 'PHONE'): ?>
                         <input id="<?= $question['INPUT_ID'] ?>"
-                               class="field-input3 form-group1__field <?= $question['EXTRA_CLASS'] ?>"
+                               class="field-input1 form-group1__field <?= $question['EXTRA_CLASS'] ?>"
                                type="tel"
                                name="<?= $question['INPUT_NAME'] ?>"
                                placeholder=" "
                                <?= $question['EXTRA_ATTRS'] ?>
                                <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>>
-                        <label class="form-group1__label" for="<?= $question['INPUT_ID'] ?>"><b>+7 </b>(999)-99-99</label>
+                        <label class="form-group1__label" for="<?= $question['INPUT_ID'] ?>">Телефон</label>
                     <?php else: ?>
                         <input id="<?= $question['INPUT_ID'] ?>"
                                class="field-input1 form-group1__field <?= $question['EXTRA_CLASS'] ?>"

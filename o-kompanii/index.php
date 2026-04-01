@@ -1,6 +1,8 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("«Люк Мастер.РФ» — российский производитель ревизионных люков, которому доверяют крупные строительные компании и архитектурно-проектные бюро по всей стране.");
+
+use Acroweb\Mage\Helpers\TemplateHelper;
 ?>
     <section class="company-intro">
         <div class="container">
@@ -74,58 +76,5 @@ $APPLICATION->SetTitle("«Люк Мастер.РФ» — российский п
             ),
             false
     ); ?>
-    <section class="contact-form">
-        <div class="container">
-            <div class="block-form">
-                <form class="container-grid1__inner">
-                    <h2 class="title2 title">Остались вопросы?</h2>
-                    <p class="desk">Оставьте заявку и наш менеджер свяжется с Вами в ближайшее время!</p>
-
-                    <div class="form-grid1">
-                        <div class="form-grid1__row">
-                            <p class="form-group1__title">ФИО <span class="req">*</span></p>
-                            <div class="form-group1">
-                                <input id="name" class="field-input1 form-group1__field" type="text" placeholder="" required="">
-                                <label class="form-group1__label" for="name">Введите ФИО</label>
-                            </div>
-                        </div>
-
-                        <div class="form-grid1__row">
-                            <p class="form-group1__title">Телефон <span class="req">*</span></p>
-                            <div class="form-group1">
-                                <input id="tel" class="field-input3 form-group1__field" type="tel" placeholder=" " required="">
-                                <label class="form-group1__label" for="tel">
-                                    <b>+7 </b>(999)-99-99</label>
-                            </div>
-                        </div>
-
-                        <div class="form-grid1__row">
-                            <label class="checkbox1">
-                                <input type="checkbox" class="checkbox1__input">
-                                <span class="checkbox1__box">
-												<svg width="14" height="14" aria-hidden="true" class="checkbox1__icon">
-													<use xlink:href="/local/templates/master/img/sprite.svg#chevron2"></use>
-												</svg>
-											</span>
-                                <p>Даю согласие на обработку своих <a href="#">персональных данных</a>
-                                </p>
-                            </label>
-                        </div>
-
-                    </div>
-
-                    <div class="btn-form">
-                        <button type="submit" class="btn btn_arr btn_primary btn_big">
-                            <span>Отправить</span>
-                            <svg width="14" height="14" aria-hidden="true">
-                                <use xlink:href="/local/templates/master/img/sprite.svg#arrow1"></use>
-                            </svg>
-                        </button>
-                    </div>
-                </form>
-
-                <div class="block-form__r" style="background-image: url('/local/templates/master/img/contacts.jpg');"></div>
-            </div>
-        </div>
-    </section>
+<? TemplateHelper::includePartial('block_questions'); ?>
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

@@ -9403,3 +9403,7 @@ td.target .table-variants__item {
 .catalog-detail__title + .table-specs1-wrapper {
   margin-top: 10px;
 }
+
+.header__btn-user-wrap.menu .menu__sub {
+  left: -73px;
+}
