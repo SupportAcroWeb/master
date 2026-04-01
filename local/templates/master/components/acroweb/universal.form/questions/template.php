@@ -48,7 +48,7 @@ $this->setFrameMode(true);
                                name="<?= $question['INPUT_NAME'] ?>"
                                placeholder="Телефон"
                                <?= $question['EXTRA_ATTRS'] ?>
-                               <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>> 
+                               <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>>
                     <?php else: ?>
                         <input id="<?= $question['INPUT_ID'] ?>"
                                class="field-input2 form-group1__field <?= $question['EXTRA_CLASS'] ?>"

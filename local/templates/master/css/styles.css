@@ -9407,3 +9407,7 @@ td.target .table-variants__item {
 .header__btn-user-wrap.menu .menu__sub {
   left: -73px;
 }
+
+.modal-notification .textblock1 {
+  margin: 20px 0;
+}
