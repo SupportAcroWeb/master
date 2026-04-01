@@ -43,22 +43,20 @@ $this->setFrameMode(true);
                         <label class="form-group1__label" for="<?= $question['INPUT_ID'] ?>"><?= htmlspecialcharsbx($question['TITLE']) ?></label>
                     <?php elseif ($question['SID'] === 'PHONE'): ?>
                         <input id="<?= $question['INPUT_ID'] ?>"
-                               class="field-input1 form-group1__field <?= $question['EXTRA_CLASS'] ?>"
+                               class="field-input2 form-group1__field <?= $question['EXTRA_CLASS'] ?>"
                                type="tel"
                                name="<?= $question['INPUT_NAME'] ?>"
-                               placeholder=" "
+                               placeholder="Телефон"
                                <?= $question['EXTRA_ATTRS'] ?>
-                               <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>>
-                        <label class="form-group1__label" for="<?= $question['INPUT_ID'] ?>">Телефон</label>
+                               <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>> 
                     <?php else: ?>
                         <input id="<?= $question['INPUT_ID'] ?>"
-                               class="field-input1 form-group1__field <?= $question['EXTRA_CLASS'] ?>"
+                               class="field-input2 form-group1__field <?= $question['EXTRA_CLASS'] ?>"
                                type="text"
                                name="<?= $question['INPUT_NAME'] ?>"
-                               placeholder=""
+                               placeholder="Введите ФИО"
                                <?= $question['EXTRA_ATTRS'] ?>
                                <?= $question['REQUIRED'] === 'Y' ? 'required' : '' ?>>
-                        <label class="form-group1__label" for="<?= $question['INPUT_ID'] ?>"><?= $question['SID'] === 'NAME' ? 'Введите ФИО' : htmlspecialcharsbx($question['TITLE']) ?></label>
                     <?php endif; ?>
                 </div>
             </div>
