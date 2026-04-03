@@ -12,3 +12,6 @@
 *.xml
 *.log
 .htaccess
+BITRIX_OPTION_CASE_FIX.md
+robots.txt
+*.restore

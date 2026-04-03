@@ -102,23 +102,38 @@ class TemplateSettings
     }
 
     /**
-     * /**
-     * Get a specific setting by key.
+     * Получить значение настройки по ключу.
+     * Учитывает, что Bitrix может хранить ключи в нижнем регистре,
+     * хотя в конфиге и коде они используются в camelCase.
      *
-     * @param string $key The setting key
-     * @param mixed $default Default value if the setting is not found
+     * @param string $key Ключ настройки
+     * @param mixed $default Значение по умолчанию
      * @return mixed
      */
     public function getSetting(string $key, $default = null): mixed
     {
         if ($this->isUserSettingsEnabled()) {
             $userSettings = $this->getUserSettings();
-            if (isset($userSettings[$key])) {
+            if (array_key_exists($key, $userSettings)) {
                 return $userSettings[$key];
+            }
+
+            $lowerKey = strtolower($key);
+            if (array_key_exists($lowerKey, $userSettings)) {
+                return $userSettings[$lowerKey];
             }
         }
 
-        return $this->settings[$key] ?? SettingsConfig::getDefaultValue($key) ?? $default;
+        if (array_key_exists($key, $this->settings)) {
+            return $this->settings[$key];
+        }
+
+        $lowerKey = strtolower($key);
+        if (array_key_exists($lowerKey, $this->settings)) {
+            return $this->settings[$lowerKey];
+        }
+
+        return SettingsConfig::getDefaultValue($key) ?? $default;
     }
 
     public function setUserSetting(string $key, $value): void
